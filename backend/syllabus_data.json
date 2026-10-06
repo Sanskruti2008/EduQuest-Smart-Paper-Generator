@@ -1,0 +1,763 @@
+{
+  "subjects": [
+    {
+      "subject_id": "CS_DBMS",
+      "subject_name": "Database Management Systems",
+      "branch": "CS",
+      "semester": 3,
+      "total_credits": 4,
+      "total_hours": 60,
+      "exam_weightage": {
+        "theory": 70,
+        "practical": 30
+      },
+      "chapters": [
+        {
+          "chapter_number": 1,
+          "chapter_name": "Introduction to Database Systems",
+          "chapter_code": "DBMS_CH01",
+          "hours_allocated": 6,
+          "weightage_percentage": 10,
+          "learning_objectives": [
+            "Understand the basic concepts of database systems",
+            "Differentiate between file systems and database systems",
+            "Identify advantages and applications of DBMS",
+            "Explain the architecture of DBMS"
+          ],
+          "topics": [
+            {
+              "topic_id": "DBMS_CH01_T01",
+              "topic_name": "Database System Concepts",
+              "subtopics": [
+                "Data vs Information",
+                "Database Definition",
+                "Database System Architecture",
+                "Data Independence (Logical & Physical)"
+              ],
+              "rua_mapping": {
+                "remember": {
+                  "depth": "High",
+                  "concepts": ["Define database", "List DBMS components", "Recall data independence types"],
+                  "exam_priority": "High",
+                  "typical_marks": "2-3",
+                  "question_types": ["MCQ", "Fill in blanks", "Define"]
+                },
+                "understand": {
+                  "depth": "High",
+                  "concepts": ["Explain database architecture", "Describe data independence", "Interpret three-schema architecture"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "4-5",
+                  "question_types": ["Short answer", "Explain", "Describe"]
+                },
+                "apply": {
+                  "depth": "Medium",
+                  "concepts": ["Identify suitable database scenarios", "Apply data independence in design"],
+                  "exam_priority": "Medium",
+                  "typical_marks": "6-7",
+                  "question_types": ["Case study", "Scenario-based"]
+                }
+              },
+              "focus_type": "Theoretical"
+            },
+            {
+              "topic_id": "DBMS_CH01_T02",
+              "topic_name": "DBMS vs File System",
+              "subtopics": [
+                "Limitations of File Systems",
+                "Advantages of DBMS",
+                "DBMS Features (ACID, Concurrency, Security)",
+                "Applications of DBMS"
+              ],
+              "rua_mapping": {
+                "remember": {
+                  "depth": "High",
+                  "concepts": ["List file system limitations", "Recall DBMS advantages", "Name ACID properties"],
+                  "exam_priority": "High",
+                  "typical_marks": "2-3",
+                  "question_types": ["List", "Name", "State"]
+                },
+                "understand": {
+                  "depth": "Very High",
+                  "concepts": ["Compare DBMS and file systems", "Explain ACID properties", "Discuss DBMS applications"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "5-6",
+                  "question_types": ["Compare", "Explain", "Discuss"]
+                },
+                "apply": {
+                  "depth": "High",
+                  "concepts": ["Choose appropriate system for given scenario", "Apply ACID properties in transactions"],
+                  "exam_priority": "High",
+                  "typical_marks": "7-8",
+                  "question_types": ["Problem-solving", "Case study"]
+                }
+              },
+              "focus_type": "Theoretical with Application"
+            }
+          ],
+          "rua_summary": {
+            "remember_coverage": "Fully Covered",
+            "understand_coverage": "Fully Covered",
+            "apply_coverage": "Fully Covered",
+            "overall_compliance": "Excellent",
+            "recommendations": [
+              "Focus on comparing DBMS vs File Systems - frequently asked",
+              "Practice defining data independence with examples",
+              "Understand ACID properties thoroughly - high weightage topic"
+            ]
+          }
+        },
+        {
+          "chapter_number": 2,
+          "chapter_name": "Data Models and ER Modeling",
+          "chapter_code": "DBMS_CH02",
+          "hours_allocated": 10,
+          "weightage_percentage": 20,
+          "learning_objectives": [
+            "Understand different types of data models",
+            "Design ER diagrams for real-world scenarios",
+            "Apply constraints and relationships in database design",
+            "Convert ER diagrams to relational schemas"
+          ],
+          "topics": [
+            {
+              "topic_id": "DBMS_CH02_T01",
+              "topic_name": "Data Models",
+              "subtopics": [
+                "Hierarchical Model",
+                "Network Model",
+                "Relational Model",
+                "Object-Oriented Model"
+              ],
+              "rua_mapping": {
+                "remember": {
+                  "depth": "High",
+                  "concepts": ["Define data models", "List types of data models", "Recall model characteristics"],
+                  "exam_priority": "Medium",
+                  "typical_marks": "2-3",
+                  "question_types": ["Define", "List", "Name"]
+                },
+                "understand": {
+                  "depth": "High",
+                  "concepts": ["Explain each data model", "Differentiate between models", "Describe advantages and disadvantages"],
+                  "exam_priority": "High",
+                  "typical_marks": "5-6",
+                  "question_types": ["Explain", "Compare", "Differentiate"]
+                },
+                "apply": {
+                  "depth": "Medium",
+                  "concepts": ["Select appropriate model for scenario", "Justify model selection"],
+                  "exam_priority": "Medium",
+                  "typical_marks": "6-7",
+                  "question_types": ["Justify", "Select"]
+                }
+              },
+              "focus_type": "Theoretical"
+            },
+            {
+              "topic_id": "DBMS_CH02_T02",
+              "topic_name": "Entity-Relationship (ER) Model",
+              "subtopics": [
+                "Entities, Attributes, and Relationships",
+                "Cardinality and Participation Constraints",
+                "Weak and Strong Entities",
+                "Generalization and Specialization",
+                "Aggregation",
+                "ER Diagram Notation"
+              ],
+              "rua_mapping": {
+                "remember": {
+                  "depth": "Very High",
+                  "concepts": ["Define ER components", "Recall ER symbols", "List relationship types"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "2-4",
+                  "question_types": ["Define", "List", "Draw symbols"]
+                },
+                "understand": {
+                  "depth": "Very High",
+                  "concepts": ["Explain cardinality", "Describe weak entities", "Interpret ER diagrams"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "5-7",
+                  "question_types": ["Explain", "Describe", "Interpret"]
+                },
+                "apply": {
+                  "depth": "Very High",
+                  "concepts": ["Design ER diagrams from requirements", "Apply constraints correctly", "Convert scenarios to ER models"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "8-10",
+                  "question_types": ["Design", "Draw", "Create", "Problem-solving"]
+                }
+              },
+              "focus_type": "Practical with Theory"
+            },
+            {
+              "topic_id": "DBMS_CH02_T03",
+              "topic_name": "ER to Relational Mapping",
+              "subtopics": [
+                "Mapping Strong Entities",
+                "Mapping Weak Entities",
+                "Mapping Relationships (1:1, 1:N, M:N)",
+                "Mapping Multivalued Attributes",
+                "Mapping Generalization/Specialization"
+              ],
+              "rua_mapping": {
+                "remember": {
+                  "depth": "High",
+                  "concepts": ["Recall mapping rules", "List steps for conversion", "Remember key constraints"],
+                  "exam_priority": "High",
+                  "typical_marks": "3-4",
+                  "question_types": ["List", "State rules"]
+                },
+                "understand": {
+                  "depth": "Very High",
+                  "concepts": ["Explain mapping process", "Describe different mapping strategies", "Clarify why certain rules apply"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "5-6",
+                  "question_types": ["Explain", "Describe", "Justify"]
+                },
+                "apply": {
+                  "depth": "Very High",
+                  "concepts": ["Convert ER to tables", "Apply mapping rules to complex diagrams", "Create relational schemas"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "8-10",
+                  "question_types": ["Convert", "Map", "Transform", "Problem-solving"]
+                }
+              },
+              "focus_type": "Highly Practical"
+            }
+          ],
+          "rua_summary": {
+            "remember_coverage": "Fully Covered",
+            "understand_coverage": "Fully Covered",
+            "apply_coverage": "Fully Covered",
+            "overall_compliance": "Excellent",
+            "recommendations": [
+              "Practice ER diagram design extensively - very high weightage",
+              "Master ER to relational mapping - frequently tested",
+              "Work on complex scenarios with multiple entities and relationships",
+              "Focus on cardinality and participation constraints"
+            ]
+          }
+        },
+        {
+          "chapter_number": 3,
+          "chapter_name": "Relational Model and SQL",
+          "chapter_code": "DBMS_CH03",
+          "hours_allocated": 12,
+          "weightage_percentage": 25,
+          "learning_objectives": [
+            "Understand relational algebra and calculus",
+            "Master SQL DDL, DML, and DCL commands",
+            "Write complex queries using joins, subqueries, and aggregations",
+            "Apply constraints and maintain data integrity"
+          ],
+          "topics": [
+            {
+              "topic_id": "DBMS_CH03_T01",
+              "topic_name": "Relational Model Concepts",
+              "subtopics": [
+                "Relations, Tuples, Attributes",
+                "Domain, Cardinality, Degree",
+                "Keys (Primary, Foreign, Candidate, Super)",
+                "Integrity Constraints (Entity, Referential)"
+              ],
+              "rua_mapping": {
+                "remember": {
+                  "depth": "Very High",
+                  "concepts": ["Define relational terms", "List key types", "Recall constraints"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "2-4",
+                  "question_types": ["Define", "List", "Identify"]
+                },
+                "understand": {
+                  "depth": "Very High",
+                  "concepts": ["Explain key differences", "Describe integrity constraints", "Interpret relational schemas"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "5-7",
+                  "question_types": ["Explain", "Differentiate", "Describe"]
+                },
+                "apply": {
+                  "depth": "Very High",
+                  "concepts": ["Identify keys in relations", "Apply constraints to schemas", "Design relations with proper keys"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "7-8",
+                  "question_types": ["Identify", "Apply", "Design"]
+                }
+              },
+              "focus_type": "Theoretical with Practice"
+            },
+            {
+              "topic_id": "DBMS_CH03_T02",
+              "topic_name": "SQL - Data Definition Language (DDL)",
+              "subtopics": [
+                "CREATE TABLE",
+                "ALTER TABLE",
+                "DROP TABLE",
+                "TRUNCATE",
+                "Data Types and Constraints"
+              ],
+              "rua_mapping": {
+                "remember": {
+                  "depth": "High",
+                  "concepts": ["Recall DDL commands", "List data types", "Remember constraint syntax"],
+                  "exam_priority": "High",
+                  "typical_marks": "2-3",
+                  "question_types": ["List", "State syntax"]
+                },
+                "understand": {
+                  "depth": "Very High",
+                  "concepts": ["Explain DDL operations", "Describe constraint purposes", "Interpret table structures"],
+                  "exam_priority": "High",
+                  "typical_marks": "4-5",
+                  "question_types": ["Explain", "Describe"]
+                },
+                "apply": {
+                  "depth": "Very High",
+                  "concepts": ["Write CREATE statements", "Apply constraints", "Modify table structures", "Design database schemas"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "8-10",
+                  "question_types": ["Write queries", "Create tables", "Problem-solving"]
+                }
+              },
+              "focus_type": "Highly Practical"
+            },
+            {
+              "topic_id": "DBMS_CH03_T03",
+              "topic_name": "SQL - Data Manipulation Language (DML)",
+              "subtopics": [
+                "SELECT (Basic and Advanced)",
+                "INSERT, UPDATE, DELETE",
+                "WHERE Clause and Conditions",
+                "Aggregate Functions (COUNT, SUM, AVG, MAX, MIN)",
+                "GROUP BY and HAVING",
+                "ORDER BY",
+                "JOINS (Inner, Outer, Cross, Self)",
+                "Subqueries (Nested, Correlated)",
+                "Set Operations (UNION, INTERSECT, EXCEPT)"
+              ],
+              "rua_mapping": {
+                "remember": {
+                  "depth": "Very High",
+                  "concepts": ["Recall SQL syntax", "List aggregate functions", "Remember join types"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "2-4",
+                  "question_types": ["State syntax", "List functions"]
+                },
+                "understand": {
+                  "depth": "Very High",
+                  "concepts": ["Explain query execution", "Describe join differences", "Interpret query results"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "5-6",
+                  "question_types": ["Explain", "Describe", "Compare"]
+                },
+                "apply": {
+                  "depth": "Very High",
+                  "concepts": ["Write complex SELECT queries", "Use joins effectively", "Apply aggregate functions", "Solve problems with subqueries"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "8-15",
+                  "question_types": ["Write queries", "Solve problems", "Complex problem-solving"]
+                }
+              },
+              "focus_type": "Highly Practical - Maximum Weightage"
+            }
+          ],
+          "rua_summary": {
+            "remember_coverage": "Fully Covered",
+            "understand_coverage": "Fully Covered",
+            "apply_coverage": "Fully Covered",
+            "overall_compliance": "Excellent",
+            "recommendations": [
+              "SQL queries have MAXIMUM WEIGHTAGE - practice extensively",
+              "Master all types of JOINs - very frequently tested",
+              "Practice nested and correlated subqueries",
+              "Focus on GROUP BY with HAVING - common exam pattern",
+              "Work on complex multi-table queries",
+              "Understand execution order: FROM -> WHERE -> GROUP BY -> HAVING -> SELECT -> ORDER BY"
+            ]
+          }
+        },
+        {
+          "chapter_number": 4,
+          "chapter_name": "Normalization",
+          "chapter_code": "DBMS_CH04",
+          "hours_allocated": 8,
+          "weightage_percentage": 15,
+          "learning_objectives": [
+            "Understand functional dependencies",
+            "Apply normalization rules to eliminate redundancy",
+            "Decompose relations into higher normal forms",
+            "Identify and resolve anomalies"
+          ],
+          "topics": [
+            {
+              "topic_id": "DBMS_CH04_T01",
+              "topic_name": "Functional Dependencies",
+              "subtopics": [
+                "Definition and Notation",
+                "Trivial and Non-trivial FDs",
+                "Armstrong's Axioms",
+                "Closure of Attributes",
+                "Candidate Key Finding"
+              ],
+              "rua_mapping": {
+                "remember": {
+                  "depth": "Very High",
+                  "concepts": ["Define functional dependency", "List Armstrong's axioms", "Recall FD notation"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "2-3",
+                  "question_types": ["Define", "State", "List"]
+                },
+                "understand": {
+                  "depth": "Very High",
+                  "concepts": ["Explain FD concepts", "Describe closure computation", "Interpret FD diagrams"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "5-6",
+                  "question_types": ["Explain", "Describe", "Illustrate"]
+                },
+                "apply": {
+                  "depth": "Very High",
+                  "concepts": ["Find attribute closure", "Determine candidate keys", "Apply Armstrong's axioms"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "8-10",
+                  "question_types": ["Find", "Compute", "Determine", "Problem-solving"]
+                }
+              },
+              "focus_type": "Theoretical with Heavy Practice"
+            },
+            {
+              "topic_id": "DBMS_CH04_T02",
+              "topic_name": "Normal Forms",
+              "subtopics": [
+                "1NF (First Normal Form)",
+                "2NF (Second Normal Form)",
+                "3NF (Third Normal Form)",
+                "BCNF (Boyce-Codd Normal Form)",
+                "Denormalization (when and why)"
+              ],
+              "rua_mapping": {
+                "remember": {
+                  "depth": "Very High",
+                  "concepts": ["Define each normal form", "List normal form conditions", "Recall normalization rules"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "3-4",
+                  "question_types": ["Define", "State conditions"]
+                },
+                "understand": {
+                  "depth": "Very High",
+                  "concepts": ["Explain each normal form", "Differentiate between normal forms", "Describe decomposition process"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "5-7",
+                  "question_types": ["Explain", "Compare", "Describe"]
+                },
+                "apply": {
+                  "depth": "Very High",
+                  "concepts": ["Normalize relations to 3NF/BCNF", "Decompose tables", "Identify violations", "Check lossless/dependency preservation"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "10-15",
+                  "question_types": ["Normalize", "Decompose", "Complex problems"]
+                }
+              },
+              "focus_type": "Highly Practical"
+            },
+            {
+              "topic_id": "DBMS_CH04_T03",
+              "topic_name": "Anomalies and Redundancy",
+              "subtopics": [
+                "Insertion Anomaly",
+                "Deletion Anomaly",
+                "Update Anomaly",
+                "Data Redundancy Issues"
+              ],
+              "rua_mapping": {
+                "remember": {
+                  "depth": "High",
+                  "concepts": ["List anomaly types", "Recall redundancy problems"],
+                  "exam_priority": "Medium",
+                  "typical_marks": "2",
+                  "question_types": ["List", "Name"]
+                },
+                "understand": {
+                  "depth": "Very High",
+                  "concepts": ["Explain each anomaly with examples", "Describe how normalization resolves anomalies"],
+                  "exam_priority": "High",
+                  "typical_marks": "4-5",
+                  "question_types": ["Explain with examples", "Describe"]
+                },
+                "apply": {
+                  "depth": "High",
+                  "concepts": ["Identify anomalies in relations", "Resolve using normalization"],
+                  "exam_priority": "High",
+                  "typical_marks": "7-8",
+                  "question_types": ["Identify", "Resolve"]
+                }
+              },
+              "focus_type": "Theoretical with Application"
+            }
+          ],
+          "rua_summary": {
+            "remember_coverage": "Fully Covered",
+            "understand_coverage": "Fully Covered",
+            "apply_coverage": "Fully Covered",
+            "overall_compliance": "Excellent",
+            "recommendations": [
+              "Normalization is HIGH WEIGHTAGE - practice decomposition extensively",
+              "Master candidate key finding - prerequisite for normalization",
+              "Practice full normalization problems from unnormalized to BCNF",
+              "Focus on checking lossless join and dependency preservation",
+              "Understand WHY each normal form exists - helps in problem-solving"
+            ]
+          }
+        },
+        {
+          "chapter_number": 5,
+          "chapter_name": "Transaction Management",
+          "chapter_code": "DBMS_CH05",
+          "hours_allocated": 8,
+          "weightage_percentage": 15,
+          "learning_objectives": [
+            "Understand transaction properties and states",
+            "Apply concurrency control techniques",
+            "Implement recovery mechanisms",
+            "Ensure ACID properties in transactions"
+          ],
+          "topics": [
+            {
+              "topic_id": "DBMS_CH05_T01",
+              "topic_name": "Transaction Concepts",
+              "subtopics": [
+                "Transaction Definition",
+                "ACID Properties",
+                "Transaction States",
+                "Transaction Operations (Read, Write, Commit, Abort)"
+              ],
+              "rua_mapping": {
+                "remember": {
+                  "depth": "Very High",
+                  "concepts": ["Define transaction", "List ACID properties", "Recall transaction states"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "2-4",
+                  "question_types": ["Define", "List", "State"]
+                },
+                "understand": {
+                  "depth": "Very High",
+                  "concepts": ["Explain ACID properties with examples", "Describe transaction lifecycle", "Interpret state diagrams"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "5-7",
+                  "question_types": ["Explain with examples", "Describe", "Draw diagrams"]
+                },
+                "apply": {
+                  "depth": "Medium",
+                  "concepts": ["Apply ACID properties in scenarios", "Trace transaction execution"],
+                  "exam_priority": "Medium",
+                  "typical_marks": "6-7",
+                  "question_types": ["Apply", "Trace"]
+                }
+              },
+              "focus_type": "Theoretical with Examples"
+            },
+            {
+              "topic_id": "DBMS_CH05_T02",
+              "topic_name": "Concurrency Control",
+              "subtopics": [
+                "Need for Concurrency Control",
+                "Locking Protocols (2PL, Strict 2PL)",
+                "Deadlock Detection and Prevention",
+                "Timestamp Ordering",
+                "Serializability",
+                "Conflict and View Serializability"
+              ],
+              "rua_mapping": {
+                "remember": {
+                  "depth": "High",
+                  "concepts": ["List concurrency problems", "Recall locking protocols", "Name serializability types"],
+                  "exam_priority": "High",
+                  "typical_marks": "2-3",
+                  "question_types": ["List", "Name", "State"]
+                },
+                "understand": {
+                  "depth": "Very High",
+                  "concepts": ["Explain locking mechanisms", "Describe deadlock scenarios", "Clarify serializability concepts"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "5-7",
+                  "question_types": ["Explain", "Describe", "Compare"]
+                },
+                "apply": {
+                  "depth": "Very High",
+                  "concepts": ["Check serializability of schedules", "Apply locking protocols", "Detect deadlocks", "Create precedence graphs"],
+                  "exam_priority": "Very High",
+                  "typical_marks": "8-10",
+                  "question_types": ["Check", "Apply protocols", "Draw graphs", "Problem-solving"]
+                }
+              },
+              "focus_type": "Theoretical with Heavy Practice"
+            },
+            {
+              "topic_id": "DBMS_CH05_T03",
+              "topic_name": "Recovery Techniques",
+              "subtopics": [
+                "Log-based Recovery",
+                "Checkpoints",
+                "Recovery with Concurrent Transactions",
+                "Shadow Paging"
+              ],
+              "rua_mapping": {
+                "remember": {
+                  "depth": "Medium",
+                  "concepts": ["List recovery methods", "Recall checkpoint purpose"],
+                  "exam_priority": "Medium",
+                  "typical_marks": "2-3",
+                  "question_types": ["List", "State"]
+                },
+                "understand": {
+                  "depth": "High",
+                  "concepts": ["Explain log-based recovery", "Describe checkpoint mechanism", "Interpret recovery scenarios"],
+                  "exam_priority": "High",
+                  "typical_marks": "5-6",
+                  "question_types": ["Explain", "Describe"]
+                },
+                "apply": {
+                  "depth": "Medium",
+                  "concepts": ["Apply recovery procedures", "Use logs for recovery"],
+                  "exam_priority": "Medium",
+                  "typical_marks": "6-7",
+                  "question_types": ["Apply", "Demonstrate"]
+                }
+              },
+              "focus_type": "Theoretical with Some Practice"
+            }
+          ],
+          "rua_summary": {
+            "remember_coverage": "Fully Covered",
+            "understand_coverage": "Fully Covered",
+            "apply_coverage": "Fully Covered",
+            "overall_compliance": "Excellent",
+            "recommendations": [
+              "ACID properties explanation - very frequently asked",
+              "Serializability testing is HIGH PRIORITY - practice precedence graphs",
+              "Master 2PL protocol - common exam topic",
+              "Deadlock detection and prevention - moderate importance",
+              "Focus on practical problems for concurrency control"
+            ]
+          }
+        },
+        {
+          "chapter_number": 6,
+          "chapter_name": "Advanced Topics",
+          "chapter_code": "DBMS_CH06",
+          "hours_allocated": 6,
+          "weightage_percentage": 10,
+          "learning_objectives": [
+            "Understand indexing and hashing techniques",
+            "Learn about NoSQL databases",
+            "Explore distributed databases",
+            "Study emerging database technologies"
+          ],
+          "topics": [
+            {
+              "topic_id": "DBMS_CH06_T01",
+              "topic_name": "Indexing and Hashing",
+              "subtopics": [
+                "Index Types (Primary, Secondary, Clustered)",
+                "B-Tree and B+ Tree Indexing",
+                "Hashing Techniques",
+                "Query Optimization"
+              ],
+              "rua_mapping": {
+                "remember": {
+                  "depth": "Medium",
+                  "concepts": ["List index types", "Recall hashing methods", "Name tree structures"],
+                  "exam_priority": "Medium",
+                  "typical_marks": "2-3",
+                  "question_types": ["List", "Name"]
+                },
+                "understand": {
+                  "depth": "High",
+                  "concepts": ["Explain B+ tree operations", "Describe hashing collision resolution", "Compare indexing methods"],
+                  "exam_priority": "High",
+                  "typical_marks": "5-6",
+                  "question_types": ["Explain", "Compare", "Describe"]
+                },
+                "apply": {
+                  "depth": "Medium",
+                  "concepts": ["Create B+ tree from data", "Apply hashing functions", "Optimize queries using indexes"],
+                  "exam_priority": "Medium",
+                  "typical_marks": "7-8",
+                  "question_types": ["Create", "Apply", "Optimize"]
+                }
+              },
+              "focus_type": "Theoretical with Practice"
+            },
+            {
+              "topic_id": "DBMS_CH06_T02",
+              "topic_name": "NoSQL Databases",
+              "subtopics": [
+                "Introduction to NoSQL",
+                "Types (Document, Key-Value, Column, Graph)",
+                "CAP Theorem",
+                "MongoDB Basics"
+              ],
+              "rua_mapping": {
+                "remember": {
+                  "depth": "Medium",
+                  "concepts": ["Define NoSQL", "List NoSQL types", "State CAP theorem"],
+                  "exam_priority": "Low to Medium",
+                  "typical_marks": "2",
+                  "question_types": ["Define", "List"]
+                },
+                "understand": {
+                  "depth": "Medium",
+                  "concepts": ["Explain NoSQL advantages", "Describe CAP theorem", "Compare SQL vs NoSQL"],
+                  "exam_priority": "Medium",
+                  "typical_marks": "4-5",
+                  "question_types": ["Explain", "Compare"]
+                },
+                "apply": {
+                  "depth": "Low",
+                  "concepts": ["Choose database type for scenario", "Basic MongoDB operations"],
+                  "exam_priority": "Low",
+                  "typical_marks": "5-6",
+                  "question_types": ["Select", "Demonstrate"]
+                }
+              },
+              "focus_type": "Mostly Theoretical"
+            }
+          ],
+          "rua_summary": {
+            "remember_coverage": "Partially Covered",
+            "understand_coverage": "Fully Covered",
+            "apply_coverage": "Partially Covered",
+            "overall_compliance": "Good",
+            "recommendations": [
+              "B+ Tree indexing - moderate importance, may appear in exams",
+              "NoSQL concepts - growing importance but lower exam weightage",
+              "Focus more on earlier chapters - they have higher weightage",
+              "Understand basic concepts, don't go too deep unless syllabus specifies"
+            ]
+          }
+        }
+      ],
+      "overall_rua_analysis": {
+        "remember_distribution": "25%",
+        "understand_distribution": "35%",
+        "apply_distribution": "40%",
+        "total_compliance": "Excellent",
+        "critical_chapters": [
+          "Chapter 2: ER Modeling (20% weightage)",
+          "Chapter 3: SQL (25% weightage - Maximum)",
+          "Chapter 4: Normalization (15% weightage)"
+        ],
+        "exam_strategy": [
+          "SQL queries are mandatory and carry maximum marks - practice extensively",
+          "ER diagram design and normalization are HIGH PRIORITY practical questions",
+          "Theoretical questions mainly from ACID, FDs, and normal form definitions",
+          "Transaction management: Focus on serializability and concurrency problems",
+          "Chapter 6 has lower weightage - study after mastering chapters 1-5"
+        ],
+        "missing_ruas": [],
+        "overlapping_ruas": [
+          "ACID properties appear in both Chapter 1 and Chapter 5 - ensure consistency",
+          "Keys concepts overlap between Chapter 2 (ER) and Chapter 3 (Relational)"
+        ]
+      }
+    }
+  ]
+}

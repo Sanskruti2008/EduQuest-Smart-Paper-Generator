@@ -1,0 +1,11 @@
+﻿chromadb
+sentence-transformers
+numpy
+supabase
+pytest
+pdfplumber
+python-dotenv
+psycopg[binary]
+ortools==9.15.6755
+
+python-docx

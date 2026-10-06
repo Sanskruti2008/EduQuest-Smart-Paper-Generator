@@ -1,0 +1,91 @@
+{
+    "branch": "Computer Technology",
+    "semester": 4,
+    "subject": "Operating System",
+    "subject_code": "232145",
+    "exam_type": "Final Examination",
+    "total_marks": 70,
+    "selected_units": [
+        "Unit-I",
+        "Unit-II",
+        "Unit-III",
+        "Unit-IV",
+        "Unit-V"
+    ],
+    "difficulty_allocation": {
+        "Easy": 20,
+        "Medium": 35,
+        "Hard": 15
+    },
+    "rua_allocation": {
+        "Unit-I": {
+            "R": 2,
+            "U": 8,
+            "A": 4,
+            "Total": 14
+        },
+        "Unit-II": {
+            "R": 4,
+            "U": 4,
+            "A": 6,
+            "Total": 14
+        },
+        "Unit-III": {
+            "R": 2,
+            "U": 6,
+            "A": 8,
+            "Total": 16
+        },
+        "Unit-IV": {
+            "R": 2,
+            "U": 6,
+            "A": 8,
+            "Total": 16
+        },
+        "Unit-V": {
+            "R": 2,
+            "U": 4,
+            "A": 4,
+            "Total": 10
+        }
+    },
+    "co_requirements": [
+        "CO1",
+        "CO2",
+        "CO3",
+        "CO4",
+        "CO5"
+    ],
+    "question_pattern": {
+        "Q1": {
+            "questions_to_generate": 7,
+            "questions_to_attempt": 5,
+            "marks_per_question": 2
+        },
+        "Q2": {
+            "questions_to_generate": 4,
+            "questions_to_attempt": 3,
+            "marks_per_question": 4
+        },
+        "Q3": {
+            "questions_to_generate": 4,
+            "questions_to_attempt": 3,
+            "marks_per_question": 4
+        },
+        "Q4": {
+            "questions_to_generate": 4,
+            "questions_to_attempt": 3,
+            "marks_per_question": 4
+        },
+        "Q5": {
+            "questions_to_generate": 4,
+            "questions_to_attempt": 3,
+            "marks_per_question": 4
+        },
+        "Q6": {
+            "questions_to_generate": 4,
+            "questions_to_attempt": 3,
+            "marks_per_question": 4
+        }
+    }
+}

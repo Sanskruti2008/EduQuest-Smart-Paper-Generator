@@ -1,0 +1,43 @@
+{
+    "Unit-I": {
+        "title": "Basic Syntactical constructs in Java",
+        "R": 2,
+        "U": 6,
+        "A": 4,
+        "Total": 12
+    },
+    "Unit-II": {
+        "title": "Classes, Objects and Inheritance",
+        "R": 4,
+        "U": 6,
+        "A": 8,
+        "Total": 18
+    },
+    "Unit-III": {
+        "title": "Package, Interfaces and Inner Classes",
+        "R": 2,
+        "U": 6,
+        "A": 6,
+        "Total": 14
+    },
+    "Unit-IV": {
+        "title": "Exception Handling and Multithreading",
+        "R": 2,
+        "U": 6,
+        "A": 6,
+        "Total": 14
+    },
+    "Unit-V": {
+        "title": "Managing Input / Output / Files In Java",
+        "R": 2,
+        "U": 4,
+        "A": 6,
+        "Total": 12
+    },
+    "TOTAL": {
+        "R": 12,
+        "U": 28,
+        "A": 30,
+        "Total": 70
+    }
+}

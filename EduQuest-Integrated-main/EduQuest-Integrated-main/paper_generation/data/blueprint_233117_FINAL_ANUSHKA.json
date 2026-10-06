@@ -1,0 +1,121 @@
+{
+    "paper_information": {
+        "branch": "Computer Technology",
+        "semester": 5,
+        "subject": "Advance Java",
+        "subject_code": "233117",
+        "exam_type": "Final Examination",
+        "paper_total_marks": 70.0
+    },
+    "requirements": {
+        "selected_units": [
+            "Unit-I",
+            "Unit-II",
+            "Unit-III",
+            "Unit-IV",
+            "Unit-V"
+        ],
+        "rua_allocation": {
+            "Unit-I": {
+                "R": 2,
+                "U": 6,
+                "A": 6,
+                "Total": 14
+            },
+            "Unit-II": {
+                "R": 6,
+                "U": 8,
+                "A": 8,
+                "Total": 22
+            },
+            "Unit-III": {
+                "R": 6,
+                "U": 8,
+                "A": 8,
+                "Total": 22
+            },
+            "Unit-IV": {
+                "R": 4,
+                "U": 6,
+                "A": 8,
+                "Total": 18
+            },
+            "Unit-V": {
+                "R": 4,
+                "U": 6,
+                "A": 8,
+                "Total": 18
+            }
+        },
+        "difficulty_allocation": {
+            "Easy": 40,
+            "Hard": 28,
+            "Medium": 26
+        },
+        "co_requirements": [
+            "CO1",
+            "CO2",
+            "CO3",
+            "CO4",
+            "CO5"
+        ]
+    },
+    "instructions": [
+        "All Questions are compulsory."
+    ],
+    "question_pattern": {
+        "Q1": {
+            "questions_to_generate": 7,
+            "questions_to_attempt": 5,
+            "marks_per_question": 2,
+            "generated_section_marks": 14,
+            "attempted_section_marks": 10,
+            "title": "Attempt any FIVE"
+        },
+        "Q2": {
+            "questions_to_generate": 4,
+            "questions_to_attempt": 3,
+            "marks_per_question": 4,
+            "generated_section_marks": 16,
+            "attempted_section_marks": 12,
+            "title": "Attempt any THREE"
+        },
+        "Q3": {
+            "questions_to_generate": 4,
+            "questions_to_attempt": 3,
+            "marks_per_question": 4,
+            "generated_section_marks": 16,
+            "attempted_section_marks": 12,
+            "title": "Attempt any THREE"
+        },
+        "Q4": {
+            "questions_to_generate": 4,
+            "questions_to_attempt": 3,
+            "marks_per_question": 4,
+            "generated_section_marks": 16,
+            "attempted_section_marks": 12,
+            "title": "Attempt any THREE"
+        },
+        "Q5": {
+            "questions_to_generate": 4,
+            "questions_to_attempt": 3,
+            "marks_per_question": 4,
+            "generated_section_marks": 16,
+            "attempted_section_marks": 12,
+            "title": "Attempt any THREE"
+        },
+        "Q6": {
+            "questions_to_generate": 4,
+            "questions_to_attempt": 3,
+            "marks_per_question": 4,
+            "generated_section_marks": 16,
+            "attempted_section_marks": 12,
+            "title": "Attempt any THREE"
+        }
+    },
+    "calculated_values": {
+        "total_questions_to_generate": 27,
+        "generated_question_marks": 94,
+        "total_attempted_marks": 70
+    }
+}

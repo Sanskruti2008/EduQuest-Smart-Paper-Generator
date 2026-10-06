@@ -1,0 +1,152 @@
+{
+  "Q1_A": {
+    "question": "Define the following terms with suitable examples: (i) Database (ii) Data Independence (iii) DBMS (iv) Schema",
+    "co": "CO1",
+    "marks": 4
+  },
+  "Q1_B": {
+    "question": "State the ACID properties of transactions and explain any TWO in detail.",
+    "co": "CO2",
+    "marks": 4
+  },
+  "Q1_C": {
+    "question": "List any FOUR advantages of DBMS over File System.",
+    "co": "CO3",
+    "marks": 4
+  },
+  "Q1_D": {
+    "question": "Draw and explain the three-schema architecture of DBMS.",
+    "co": "CO4",
+    "marks": 4
+  },
+  "Q1_E": {
+    "question": "Differentiate between Logical and Physical Data Independence with examples.",
+    "co": "CO1",
+    "marks": 4
+  },
+  "Q2_A": {
+    "question": "Explain the following terms: (i) Entity and Entity Set (ii) Strong Entity and Weak Entity",
+    "co": "CO1",
+    "marks": 4
+  },
+  "Q2_B": {
+    "question": "Compare and contrast the following data models: (i) Hierarchical Model (ii) Network Model (iii) Relational Model",
+    "co": "CO2",
+    "marks": 4
+  },
+  "Q2_C": {
+    "question": "Differentiate between the following with examples: (i) Simple and Composite Attributes (ii) Single-valued and Multi-valued Attributes",
+    "co": "CO3",
+    "marks": 4
+  },
+  "Q2_D": {
+    "question": "Explain cardinality and participation constraints in ER model with suitable diagrams.",
+    "co": "CO4",
+    "marks": 4
+  },
+  "Q2_E": {
+    "question": "What is generalization and specialization? Explain with examples and ER notation.",
+    "co": "CO5",
+    "marks": 4
+  },
+  "Q3_A": {
+    "question": "Design an ER diagram for a Library Management System with Books, Students, and Issue tracking. Include appropriate cardinality ratios.",
+    "co": "CO1",
+    "marks": 4
+  },
+  "Q3_B": {
+    "question": "Convert the following ER diagram into relational schema: EMPLOYEE works_on PROJECT (M:N), EMPLOYEE works_in DEPARTMENT (M:1)",
+    "co": "CO2",
+    "marks": 4
+  },
+  "Q3_C": {
+    "question": "Write SQL queries for STUDENT (Roll_No, Name, Branch, Marks, City): (i) Display students from 'Computer' branch (ii) Find student with maximum marks (iii) Count students from 'Mumbai' (iv) Display students with marks between 60 and 80",
+    "co": "CO3",
+    "marks": 4
+  },
+  "Q3_D": {
+    "question": "Given relation R(A,B,C,D,E) with FDs: A\u2192B,C; B\u2192D; D\u2192E. Find closure of {A}+ and determine if A is a candidate key.",
+    "co": "CO4",
+    "marks": 4
+  },
+  "Q3_E": {
+    "question": "Create table EMPLOYEE with: Emp_ID (PK), Name (Not Null), Designation, Salary (>0), Join_Date, Dept_No (FK) using SQL DDL.",
+    "co": "CO5",
+    "marks": 4
+  },
+  "Q4_A": {
+    "question": "Write SQL queries for EMPLOYEE and DEPARTMENT tables: (i) Display employee names and department names using INNER JOIN (ii) Find total salary per department (iii) Show employees earning more than average salary (iv) List departments with more than 5 employees",
+    "co": "CO1",
+    "marks": 4
+  },
+  "Q4_B": {
+    "question": "Explain the following SQL functions with syntax and examples: (i) COUNT() (ii) SUM() (iii) AVG() (iv) MAX() and MIN()",
+    "co": "CO2",
+    "marks": 4
+  },
+  "Q4_C": {
+    "question": "Differentiate between: (i) WHERE vs HAVING clause (ii) DELETE vs TRUNCATE (iii) Primary Key vs Unique Key (iv) GROUP BY vs ORDER BY",
+    "co": "CO3",
+    "marks": 4
+  },
+  "Q4_D": {
+    "question": "Write a correlated subquery to find employees whose salary is greater than the average salary of their department.",
+    "co": "CO4",
+    "marks": 4
+  },
+  "Q4_E": {
+    "question": "Explain the concept of VIEWS in SQL. Write commands to: (i) Create view 'High_Salary_Emp' for salary > 50000 (ii) Display data from view (iii) Drop the view",
+    "co": "CO5",
+    "marks": 4
+  },
+  "Q5_A": {
+    "question": "Define functional dependency. Given R(A,B,C,D) with FDs: A\u2192B, B\u2192C, A\u2192D. Find closure {A}+ using Armstrong's Axioms and list candidate keys.",
+    "co": "CO1",
+    "marks": 4
+  },
+  "Q5_B": {
+    "question": "Explain the following normal forms with examples: (i) First Normal Form (1NF) (ii) Second Normal Form (2NF)",
+    "co": "CO2",
+    "marks": 4
+  },
+  "Q5_C": {
+    "question": "Normalize the relation STUDENT_COURSE(Student_ID, Student_Name, Course_ID, Course_Name, Instructor, Grade) to 3NF with given FDs. Show all steps.",
+    "co": "CO3",
+    "marks": 4
+  },
+  "Q5_D": {
+    "question": "Differentiate between 3NF and BCNF with examples. When would you prefer BCNF over 3NF?",
+    "co": "CO4",
+    "marks": 4
+  },
+  "Q5_E": {
+    "question": "Explain database anomalies: (i) Insertion Anomaly (ii) Deletion Anomaly (iii) Update Anomaly. How does normalization resolve these?",
+    "co": "CO5",
+    "marks": 4
+  },
+  "Q6_A": {
+    "question": "What is a transaction? Explain the transaction states with a state diagram.",
+    "co": "CO1",
+    "marks": 4
+  },
+  "Q6_B": {
+    "question": "Check if schedule S: R1(A), W1(A), R2(A), W2(A), R1(B), W1(B), R3(B), W3(B), R2(C), W2(C), R3(C), W3(C) is conflict serializable using precedence graph.",
+    "co": "CO2",
+    "marks": 4
+  },
+  "Q6_C": {
+    "question": "Explain the Two-Phase Locking (2PL) protocol with a diagram. State its advantages and disadvantages.",
+    "co": "CO3",
+    "marks": 4
+  },
+  "Q6_D": {
+    "question": "Differentiate between: (i) B-Tree vs B+ Tree (ii) Clustered vs Non-Clustered Index (iii) SQL vs NoSQL (iv) Shared Lock vs Exclusive Lock",
+    "co": "CO4",
+    "marks": 4
+  },
+  "Q6_E": {
+    "question": "What is deadlock in database systems? Explain any TWO methods of deadlock prevention with examples.",
+    "co": "CO5",
+    "marks": 4
+  }
+}

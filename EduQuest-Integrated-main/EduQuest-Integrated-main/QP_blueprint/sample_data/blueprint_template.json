@@ -1,0 +1,45 @@
+{
+    "paper_information": {
+        "branch": "<branch>",
+        "semester": "<semester>",
+        "subject": "<subject>",
+        "subject_code": "<subject_code>",
+        "exam_type": "<exam_type>",
+        "paper_total_marks": "<total_marks>"
+    },
+    "requirements": {
+        "selected_units": [
+            "<unit>"
+        ],
+        "rua_allocation": {
+            "<unit>": {
+                "R": "<marks>",
+                "U": "<marks>",
+                "A": "<marks>",
+                "Total": "<total>"
+            }
+        },
+        "difficulty_allocation": {
+            "Easy": "<marks>",
+            "Medium": "<marks>",
+            "Hard": "<marks>"
+        },
+        "co_requirements": [
+            "<CO>"
+        ]
+    },
+    "question_pattern": {
+        "<section_name>": {
+            "questions_to_generate": "<number>",
+            "questions_to_attempt": "<number>",
+            "marks_per_question": "<marks>",
+            "generated_section_marks": "<calculated_marks>",
+            "attempted_section_marks": "<calculated_marks>"
+        }
+    },
+    "calculated_values": {
+        "total_questions_to_generate": "<calculated_total>",
+        "generated_question_marks": "<calculated_total>",
+        "total_attempted_marks": "<calculated_total>"
+    }
+}

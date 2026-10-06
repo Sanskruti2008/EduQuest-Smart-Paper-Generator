@@ -1,0 +1,43 @@
+{
+    "Unit-I": {
+        "title": "Operating System services and components",
+        "R": 2,
+        "U": 8,
+        "A": 4,
+        "Total": 14
+    },
+    "Unit-II": {
+        "title": "Process Management",
+        "R": 4,
+        "U": 4,
+        "A": 6,
+        "Total": 14
+    },
+    "Unit-III": {
+        "title": "CPU Scheduling",
+        "R": 2,
+        "U": 6,
+        "A": 8,
+        "Total": 16
+    },
+    "Unit-IV": {
+        "title": "Memory Management",
+        "R": 2,
+        "U": 6,
+        "A": 8,
+        "Total": 16
+    },
+    "Unit-V": {
+        "title": "File Management",
+        "R": 2,
+        "U": 4,
+        "A": 4,
+        "Total": 10
+    },
+    "TOTAL": {
+        "R": 12,
+        "U": 28,
+        "A": 30,
+        "Total": 70
+    }
+}

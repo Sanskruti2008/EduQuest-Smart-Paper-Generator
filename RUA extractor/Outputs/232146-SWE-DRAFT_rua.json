@@ -1,0 +1,43 @@
+{
+    "Unit-I": {
+        "title": "Software development process",
+        "R": 4,
+        "U": 4,
+        "A": 4,
+        "Total": 12
+    },
+    "Unit-II": {
+        "title": "Software requirement Engineering",
+        "R": 2,
+        "U": 4,
+        "A": 8,
+        "Total": 14
+    },
+    "Unit-III": {
+        "title": "Software Modelling and Design",
+        "R": 2,
+        "U": 4,
+        "A": 8,
+        "Total": 14
+    },
+    "Unit-IV": {
+        "title": "Software Project Estimation",
+        "R": 4,
+        "U": 4,
+        "A": 8,
+        "Total": 16
+    },
+    "Unit-V": {
+        "title": "Software Project Management and quality assurance",
+        "R": 4,
+        "U": 4,
+        "A": 6,
+        "Total": 14
+    },
+    "TOTAL": {
+        "R": 16,
+        "U": 20,
+        "A": 34,
+        "Total": 70
+    }
+}

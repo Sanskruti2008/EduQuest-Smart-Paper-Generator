@@ -1,0 +1,82 @@
+{
+  "Q1_A": {
+    "question": "Define the term 'Algorithm' and state its characteristics.",
+    "co": "CO1",
+    "marks": 2
+  },
+  "Q1_B": {
+    "question": "What is the difference between compiler and interpreter?",
+    "co": "CO2",
+    "marks": 2
+  },
+  "Q1_C": {
+    "question": "List any four features of Object-Oriented Programming.",
+    "co": "CO3",
+    "marks": 2
+  },
+  "Q1_D": {
+    "question": "State the purpose of header files in C programming.",
+    "co": "CO4",
+    "marks": 2
+  },
+  "Q2_A": {
+    "question": "Explain the concept of variables and data types in programming with examples.",
+    "co": "CO1",
+    "marks": 3
+  },
+  "Q2_B": {
+    "question": "Describe the working of 'if-else' statement with flowchart and example.",
+    "co": "CO2",
+    "marks": 3
+  },
+  "Q2_C": {
+    "question": "What is a loop? Explain 'for' loop with syntax and example program.",
+    "co": "CO3",
+    "marks": 3
+  },
+  "Q2_D": {
+    "question": "Differentiate between 'while' and 'do-while' loops with suitable examples.",
+    "co": "CO4",
+    "marks": 3
+  },
+  "Q2_E": {
+    "question": "Explain the concept of arrays. How to declare and initialize an array?",
+    "co": "CO5",
+    "marks": 3
+  },
+  "Q2_F": {
+    "question": "Write a program to find the largest element in an array of integers.",
+    "co": "CO1",
+    "marks": 3
+  },
+  "Q2_G": {
+    "question": "What are functions? Explain function declaration, definition and calling.",
+    "co": "CO2",
+    "marks": 3
+  },
+  "Q2_H": {
+    "question": "Describe different types of user-defined functions with examples.",
+    "co": "CO3",
+    "marks": 3
+  },
+  "Q2_I": {
+    "question": "Explain the concept of pointers. How to declare and use pointer variables?",
+    "co": "CO4",
+    "marks": 3
+  },
+  "Q2_J": {
+    "question": "What is a structure? Explain with syntax and example program.",
+    "co": "CO5",
+    "marks": 3
+  },
+  "Q2_K": {
+    "question": "Describe file handling operations: opening, reading, writing and closing files.",
+    "co": "CO1",
+    "marks": 3
+  },
+  "Q2_L": {
+    "question": "Explain string handling functions: strlen(), strcpy(), strcmp(), strcat().",
+    "co": "CO2",
+    "marks": 3
+  }
+}

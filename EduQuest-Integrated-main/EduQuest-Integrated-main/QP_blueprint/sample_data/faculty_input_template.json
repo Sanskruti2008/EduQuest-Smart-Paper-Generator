@@ -1,0 +1,30 @@
+{
+    "branch": "",
+    "semester": null,
+    "subject": "",
+    "subject_code": "",
+    "exam_type": "",
+    "total_marks": null,
+    "selected_units": [],
+    "difficulty_allocation": {
+        "Easy": null,
+        "Medium": null,
+        "Hard": null
+    },
+    "rua_allocation": {
+        "<unit>": {
+            "R": null,
+            "U": null,
+            "A": null,
+            "Total": null
+        }
+    },
+    "co_requirements": [],
+    "question_pattern": {
+        "<section_name>": {
+            "questions_to_generate": null,
+            "questions_to_attempt": null,
+            "marks_per_question": null
+        }
+    }
+}

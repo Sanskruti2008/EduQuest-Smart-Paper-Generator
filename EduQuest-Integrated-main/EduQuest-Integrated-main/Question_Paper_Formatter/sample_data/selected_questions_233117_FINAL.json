@@ -1,0 +1,285 @@
+{
+  "paper_information": {
+    "branch": "Computer Technology",
+    "semester": 5,
+    "subject": "Advanced Java",
+    "subject_code": "233117",
+    "exam_type": "Final Examination",
+    "paper_total_marks": 70.0
+  },
+  "sections": {
+    "Q1": {
+      "questions_to_attempt": 5,
+      "questions": [
+        {
+          "canonical_id": 85,
+          "question_text": "1. Define the event and list its sources.",
+          "unit": "Unit-I",
+          "marks": 2,
+          "rua": "R",
+          "difficulty": "Easy",
+          "course_outcome": "CO1"
+        },
+        {
+          "canonical_id": 179,
+          "question_text": "Explain any two differences between AWT and Swing.",
+          "unit": "Unit-I",
+          "marks": 2,
+          "rua": "U",
+          "difficulty": "Easy",
+          "course_outcome": "CO1"
+        },
+        {
+          "canonical_id": 88,
+          "question_text": "Write syntax and use of any two methods of Action Event classcep.",
+          "unit": "Unit-I",
+          "marks": 2,
+          "rua": "A",
+          "difficulty": "Easy",
+          "course_outcome": "CO1"
+        },
+        {
+          "canonical_id": 81,
+          "question_text": "Define an Event Source and a listener?",
+          "unit": "Unit-II",
+          "marks": 2,
+          "rua": "R",
+          "difficulty": "Easy",
+          "course_outcome": "CO2"
+        },
+        {
+          "canonical_id": 102,
+          "question_text": "State the syntax of the URL class constructor.",
+          "unit": "Unit-III",
+          "marks": 2,
+          "rua": "R",
+          "difficulty": "Easy",
+          "course_outcome": "CO3"
+        },
+        {
+          "canonical_id": 73,
+          "question_text": "Mention any two types of JDBC drivers class.",
+          "unit": "Unit-IV",
+          "marks": 2,
+          "rua": "U",
+          "difficulty": "Easy",
+          "course_outcome": "CO4"
+        },
+        {
+          "canonical_id": 83,
+          "question_text": "Write declaration tag of JSP.",
+          "unit": "Unit-V",
+          "marks": 2,
+          "rua": "U",
+          "difficulty": "Easy",
+          "course_outcome": "CO5"
+        }
+      ]
+    },
+    "Q2": {
+      "questions_to_attempt": 3,
+      "questions": [
+        {
+          "canonical_id": 113,
+          "question_text": "Explain Border Layout with example.",
+          "unit": "Unit-I",
+          "marks": 4,
+          "rua": "U",
+          "difficulty": "Medium",
+          "course_outcome": "CO1"
+        },
+        {
+          "canonical_id": 123,
+          "question_text": "Write a program to demonstrate use of Inner class.",
+          "unit": "Unit-I",
+          "marks": 4,
+          "rua": "A",
+          "difficulty": "Medium",
+          "course_outcome": "CO1"
+        },
+        {
+          "canonical_id": 54,
+          "question_text": "Write a program for ItemListener Interface.",
+          "unit": "Unit-II",
+          "marks": 4,
+          "rua": "R",
+          "difficulty": "Medium",
+          "course_outcome": "CO2"
+        },
+        {
+          "canonical_id": 51,
+          "question_text": "Explain the importance of Proxy server.",
+          "unit": "Unit-II",
+          "marks": 4,
+          "rua": "U",
+          "difficulty": "Medium",
+          "course_outcome": "CO2"
+        }
+      ]
+    },
+    "Q3": {
+      "questions_to_attempt": 3,
+      "questions": [
+        {
+          "canonical_id": 67,
+          "question_text": "Explain the Delegation event model.",
+          "unit": "Unit-II",
+          "marks": 4,
+          "rua": "U",
+          "difficulty": "Medium",
+          "course_outcome": "CO2"
+        },
+        {
+          "canonical_id": 60,
+          "question_text": "Explain the use of Inner class.",
+          "unit": "Unit-II",
+          "marks": 4,
+          "rua": "A",
+          "difficulty": "Medium",
+          "course_outcome": "CO2"
+        },
+        {
+          "canonical_id": 91,
+          "question_text": "Write syntax and use of any four methods of inet Address ciasscep.",
+          "unit": "Unit-II",
+          "marks": 4,
+          "rua": "A",
+          "difficulty": "Medium",
+          "course_outcome": "CO2"
+        },
+        {
+          "canonical_id": 55,
+          "question_text": "Define InetAddress and list its methods.",
+          "unit": "Unit-III",
+          "marks": 4,
+          "rua": "R",
+          "difficulty": "Easy",
+          "course_outcome": "CO3"
+        }
+      ]
+    },
+    "Q4": {
+      "questions_to_attempt": 3,
+      "questions": [
+        {
+          "canonical_id": 95,
+          "question_text": "Explain the URL class with its any four methods.",
+          "unit": "Unit-III",
+          "marks": 4,
+          "rua": "U",
+          "difficulty": "Medium",
+          "course_outcome": "CO3"
+        },
+        {
+          "canonical_id": 99,
+          "question_text": "Explain the JDBC driver types.",
+          "unit": "Unit-III",
+          "marks": 4,
+          "rua": "U",
+          "difficulty": "Medium",
+          "course_outcome": "CO3"
+        },
+        {
+          "canonical_id": 78,
+          "question_text": "Develop TCP client that sends a message to a server and receives a response back.",
+          "unit": "Unit-III",
+          "marks": 4,
+          "rua": "A",
+          "difficulty": "Hard",
+          "course_outcome": "CO3"
+        },
+        {
+          "canonical_id": 94,
+          "question_text": "Write a program lo insert dala in database.",
+          "unit": "Unit-III",
+          "marks": 4,
+          "rua": "A",
+          "difficulty": "Medium",
+          "course_outcome": "CO3"
+        }
+      ]
+    },
+    "Q5": {
+      "questions_to_attempt": 3,
+      "questions": [
+        {
+          "canonical_id": 56,
+          "question_text": "Explain the use of Driver Interface, DriverManager class, Connection Interface and Statement Interface.",
+          "unit": "Unit-IV",
+          "marks": 4,
+          "rua": "R",
+          "difficulty": "Medium",
+          "course_outcome": "CO4"
+        },
+        {
+          "canonical_id": 59,
+          "question_text": "Write JDBC CRUD operations.",
+          "unit": "Unit-IV",
+          "marks": 4,
+          "rua": "U",
+          "difficulty": "Hard",
+          "course_outcome": "CO4"
+        },
+        {
+          "canonical_id": 90,
+          "question_text": "Write a program to display page visit count using session tracking.",
+          "unit": "Unit-IV",
+          "marks": 4,
+          "rua": "A",
+          "difficulty": "Hard",
+          "course_outcome": "CO4"
+        },
+        {
+          "canonical_id": 196,
+          "question_text": "Write JDBC code to insert a record into a student table.",
+          "unit": "Unit-IV",
+          "marks": 4,
+          "rua": "A",
+          "difficulty": "Medium",
+          "course_outcome": "CO4"
+        }
+      ]
+    },
+    "Q6": {
+      "questions_to_attempt": 3,
+      "questions": [
+        {
+          "canonical_id": 205,
+          "question_text": "State and describe any four features of Spring Framework.",
+          "unit": "Unit-V",
+          "marks": 4,
+          "rua": "R",
+          "difficulty": "Medium",
+          "course_outcome": "CO5"
+        },
+        {
+          "canonical_id": 80,
+          "question_text": "Explain Spring Framework in detail.",
+          "unit": "Unit-V",
+          "marks": 4,
+          "rua": "U",
+          "difficulty": "Medium",
+          "course_outcome": "CO5"
+        },
+        {
+          "canonical_id": 124,
+          "question_text": "Write a program to demonstrate serviet display message \"Hello.",
+          "unit": "Unit-V",
+          "marks": 4,
+          "rua": "A",
+          "difficulty": "Medium",
+          "course_outcome": "CO5"
+        },
+        {
+          "canonical_id": 203,
+          "question_text": "Develop a JSP program to accept marks and display the grade of a student.",
+          "unit": "Unit-V",
+          "marks": 4,
+          "rua": "A",
+          "difficulty": "Hard",
+          "course_outcome": "CO5"
+        }
+      ]
+    }
+  }
+}

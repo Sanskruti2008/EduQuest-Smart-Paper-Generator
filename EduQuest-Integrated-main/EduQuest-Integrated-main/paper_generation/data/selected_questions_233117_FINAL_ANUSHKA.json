@@ -1,0 +1,285 @@
+{
+  "paper_information": {
+    "branch": "Computer Technology",
+    "semester": 5,
+    "subject": "Advance Java",
+    "subject_code": "233117",
+    "exam_type": "Final Examination",
+    "paper_total_marks": 70.0
+  },
+  "sections": {
+    "Q1": {
+      "questions_to_attempt": 5,
+      "questions": [
+        {
+          "canonical_id": 182,
+          "question_text": "Select a suitable Swing component to display data in tabular form and state its use.",
+          "unit": "Unit-I",
+          "marks": 2,
+          "rua": "A",
+          "difficulty": "Medium",
+          "course_outcome": "CO1"
+        },
+        {
+          "canonical_id": 101,
+          "question_text": "State the uses of AWT controls.",
+          "unit": "Unit-I",
+          "marks": 2,
+          "rua": "R",
+          "difficulty": "Easy",
+          "course_outcome": "CO1"
+        },
+        {
+          "canonical_id": 180,
+          "question_text": "Explain the purpose of layout managers in Java GUI.",
+          "unit": "Unit-I",
+          "marks": 2,
+          "rua": "U",
+          "difficulty": "Easy",
+          "course_outcome": "CO1"
+        },
+        {
+          "canonical_id": 87,
+          "question_text": "2. Define the URL and write any one constructor of the URL class.",
+          "unit": "Unit-II",
+          "marks": 2,
+          "rua": "R",
+          "difficulty": "Easy",
+          "course_outcome": "CO2"
+        },
+        {
+          "canonical_id": 126,
+          "question_text": "Define Socket",
+          "unit": "Unit-III",
+          "marks": 2,
+          "rua": "R",
+          "difficulty": "Easy",
+          "course_outcome": "CO3"
+        },
+        {
+          "canonical_id": 193,
+          "question_text": "Explain the purpose of the Connection interface in JDBC.",
+          "unit": "Unit-IV",
+          "marks": 2,
+          "rua": "U",
+          "difficulty": "Easy",
+          "course_outcome": "CO4"
+        },
+        {
+          "canonical_id": 83,
+          "question_text": "Write declaration tag of JSP.",
+          "unit": "Unit-V",
+          "marks": 2,
+          "rua": "U",
+          "difficulty": "Easy",
+          "course_outcome": "CO5"
+        }
+      ]
+    },
+    "Q2": {
+      "questions_to_attempt": 3,
+      "questions": [
+        {
+          "canonical_id": 53,
+          "question_text": "Write a program for creating menu bar, menu and menu items.",
+          "unit": "Unit-I",
+          "marks": 4,
+          "rua": "A",
+          "difficulty": "Medium",
+          "course_outcome": "CO1"
+        },
+        {
+          "canonical_id": 96,
+          "question_text": "Explain the following AWT controls i) Buttont ii) Checkbox.",
+          "unit": "Unit-I",
+          "marks": 4,
+          "rua": "U",
+          "difficulty": "Easy",
+          "course_outcome": "CO1"
+        },
+        {
+          "canonical_id": 188,
+          "question_text": "Write a Java program to demonstrate mouse event handling using MouseListener.",
+          "unit": "Unit-II",
+          "marks": 4,
+          "rua": "A",
+          "difficulty": "Hard",
+          "course_outcome": "CO2"
+        },
+        {
+          "canonical_id": 60,
+          "question_text": "Explain the use of Inner class.",
+          "unit": "Unit-II",
+          "marks": 4,
+          "rua": "A",
+          "difficulty": "Medium",
+          "course_outcome": "CO2"
+        }
+      ]
+    },
+    "Q3": {
+      "questions_to_attempt": 3,
+      "questions": [
+        {
+          "canonical_id": 206,
+          "question_text": "List any four event listener interfaces in Java and state the event handled by each.",
+          "unit": "Unit-II",
+          "marks": 4,
+          "rua": "R",
+          "difficulty": "Easy",
+          "course_outcome": "CO2"
+        },
+        {
+          "canonical_id": 75,
+          "question_text": "Write a java program to create a menu bar with various menu items and sub menu.",
+          "unit": "Unit-II",
+          "marks": 4,
+          "rua": "U",
+          "difficulty": "Hard",
+          "course_outcome": "CO2"
+        },
+        {
+          "canonical_id": 116,
+          "question_text": "Explain any four methods of InetAddress class.",
+          "unit": "Unit-II",
+          "marks": 4,
+          "rua": "U",
+          "difficulty": "Medium",
+          "course_outcome": "CO2"
+        },
+        {
+          "canonical_id": 192,
+          "question_text": "Develop a TCP client program that sends a message to a server.",
+          "unit": "Unit-III",
+          "marks": 4,
+          "rua": "A",
+          "difficulty": "Hard",
+          "course_outcome": "CO3"
+        }
+      ]
+    },
+    "Q4": {
+      "questions_to_attempt": 3,
+      "questions": [
+        {
+          "canonical_id": 78,
+          "question_text": "Develop TCP client that sends a message to a server and receives a response back.",
+          "unit": "Unit-III",
+          "marks": 4,
+          "rua": "A",
+          "difficulty": "Hard",
+          "course_outcome": "CO3"
+        },
+        {
+          "canonical_id": 55,
+          "question_text": "Define InetAddress and list its methods.",
+          "unit": "Unit-III",
+          "marks": 4,
+          "rua": "R",
+          "difficulty": "Easy",
+          "course_outcome": "CO3"
+        },
+        {
+          "canonical_id": 109,
+          "question_text": "Explain the any four methods of URL connection.",
+          "unit": "Unit-III",
+          "marks": 4,
+          "rua": "U",
+          "difficulty": "Easy",
+          "course_outcome": "CO3"
+        },
+        {
+          "canonical_id": 52,
+          "question_text": "Differentiate between JDBC and ODBC.",
+          "unit": "Unit-III",
+          "marks": 4,
+          "rua": "U",
+          "difficulty": "Easy",
+          "course_outcome": "CO3"
+        }
+      ]
+    },
+    "Q5": {
+      "questions_to_attempt": 3,
+      "questions": [
+        {
+          "canonical_id": 198,
+          "question_text": "Develop a JDBC program to update a student record in a database.",
+          "unit": "Unit-IV",
+          "marks": 4,
+          "rua": "A",
+          "difficulty": "Hard",
+          "course_outcome": "CO4"
+        },
+        {
+          "canonical_id": 196,
+          "question_text": "Write JDBC code to insert a record into a student table.",
+          "unit": "Unit-IV",
+          "marks": 4,
+          "rua": "A",
+          "difficulty": "Medium",
+          "course_outcome": "CO4"
+        },
+        {
+          "canonical_id": 56,
+          "question_text": "Explain the use of Driver Interface, DriverManager class, Connection Interface and Statement Interface.",
+          "unit": "Unit-IV",
+          "marks": 4,
+          "rua": "R",
+          "difficulty": "Medium",
+          "course_outcome": "CO4"
+        },
+        {
+          "canonical_id": 207,
+          "question_text": "Explain the steps involved in establishing JDBC database connectivity.",
+          "unit": "Unit-IV",
+          "marks": 4,
+          "rua": "U",
+          "difficulty": "Easy",
+          "course_outcome": "CO4"
+        }
+      ]
+    },
+    "Q6": {
+      "questions_to_attempt": 3,
+      "questions": [
+        {
+          "canonical_id": 203,
+          "question_text": "Develop a JSP program to accept marks and display the grade of a student.",
+          "unit": "Unit-V",
+          "marks": 4,
+          "rua": "A",
+          "difficulty": "Hard",
+          "course_outcome": "CO5"
+        },
+        {
+          "canonical_id": 204,
+          "question_text": "Develop a servlet to create a cookie and send it to the client.",
+          "unit": "Unit-V",
+          "marks": 4,
+          "rua": "A",
+          "difficulty": "Hard",
+          "course_outcome": "CO5"
+        },
+        {
+          "canonical_id": 205,
+          "question_text": "State and describe any four features of Spring Framework.",
+          "unit": "Unit-V",
+          "marks": 4,
+          "rua": "R",
+          "difficulty": "Medium",
+          "course_outcome": "CO5"
+        },
+        {
+          "canonical_id": 208,
+          "question_text": "Explain cookies and sessions used for session tracking in web applications.",
+          "unit": "Unit-V",
+          "marks": 4,
+          "rua": "U",
+          "difficulty": "Easy",
+          "course_outcome": "CO5"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+    "Unit-I": {
+        "title": "ntroduction to Machine Learning",
+        "R": 4,
+        "U": 4,
+        "A": 2,
+        "Total": 10
+    },
+    "Unit-II": {
+        "title": "Data Preprocessing",
+        "R": 2,
+        "U": 4,
+        "A": 6,
+        "Total": 12
+    },
+    "Unit-III": {
+        "title": "Supervised Learning Algorithm",
+        "R": 6,
+        "U": 6,
+        "A": 6,
+        "Total": 18
+    },
+    "Unit-IV": {
+        "title": "Unsupervised Learning Algorithm",
+        "R": 4,
+        "U": 4,
+        "A": 6,
+        "Total": 14
+    },
+    "Unit-V": {
+        "title": "Neural Networks & ML Tools",
+        "R": 4,
+        "U": 6,
+        "A": 6,
+        "Total": 16
+    },
+    "TOTAL": {
+        "R": 20,
+        "U": 24,
+        "A": 26,
+        "Total": 70
+    }
+}
