@@ -214,14 +214,14 @@ def test_persistence_falls_back_to_subject_name_with_matching_context():
         "subject_id": 3,
         "subject_name": "Advanced Java",
         "subject_code": "233117",
-        "branch": "Computer Engineering",
+        "branch": "Computer Technology",
         "semester": "5",
     }]
     blueprint = _blueprint()
     blueprint["paper_information"].update({
         "subject": "Advanced Java",
         "subject_code": "ADVANCEDJAVA",
-        "branch": "Computer Engineering",
+        "branch": "Computer Technology",
         "semester": 5,
     })
 

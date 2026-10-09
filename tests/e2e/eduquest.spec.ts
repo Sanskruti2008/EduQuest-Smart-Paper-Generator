@@ -135,7 +135,7 @@ test.describe('EduQuest dashboard smoke tests', () => {
             subject_id: 1,
             subject_name: 'Advance Java',
             subject_code: '21526',
-            branch: 'Computer Engineering',
+            branch: 'Computer Technology',
             semester: '5',
           }],
         }),
@@ -151,7 +151,7 @@ test.describe('EduQuest dashboard smoke tests', () => {
           paper_information: {
             subject: 'Advance Java',
             subject_code: '21526',
-            branch: 'Computer Engineering',
+            branch: 'Computer Technology',
             semester: 5,
             exam_type: 'University',
             paper_total_marks: 70,
@@ -179,7 +179,7 @@ test.describe('EduQuest dashboard smoke tests', () => {
       subject_id: 1,
       subject: 'Advance Java',
       subject_code: '21526',
-      branch: 'Computer Engineering',
+      branch: 'Computer Technology',
       semester: 5,
     });
     await expect(page.getByText('Review Generated Paper', { exact: true })).toBeVisible();

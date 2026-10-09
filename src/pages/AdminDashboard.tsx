@@ -685,7 +685,7 @@ function PaperAssignment() {
   
   // Mock department data
   const departments = [
-    { id: 'ce', name: 'Computer Engineering', code: 'CE' },
+    { id: 'ce', name: 'Computer Technology', code: 'CE' },
     { id: 'cse', name: 'Computer Science Engineering', code: 'CSE' },
     { id: 'ece', name: 'Electronics & Communication', code: 'ECE' },
     { id: 'mech', name: 'Mechanical Engineering', code: 'MECH' },

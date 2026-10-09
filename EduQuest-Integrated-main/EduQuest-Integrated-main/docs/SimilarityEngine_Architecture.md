@@ -178,7 +178,7 @@ dataset = {
 
     "subject": "Communication Skills",
 
-    "department": "Computer Engineering",
+    "department": "Computer Technology",
 
     "semester": 3,
 

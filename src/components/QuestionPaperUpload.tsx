@@ -62,7 +62,7 @@ const SEM1_COMMON = [
 ];
 
 const BRANCH_CONFIG = {
-  'Computer Engineering': {
+  'Computer Technology': {
     semesters: ['1', '2', '3', '4', '5', '6'],
     subjects: {
       '1': SEM1_COMMON,

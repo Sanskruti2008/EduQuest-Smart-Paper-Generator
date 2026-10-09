@@ -15,7 +15,7 @@ export const ANIMATION_DELAYS = {
 };
 
 export const BRANCHES = [
-  'Computer Engineering',
+  'Computer Technology',
   'Mechanical Engineering',
   'Civil Engineering',
   'Electrical Engineering',
@@ -40,7 +40,7 @@ const COMMON_FIRST_SEMESTER_SUBJECTS = [
 ];
 
 export const SUBJECT_CATALOG: Record<string, Record<string, string[]>> = {
-  'Computer Engineering': {
+  'Computer Technology': {
     '1': COMMON_FIRST_SEMESTER_SUBJECTS,
     '2': ['Basic Electronics', 'Digital Techniques', 'Programming in C', 'Applied Mathematics – II', 'Engineering Graphics'],
     '3': ['Data Structures using C', 'Digital Electronics', 'Computer Organization', 'Object Oriented Programming', 'Discrete Mathematics'],
