@@ -18,7 +18,7 @@ DROP TABLE IF EXISTS "User"               CASCADE;
 CREATE TABLE "User" (
     user_id    BIGSERIAL PRIMARY KEY,
     name       TEXT NOT NULL,
-    role       TEXT NOT NULL DEFAULT 'teacher',
+    role       TEXT NOT NULL DEFAULT 'faculty',
     email      TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );

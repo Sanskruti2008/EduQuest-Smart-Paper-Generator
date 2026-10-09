@@ -266,6 +266,7 @@ def _extract_numbers_from_text(text: str) -> List[str]:
 # ---------------------------------------------------------------------------
 
 _sb: Client = None
+_sb_admin: Client = None
 
 
 def _read_supabase_config() -> tuple[Optional[str], Optional[str], Optional[str]]:
@@ -300,6 +301,42 @@ def get_supabase_client() -> Client:
         _sb = create_client(supabase_url, supabase_key)
         print(f"[DB] Supabase client initialized using {key_type} key")
     return _sb
+
+
+def get_supabase_admin_client() -> Client:
+    """Return the backend-only client that can use Supabase Auth admin APIs."""
+    global _sb_admin
+    if _sb_admin is None:
+        supabase_url = os.getenv("SUPABASE_URL", "").strip()
+        service_key = os.getenv("SUPABASE_SERVICE_KEY", "").strip()
+        if (
+            not supabase_url
+            or not service_key
+            or service_key.upper().startswith("REPLACE")
+            or "YOUR-" in service_key.upper()
+            or "YOUR_" in service_key.upper()
+        ):
+            raise RuntimeError("Supabase Auth administration is not configured.")
+        _sb_admin = create_client(supabase_url, service_key)
+    return _sb_admin
+
+
+def create_supabase_auth_client() -> Client:
+    """Create an isolated public-key client for a single password sign-in."""
+    supabase_url = os.getenv("SUPABASE_URL", "").strip()
+    anon_key = (
+        os.getenv("SUPABASE_ANON_KEY", "").strip()
+        or os.getenv("SUPABASE_KEY", "").strip()
+    )
+    if (
+        not supabase_url
+        or not anon_key
+        or anon_key.upper().startswith("REPLACE")
+        or "YOUR-" in anon_key.upper()
+        or "YOUR_" in anon_key.upper()
+    ):
+        raise RuntimeError("Supabase Auth sign-in is not configured.")
+    return create_client(supabase_url, anon_key)
 
 
 def init_database():

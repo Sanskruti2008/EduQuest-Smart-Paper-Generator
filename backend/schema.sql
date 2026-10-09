@@ -6,11 +6,39 @@
 -- ── 1. User ──────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS "User" (
     user_id   BIGSERIAL PRIMARY KEY,
+    auth_user_id UUID,
     name      TEXT      NOT NULL,
-    role      TEXT      NOT NULL DEFAULT 'teacher',   -- 'admin' | 'teacher' | 'student'
+    role      TEXT      NOT NULL DEFAULT 'faculty',   -- 'admin' | 'faculty' | 'student'
     email     TEXT,
+    employee_id TEXT,
+    department TEXT,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS auth_user_id UUID;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS employee_id TEXT;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS department TEXT;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;
+UPDATE "User" SET is_active = TRUE WHERE is_active IS NULL;
+ALTER TABLE "User" ALTER COLUMN is_active SET DEFAULT TRUE;
+ALTER TABLE "User" ALTER COLUMN is_active SET NOT NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_user_auth_user_id
+    ON "User" (auth_user_id)
+    WHERE auth_user_id IS NOT NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_user_email_lower
+    ON "User" (LOWER(email))
+    WHERE email IS NOT NULL AND email <> '';
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_user_employee_id_lower
+    ON "User" (LOWER(employee_id))
+    WHERE employee_id IS NOT NULL AND employee_id <> '';
+
+UPDATE "User"
+SET role = 'faculty'
+WHERE LOWER(role) = 'teacher';
 
 -- ── 2. subject ───────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS subject (
@@ -29,6 +57,27 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_subject_code_context
 CREATE UNIQUE INDEX IF NOT EXISTS uq_subject_name_context
     ON subject(subject_name, branch, semester)
     WHERE subject_code IS NULL OR subject_code = '';
+
+-- ── Faculty subject assignments ─────────────────────────────
+CREATE TABLE IF NOT EXISTS faculty_subject_assignment (
+    faculty_id BIGINT NOT NULL REFERENCES "User"(user_id) ON DELETE RESTRICT,
+    subject_id BIGINT NOT NULL REFERENCES subject(subject_id) ON DELETE RESTRICT,
+    assigned_by BIGINT NOT NULL REFERENCES "User"(user_id) ON DELETE RESTRICT,
+    assigned_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    is_active BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_faculty_subject_assignment
+    ON faculty_subject_assignment(faculty_id, subject_id);
+
+CREATE INDEX IF NOT EXISTS idx_faculty_assignment_active
+    ON faculty_subject_assignment(faculty_id, is_active);
+UPDATE faculty_subject_assignment SET assigned_at = NOW() WHERE assigned_at IS NULL;
+UPDATE faculty_subject_assignment SET is_active = TRUE WHERE is_active IS NULL;
+ALTER TABLE faculty_subject_assignment ALTER COLUMN assigned_at SET DEFAULT NOW();
+ALTER TABLE faculty_subject_assignment ALTER COLUMN assigned_at SET NOT NULL;
+ALTER TABLE faculty_subject_assignment ALTER COLUMN is_active SET DEFAULT TRUE;
+ALTER TABLE faculty_subject_assignment ALTER COLUMN is_active SET NOT NULL;
 
 -- ── 3. unit  (chapter inside a subject) ──────────────────────
 CREATE TABLE IF NOT EXISTS unit (
@@ -146,12 +195,13 @@ ALTER TABLE question_bank         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE question              ENABLE ROW LEVEL SECURITY;
 ALTER TABLE questionpaper         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE questionpapermapping  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE faculty_subject_assignment ENABLE ROW LEVEL SECURITY;
 
 -- Allow full access for backend (service-role key bypasses RLS anyway,
--- but these policies cover anon/authenticated clients too)
+-- while profile and assignment records remain backend-only.
 DO $$ DECLARE t TEXT;
 BEGIN
-    FOREACH t IN ARRAY ARRAY['"User"','subject','unit','topic','question_bank','question','questionpaper','questionpapermapping']
+    FOREACH t IN ARRAY ARRAY['subject','unit','topic','question_bank','question','questionpaper','questionpapermapping']
   LOOP
     EXECUTE format('CREATE POLICY "allow_all_%s" ON %s FOR ALL USING (true) WITH CHECK (true)', t, t);
   END LOOP;

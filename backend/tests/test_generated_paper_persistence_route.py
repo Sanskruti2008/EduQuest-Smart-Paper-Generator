@@ -4,8 +4,10 @@ import sys
 from types import ModuleType
 from zipfile import ZipFile
 
+import pytest
+
 from app import create_app
-from utils.auth import _generate_role_token
+from utils import auth as auth_utils
 
 PIPELINE_ROOT = (
     Path(__file__).resolve().parents[2]
@@ -71,7 +73,7 @@ def _generation_result(paper, persistence):
 
 def _advance_java_faculty_input():
     return {
-        "branch": "Computer Engineering",
+        "branch": "Computer Technology",
         "semester": 5,
         "subject": "Advance Java",
         "subject_id": 1,
@@ -107,13 +109,79 @@ def _advance_java_faculty_input():
     }
 
 
+def _authenticate_faculty(
+    monkeypatch,
+    assigned_subject_ids=(1,),
+    subjects=None,
+    is_active=True,
+):
+    profile = {
+        "user_id": 42,
+        "auth_user_id": "auth-user-42",
+        "role": "faculty",
+        "is_active": is_active,
+    }
+    monkeypatch.setattr(auth_utils, "get_supabase_profile", lambda _token: profile)
+
+    class Response:
+        def __init__(self, data):
+            self.data = data
+
+    class Query:
+        def __init__(self, table_name):
+            self.table_name = table_name
+            self.filters = {}
+            self.subject_ids = None
+
+        def select(self, _columns):
+            return self
+
+        def eq(self, column, value):
+            self.filters[column] = value
+            return self
+
+        def in_(self, column, values):
+            assert column == "subject_id"
+            self.subject_ids = set(values)
+            return self
+
+        def order(self, _column):
+            return self
+
+        def limit(self, _count):
+            return self
+
+        def execute(self):
+            if self.table_name == "faculty_subject_assignment":
+                assert self.filters.get("faculty_id") == 42
+                assert self.filters.get("is_active") is True
+                return Response([
+                    {"subject_id": subject_id}
+                    for subject_id in assigned_subject_ids
+                    if self.filters.get("subject_id", subject_id) == subject_id
+                ])
+            rows = subjects or []
+            if self.subject_ids is not None:
+                rows = [row for row in rows if row["subject_id"] in self.subject_ids]
+            return Response(rows)
+
+    class Client:
+        def table(self, table_name):
+            return Query(table_name)
+
+    import database
+
+    monkeypatch.setattr(database, "get_supabase_admin_client", lambda: Client())
+    return "faculty-supabase-token"
+
+
 def test_frontend_generation_requires_complete_persistence_before_docx(
     monkeypatch,
 ):
     app = create_app()
     app.config["TESTING"] = True
     client = app.test_client()
-    token = _generate_role_token("faculty@example.test", "faculty")
+    token = _authenticate_faculty(monkeypatch)
     paper = _generated_review_paper()
     calls = []
     persistence = {
@@ -149,6 +217,7 @@ def test_frontend_generation_requires_complete_persistence_before_docx(
         "/api/generate-question-paper",
         json={
             "subject": "Operating Systems",
+            "subject_id": 1,
             "selected_units": ["Unit-I"],
             "rua_allocation": {"Unit-I": {"R": 94}},
         },
@@ -183,7 +252,7 @@ def test_frontend_generation_rejects_incomplete_persistence(monkeypatch):
     app = create_app()
     app.config["TESTING"] = True
     client = app.test_client()
-    token = _generate_role_token("faculty@example.test", "faculty")
+    token = _authenticate_faculty(monkeypatch)
     pipeline = ModuleType("eduquest_pipeline")
     pipeline.generate_final_question_paper = lambda **_kwargs: _generation_result(
         _generated_review_paper(),
@@ -203,6 +272,7 @@ def test_frontend_generation_rejects_incomplete_persistence(monkeypatch):
         "/api/generate-question-paper",
         json={
             "subject": "Operating Systems",
+            "subject_id": 1,
             "selected_units": ["Unit-I"],
             "rua_allocation": {"Unit-I": {"R": 94}},
         },
@@ -217,7 +287,7 @@ def test_advance_java_request_preserves_real_code_and_passes_validation(monkeypa
     app = create_app()
     app.config["TESTING"] = True
     client = app.test_client()
-    token = _generate_role_token("faculty@example.test", "faculty")
+    token = _authenticate_faculty(monkeypatch)
     faculty_input = _advance_java_faculty_input()
     calls = []
     persistence = {
@@ -235,7 +305,7 @@ def test_advance_java_request_preserves_real_code_and_passes_validation(monkeypa
     paper["paper_information"].update({
         "subject": "Advance Java",
         "subject_code": "21526",
-        "branch": "Computer Engineering",
+        "branch": "Computer Technology",
         "semester": 5,
     })
     pipeline = ModuleType("eduquest_pipeline")
@@ -277,34 +347,13 @@ def test_paper_generation_subject_endpoint_returns_full_subject_identity(monkeyp
         "subject_id": 1,
         "subject_name": "Advance Java",
         "subject_code": "21526",
-        "branch": "Computer Engineering",
+        "branch": "Computer Technology",
         "semester": "5",
     }
 
-    class Response:
-        data = [subject]
-
-    class Query:
-        def select(self, _columns):
-            return self
-
-        def order(self, _column):
-            return self
-
-        def execute(self):
-            return Response()
-
-    class Client:
-        def table(self, name):
-            assert name == "subject"
-            return Query()
-
-    import database
-
-    monkeypatch.setattr(database, "get_supabase_client", lambda: Client())
+    token = _authenticate_faculty(monkeypatch, subjects=[subject])
     app = create_app()
     app.config["TESTING"] = True
-    token = _generate_role_token("faculty@example.test", "faculty")
 
     response = app.test_client().get(
         "/api/paper-generation/subjects",
@@ -313,3 +362,78 @@ def test_paper_generation_subject_endpoint_returns_full_subject_identity(monkeyp
 
     assert response.status_code == 200
     assert response.get_json()["subjects"] == [subject]
+
+
+def test_paper_generation_subject_endpoint_filters_unassigned_subjects(monkeypatch):
+    assigned = {
+        "subject_id": 1,
+        "subject_name": "Advance Java",
+        "subject_code": "21526",
+        "branch": "Computer Technology",
+        "semester": "5",
+    }
+    unassigned = {**assigned, "subject_id": 2, "subject_name": "Operating Systems"}
+    token = _authenticate_faculty(
+        monkeypatch,
+        assigned_subject_ids=(1,),
+        subjects=[assigned, unassigned],
+    )
+    app = create_app()
+    app.config["TESTING"] = True
+
+    response = app.test_client().get(
+        "/api/paper-generation/subjects",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()["subjects"] == [assigned]
+
+
+def test_faculty_cannot_generate_a_paper_for_an_unassigned_subject(monkeypatch):
+    token = _authenticate_faculty(monkeypatch, assigned_subject_ids=())
+    app = create_app()
+    app.config["TESTING"] = True
+    pipeline = ModuleType("eduquest_pipeline")
+    pipeline.generate_final_question_paper = lambda **_kwargs: pytest.fail(
+        "The pipeline must not run for an unassigned subject."
+    )
+    monkeypatch.setitem(sys.modules, "eduquest_pipeline", pipeline)
+
+    response = app.test_client().post(
+        "/api/generate-question-paper",
+        json={
+            "subject": "Operating Systems",
+            "subject_id": 1,
+            "selected_units": ["Unit-I"],
+            "rua_allocation": {"Unit-I": {"R": 94}},
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == 403
+    assert "not assigned" in response.get_json()["error"]
+
+
+def test_inactive_faculty_cannot_generate_a_paper(monkeypatch):
+    token = _authenticate_faculty(monkeypatch, is_active=False)
+    app = create_app()
+    app.config["TESTING"] = True
+    pipeline = ModuleType("eduquest_pipeline")
+    pipeline.generate_final_question_paper = lambda **_kwargs: pytest.fail(
+        "The pipeline must not run for an inactive faculty account."
+    )
+    monkeypatch.setitem(sys.modules, "eduquest_pipeline", pipeline)
+
+    response = app.test_client().post(
+        "/api/generate-question-paper",
+        json={
+            "subject": "Operating Systems",
+            "subject_id": 1,
+            "selected_units": ["Unit-I"],
+            "rua_allocation": {"Unit-I": {"R": 94}},
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == 403

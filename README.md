@@ -16,16 +16,15 @@ Generate professional question papers automatically using AI or build them manua
 npm install
 ```
 
-2. **Setup Python Backend:**
+2. **Setup the shared Python environment** (from the project root):
 ```bash
-cd backend
-pip install -r requirements.txt
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
 ```
 
-3. **Start Backend Server:**
+3. **Start Backend Server** (from the project root):
 ```bash
-cd backend
-python server.py
+.\.venv\Scripts\python.exe backend\server.py
 ```
 *Backend runs on http://localhost:5000*
 
@@ -34,6 +33,12 @@ python server.py
 npm run dev
 ```
 *Frontend runs on http://localhost:5173*
+
+### Supabase Authentication Setup
+
+1. Set `SUPABASE_URL`, `SUPABASE_ANON_KEY` (or the existing `SUPABASE_KEY`), and `SUPABASE_SERVICE_KEY` in `backend/.env`. Keep the service key server-side; never add it to Vite variables or frontend code.
+2. Run [`backend/migrations/20261008_faculty_auth_and_assignments.sql`](backend/migrations/20261008_faculty_auth_and_assignments.sql) in the Supabase SQL Editor.
+3. Link each existing admin profile to its Supabase Auth user by setting `public."User".auth_user_id` to that Auth user's UUID and confirming its profile role is `admin` and `is_active` is `true`. The migrated admin profile is required to sign in and manage faculty.
 
 ## 📖 Documentation
 

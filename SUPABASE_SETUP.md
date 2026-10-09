@@ -299,7 +299,7 @@ POST /api/upload-question-paper
 Content-Type: multipart/form-data
 
 file: question_paper.pdf
-branch: Computer Engineering
+branch: Computer Technology
 semester: 5
 subject: Operating Systems
 ```

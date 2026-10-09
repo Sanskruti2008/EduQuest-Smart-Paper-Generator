@@ -6,8 +6,8 @@
 
 **Backend Server (Port 5000):**
 ```powershell
-cd "c:\Users\sanskruti\OneDrive\Desktop\EduQuest.ai\backend"
-python server.py
+cd "C:\Users\sanskruti\OneDrive\Desktop\EduQuest-Smart-Paper-Generator"
+.\.venv\Scripts\python.exe backend\server.py
 ```
 
 **Frontend Server (Port 3000):**
@@ -21,10 +21,10 @@ Run these commands in separate PowerShell windows:
 
 ```powershell
 # Start Backend
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'c:\Users\sanskruti\OneDrive\Desktop\EduQuest.ai\backend'; python server.py"
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'C:\Users\sanskruti\OneDrive\Desktop\EduQuest-Smart-Paper-Generator'; .\.venv\Scripts\python.exe backend\server.py"
 
 # Start Frontend (wait 2 seconds first)
-Start-Sleep -Seconds 2; Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'c:\Users\sanskruti\OneDrive\Desktop\EduQuest.ai'; npm run dev"
+Start-Sleep -Seconds 2; Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'C:\Users\sanskruti\OneDrive\Desktop\EduQuest-Smart-Paper-Generator'; npm run dev"
 ```
 
 ## Access the Application
@@ -53,7 +53,7 @@ Get-NetTCPConnection -LocalPort 3000 | Select-Object -ExpandProperty OwningProce
 
 **Backend not responding:**
 - Check if Tesseract OCR is installed: `C:\Program Files\Tesseract-OCR\tesseract.exe`
-- Verify Python environment has all dependencies: `pip install -r backend/requirements.txt`
+- Verify Python environment has all dependencies: `.\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt`
 
 **Frontend build errors:**
 - Clear node modules: `Remove-Item node_modules -Recurse -Force; npm install`

@@ -23,7 +23,7 @@ export default function TopNav({ collapsed, onToggle }: TopNavProps) {
           </button>
           <div>
             <p className="text-sm text-slate-500">Semester 6 • CSE</p>
-            <h1 className="text-xl font-semibold">Teacher Dashboard</h1>
+            <h1 className="text-xl font-semibold">Faculty Dashboard</h1>
           </div>
         </div>
 

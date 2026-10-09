@@ -186,7 +186,7 @@ export default function PaperGenerationSection() {
     }
     const token = sessionStorage.getItem('authToken') || sessionStorage.getItem('adminToken');
     if (!token) {
-      setError('Teacher or admin authorization is required to generate a paper.');
+      setError('Faculty or admin authorization is required to generate a paper.');
       return;
     }
 
@@ -266,7 +266,7 @@ export default function PaperGenerationSection() {
     setBusy(true);
     try {
       const token = sessionStorage.getItem('authToken') || sessionStorage.getItem('adminToken');
-      if (!token) throw new Error('Teacher or admin authorization is required to download this paper.');
+      if (!token) throw new Error('Faculty or admin authorization is required to download this paper.');
       const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/download-reviewed-paper`, {
         method: 'POST',
         headers: {

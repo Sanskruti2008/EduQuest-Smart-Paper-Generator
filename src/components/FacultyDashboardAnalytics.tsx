@@ -47,7 +47,7 @@ const progressData = [
 
 const palette = ['#F59E0B', '#F97316', '#FDBA74', '#FBBF24', '#FDE68A'];
 
-export default function TeacherDashboardAnalytics() {
+export default function FacultyDashboardAnalytics() {
   return (
     <section id="analytics" className="px-4 pb-12 md:px-8">
       <div className="rounded-2xl bg-white/70 backdrop-blur-xl shadow-xl border border-white/60 p-6">

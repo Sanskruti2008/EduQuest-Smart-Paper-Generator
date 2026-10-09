@@ -1,12 +1,12 @@
 import { Suspense, lazy } from 'react';
 import AnalyticsSkeleton from './AnalyticsSkeleton';
 
-const TeacherDashboardAnalytics = lazy(() => import('../TeacherDashboardAnalytics'));
+const FacultyDashboardAnalytics = lazy(() => import('../FacultyDashboardAnalytics'));
 
 export default function AnalyticsSection() {
   return (
     <Suspense fallback={<AnalyticsSkeleton />}>
-      <TeacherDashboardAnalytics />
+      <FacultyDashboardAnalytics />
     </Suspense>
   );
 }

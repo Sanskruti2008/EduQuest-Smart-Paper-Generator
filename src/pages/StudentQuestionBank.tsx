@@ -71,7 +71,7 @@ const StudentQuestionBank = () => {
         createdAt: new Date().toISOString()
       });
       handleCloseFeedback();
-      alert('Thank you for your feedback! It has been sent to the teacher.');
+      alert('Thank you for your feedback! It has been sent to the faculty.');
     }
   };
 

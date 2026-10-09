@@ -24,7 +24,7 @@ The frontend will run on `http://localhost:5173`
 Navigate to: `http://localhost:5173/syllabus-analyzer`
 
 Or access from:
-- Teacher Dashboard → Syllabus & RUA Analysis
+- Faculty Dashboard → Syllabus & RUA Analysis
 - Direct link: Add to navigation menu
 
 ## 📋 Features Overview

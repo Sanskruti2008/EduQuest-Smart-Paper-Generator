@@ -77,7 +77,7 @@ const ReviewExtracted: React.FC = () => {
     if (!data) return;
     setSaving(true);
     try {
-      const token = sessionStorage.getItem('adminToken') || sessionStorage.getItem('teacherAuthenticated');
+      const token = sessionStorage.getItem('adminToken') || sessionStorage.getItem('facultyAuthenticated');
       const examInfo = {
         ...(data?.exam_info || {}),
         subject_name: (data?.exam_info?.subject_name || data?.exam_info?.subject || '').trim(),

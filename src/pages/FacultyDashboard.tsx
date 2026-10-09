@@ -11,9 +11,9 @@ import {
   QuestionBankSection,
   Sidebar,
   TopNav
-} from '../components/teacher-dashboard';
+} from '../components/faculty-dashboard';
 
-export default function TeacherDashboard() {
+export default function FacultyDashboard() {
   const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { theme, toggleTheme } = useTheme();
@@ -21,14 +21,14 @@ export default function TeacherDashboard() {
   const [activeSection, setActiveSection] = useState('dashboard');
 
   useEffect(() => {
-    const isAuthenticated = sessionStorage.getItem('teacherAuthenticated');
+    const isAuthenticated = sessionStorage.getItem('facultyAuthenticated');
     if (!isAuthenticated) {
       navigate('/', { replace: true });
     }
-    const initialSection = sessionStorage.getItem('teacherInitialSection');
+    const initialSection = sessionStorage.getItem('facultyInitialSection');
     if (initialSection) {
       setActiveSection(initialSection);
-      sessionStorage.removeItem('teacherInitialSection');
+      sessionStorage.removeItem('facultyInitialSection');
     }
   }, [navigate]);
 
@@ -36,7 +36,7 @@ export default function TeacherDashboard() {
 
   const handleSectionSelect = (section: string) => {
     if (section === 'logout') {
-      sessionStorage.removeItem('teacherAuthenticated');
+      sessionStorage.removeItem('facultyAuthenticated');
       navigate('/', { replace: true });
       return;
     }
@@ -67,7 +67,7 @@ export default function TeacherDashboard() {
   };
 
   return (
-    <div className="teacher-dashboard min-h-screen bg-[var(--bg)] text-[var(--text)]">
+    <div className="faculty-dashboard min-h-screen bg-[var(--bg)] text-[var(--text)]">
       <div className="flex">
         <Sidebar
           collapsed={sidebarCollapsed}

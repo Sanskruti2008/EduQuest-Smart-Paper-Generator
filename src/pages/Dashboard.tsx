@@ -20,7 +20,7 @@ const Dashboard = () => {
     // protected dashboards.
     const roles: Record<string, { email: string, pass?: string, path: string, authKey: string }> = {
       admin: { email: 'admin@eduquest.ai', path: '/admin-dashboard', authKey: 'adminAuthenticated' },
-      faculty: { email: 'faculty@eduquest.ai', path: '/teacher-dashboard', authKey: 'teacherAuthenticated' }
+      faculty: { email: 'faculty@eduquest.ai', path: '/faculty-dashboard', authKey: 'facultyAuthenticated' }
     };
 
     const targetRole = roles[credentials.role];
@@ -95,7 +95,7 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <h3 className="text-3xl font-bold text-[var(--text)] group-hover:text-[var(--accent-text)] transition-colors">
-                    Teacher
+                    Faculty
                   </h3>
                   <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--accent-text)] bg-[var(--accent-soft)] px-3 py-1 rounded-full mt-2">
                     <Check className="w-3.5 h-3.5" aria-hidden="true" />
@@ -171,7 +171,7 @@ const Dashboard = () => {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
               <div>
-                <h4 className="font-bold text-[var(--text)] mb-2">For Teachers</h4>
+                <h4 className="font-bold text-[var(--text)] mb-2">For Faculty</h4>
                 <p className="text-sm text-[var(--text-muted)]">Generate papers, manage questions, export to PDF/DOCX</p>
               </div>
               <div>
@@ -217,7 +217,7 @@ const Dashboard = () => {
               </div>
               <div>
                 <p className="text-xs font-semibold tracking-wide text-[var(--accent-text)]">EduQuest Core</p>
-                <h2 id="login-modal-title" className="text-lg sm:text-2xl font-bold text-[var(--text)]">{credentials.role === 'admin' ? 'Administrator' : 'Teacher'} Sign in</h2>
+                <h2 id="login-modal-title" className="text-lg sm:text-2xl font-bold text-[var(--text)]">{credentials.role === 'admin' ? 'Administrator' : 'Faculty'} Sign in</h2>
                 <p className="text-sm text-[var(--text-muted)]">Securely sign in to your EduQuest account</p>
               </div>
             </div>
@@ -235,7 +235,7 @@ const Dashboard = () => {
                 onClick={() => setCredentials({ ...credentials, role: 'faculty' })}
                 className={`py-2.5 text-sm rounded-[10px] font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40 ${credentials.role === 'faculty' ? 'bg-gradient-to-r from-[var(--accent-from)] to-[var(--accent-to)] text-white shadow-sm' : 'bg-transparent text-[var(--text-muted)] hover:bg-[var(--surface)]'}`}
               >
-                Teacher
+                Faculty
               </button>
               <button
                 type="button"
@@ -290,7 +290,7 @@ const Dashboard = () => {
                 className="w-full min-h-12 px-4 py-3 bg-gradient-to-br from-[var(--accent-from)] to-[var(--accent-to)] text-white font-semibold rounded-xl hover:shadow-lg hover:-translate-y-px focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-500/30 transition-all duration-200 shadow-md disabled:opacity-70 disabled:cursor-wait disabled:hover:translate-y-0"
               >
                 {isSubmitting && <LoaderCircle className="mr-2 inline-block h-4 w-4 animate-spin" aria-hidden="true" />}
-                {isSubmitting ? 'Signing in...' : `Sign in to ${credentials.role === 'admin' ? 'Administrator' : 'Teacher'} Dashboard`}
+                {isSubmitting ? 'Signing in...' : `Sign in to ${credentials.role === 'admin' ? 'Administrator' : 'Faculty'} Dashboard`}
               </button>
             </form>
 

@@ -1,11 +1,12 @@
 from flask import Blueprint, request, jsonify, current_app
-import os, re, json, time
+import os, re, json
 from difflib import SequenceMatcher
-import bcrypt
 from groq import Groq
 from dotenv import load_dotenv
 import database as db
-from utils.auth import _generate_admin_token, _generate_role_token, require_admin
+from supabase_auth.errors import AuthApiError
+
+from utils.auth import get_supabase_profile
 
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'), override=True)
 
@@ -71,76 +72,75 @@ def health_check():
     return jsonify({'status': 'ok', 'message': 'Backend server is running'})
 
 
+def _login_with_supabase_role(expected_role: str):
+    try:
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict):
+            return jsonify({'error': 'Email and password are required'}), 400
+        email = data.get('username') or data.get('email')
+        password = data.get('password')
+        if (
+            not isinstance(email, str)
+            or not email.strip()
+            or not isinstance(password, str)
+            or not password
+        ):
+            return jsonify({'error': 'Email and password are required'}), 400
+
+        try:
+            auth_response = db.create_supabase_auth_client().auth.sign_in_with_password(
+                {'email': email.strip(), 'password': password}
+            )
+        except AuthApiError as exc:
+            if exc.status in (400, 401, 422):
+                return jsonify({'error': 'Invalid credentials'}), 401
+            current_app.logger.exception('Supabase sign-in failed')
+            return jsonify({'error': 'Authentication service unavailable'}), 503
+        except Exception:
+            current_app.logger.exception('Unable to sign in with Supabase')
+            return jsonify({'error': 'Authentication service unavailable'}), 503
+
+        session = auth_response.session
+        access_token = getattr(session, 'access_token', None)
+        if not access_token:
+            current_app.logger.error('Supabase sign-in returned no access token')
+            return jsonify({'error': 'Authentication service unavailable'}), 503
+        try:
+            profile = get_supabase_profile(access_token)
+        except Exception:
+            current_app.logger.exception('Unable to load signed-in user profile')
+            return jsonify({'error': 'Authentication service unavailable'}), 503
+
+        if (
+            not profile
+            or str(profile.get('role', '')).lower() != expected_role
+            or not profile.get('is_active', True)
+        ):
+            return jsonify({'error': 'Invalid credentials'}), 401
+
+        return jsonify({
+            'success': True,
+            'token': access_token,
+            'user': {
+                'user_id': profile['user_id'],
+                'name': profile.get('name'),
+                'email': profile.get('email'),
+                'role': expected_role,
+            },
+        }), 200
+    except Exception:
+        current_app.logger.exception('Unexpected login failure')
+        return jsonify({'error': 'Authentication service unavailable'}), 503
+
+
 @core_bp.route('/api/admin/login', methods=['POST'])
 def admin_login():
-    try:
-        data = request.json or {}
-        username = data.get('username') or data.get('email')
-        password = data.get('password')
-        if not username or not password:
-            return jsonify({'error': 'Username and password are required'}), 400
-        # Debug: log that a login attempt occurred (do NOT log raw passwords in production)
-        try:
-            print(f"[AUTH] Login attempt: username={username}, password_len={len(password) if password else 0}")
-        except Exception:
-            pass
-        # Dev fallback: allow a local admin when Supabase isn't configured or
-        # when FLASK_DEBUG is truthy. Controlled via env variables so it is
-        # explicit and safe for local development only.
-        supabase_key = os.getenv('SUPABASE_SERVICE_KEY') or os.getenv('SUPABASE_KEY', '')
-        debug_mode = current_app.debug or os.getenv('FLASK_DEBUG', '').lower() in ('1', 'true', 'yes')
-        dev_username = os.getenv('DEV_ADMIN_USERNAME', 'admin@eduquest.ai')
-        dev_password = os.getenv('DEV_ADMIN_PASSWORD', 'adminpass')
-        if debug_mode and username == dev_username and password == dev_password:
-            print(f"[AUTH] Dev fallback login success for {username}")
-            return jsonify({'success': True, 'token': _generate_admin_token(username), 'admin': {'username': username}})
-
-        # Attempt to fetch admin user from Supabase. If the lookup fails due to
-        # missing configuration or network issues, allow a local debug fallback
-        # only when Supabase keys are not set/placeholder or when running in
-        # debug mode. This makes local development easier while keeping
-        # production behaviour unchanged.
-        try:
-            admin_user = db.get_admin_user(username)
-        except Exception as e:
-            print(f"[AUTH] Supabase lookup failed: {e}")
-            admin_user = None
-
-        if admin_user:
-            password_hash = (admin_user.get('password_hash') or '').encode('utf-8')
-            if not password_hash or not bcrypt.checkpw(password.encode('utf-8'), password_hash):
-                print(f"[AUTH] Invalid credentials for user {username}: bcrypt mismatch")
-                return jsonify({'error': 'Invalid credentials'}), 401
-            return jsonify({'success': True, 'token': _generate_admin_token(username), 'admin': {'username': admin_user.get('username')}})
-
-        if not supabase_key or supabase_key.startswith('REPLACE') or debug_mode:
-            dev_username = os.getenv('DEV_ADMIN_USERNAME', 'admin@eduquest.ai')
-            dev_password = os.getenv('DEV_ADMIN_PASSWORD', 'adminpass')
-            if username == dev_username and password == dev_password:
-                print(f"[AUTH] Dev fallback login success for {username}")
-                return jsonify({'success': True, 'token': _generate_admin_token(username), 'admin': {'username': username}})
-        print(f"[AUTH] Invalid credentials for {username}: no matching admin_user and dev fallback not used")
-        return jsonify({'error': 'Invalid credentials'}), 401
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    return _login_with_supabase_role('admin')
 
 
 @core_bp.route('/api/faculty/login', methods=['POST'])
 def faculty_login():
-    data = request.json or {}
-    username = data.get('username') or data.get('email')
-    password = data.get('password')
-    configured_username = os.getenv('DEV_FACULTY_USERNAME', 'faculty@eduquest.ai')
-    configured_password = os.getenv('DEV_FACULTY_PASSWORD', 'facultypass')
-    if not username or not password:
-        return jsonify({'error': 'Username and password are required'}), 400
-    if username != configured_username or password != configured_password:
-        return jsonify({'error': 'Invalid faculty credentials'}), 401
-    return jsonify({
-        'success': True,
-        'token': _generate_role_token(username, 'faculty'),
-        'faculty': {'username': username},
-    })
+    return _login_with_supabase_role('faculty')
 
 
 @core_bp.route('/api/chat', methods=['POST'])

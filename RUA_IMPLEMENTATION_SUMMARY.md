@@ -154,7 +154,7 @@ I have successfully implemented a comprehensive **RUA (Remember-Understand-Apply
 
 ## 🎓 Educational Benefits
 
-### For Teachers
+### For Faculty
 1. **Curriculum Planning**: Clear visibility of what to teach at each level
 2. **Assessment Design**: Map questions to appropriate cognitive levels
 3. **Gap Analysis**: Identify missing syllabus coverage
@@ -243,7 +243,7 @@ Frontend Display
 
 ## 📝 Example Usage Scenarios
 
-### Scenario 1: Teacher Planning Curriculum
+### Scenario 1: Faculty Planning Curriculum
 1. Access syllabus analyzer
 2. Select subject (e.g., DBMS)
 3. Review overall RUA distribution
@@ -400,7 +400,7 @@ When generating questions, the system can now:
 
 ### Impact on Educational Process
 
-1. **Teachers**: Better curriculum planning and assessment design
+1. **Faculty**: Better curriculum planning and assessment design
 2. **Students**: More effective exam preparation and learning
 3. **Institutions**: Improved curriculum quality and compliance
 4. **Outcomes**: Enhanced learning with proper cognitive level alignment

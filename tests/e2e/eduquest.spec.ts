@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 const baseURL = process.env.BASE_URL ?? 'http://localhost:3000';
-const teacherCard = /Teacher Full Access/;
+const facultyCard = /Faculty Full Access/;
 const adminCard = /Administrator System Control/;
 
 test.describe('EduQuest dashboard smoke tests', () => {
@@ -24,7 +24,7 @@ test.describe('EduQuest dashboard smoke tests', () => {
     await expect(page).toHaveURL(baseURL + '/');
   });
 
-  test('valid teacher credentials navigate to the teacher dashboard', async ({ page }) => {
+  test('valid faculty credentials navigate to the faculty dashboard', async ({ page }) => {
     await page.route('**/api/faculty/login', (route) =>
       route.fulfill({
         status: 200,
@@ -34,13 +34,13 @@ test.describe('EduQuest dashboard smoke tests', () => {
     );
 
     await page.goto(baseURL);
-    await page.getByRole('button', { name: teacherCard }).click();
+    await page.getByRole('button', { name: facultyCard }).click();
     await page.getByLabel('Email address').fill('faculty@example.test');
     await page.getByLabel('Password').fill('valid-test-password');
-    await page.getByRole('button', { name: /Sign in to Teacher Dashboard/ }).click();
+    await page.getByRole('button', { name: /Sign in to Faculty Dashboard/ }).click();
 
-    await expect(page).toHaveURL(baseURL + '/teacher-dashboard');
-    await expect(page.getByRole('heading', { name: 'Teacher Dashboard' })).toBeVisible();
+    await expect(page).toHaveURL(baseURL + '/faculty-dashboard');
+    await expect(page.getByRole('heading', { name: 'Faculty Dashboard' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Switch to dark mode' })).toBeVisible();
   });
 
@@ -99,10 +99,10 @@ test.describe('EduQuest dashboard smoke tests', () => {
 
     await page.goto(baseURL);
     await page.evaluate(() => {
-      sessionStorage.setItem('teacherAuthenticated', 'true');
-      sessionStorage.setItem('authToken', 'playwright-teacher-token');
+      sessionStorage.setItem('facultyAuthenticated', 'true');
+      sessionStorage.setItem('authToken', 'playwright-faculty-token');
     });
-    await page.goto(`${baseURL}/teacher-dashboard`);
+    await page.goto(`${baseURL}/faculty-dashboard`);
     await page.getByRole('button', { name: 'Paper Generation', exact: true }).click();
     const automaticDownload = page.waitForEvent('download', { timeout: 1500 })
       .then(() => true)
@@ -165,10 +165,10 @@ test.describe('EduQuest dashboard smoke tests', () => {
 
     await page.goto(baseURL);
     await page.evaluate(() => {
-      sessionStorage.setItem('teacherAuthenticated', 'true');
-      sessionStorage.setItem('authToken', 'playwright-teacher-token');
+      sessionStorage.setItem('facultyAuthenticated', 'true');
+      sessionStorage.setItem('authToken', 'playwright-faculty-token');
     });
-    await page.goto(`${baseURL}/teacher-dashboard`);
+    await page.goto(`${baseURL}/faculty-dashboard`);
     await page.getByRole('button', { name: 'Paper Generation', exact: true }).click();
     await page.getByLabel('Semester').selectOption('5');
     await page.getByLabel('Subject').selectOption('1');
@@ -187,7 +187,7 @@ test.describe('EduQuest dashboard smoke tests', () => {
 
   test('Escape closes the sign-in modal', async ({ page }) => {
     await page.goto(baseURL);
-    await page.getByRole('button', { name: teacherCard }).click();
+    await page.getByRole('button', { name: facultyCard }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(page.getByRole('dialog')).toHaveCount(0);
@@ -304,7 +304,7 @@ test.describe('EduQuest dashboard smoke tests', () => {
       await page.screenshot({ path: testInfo.outputPath(`landing-${width}.png`), fullPage: true });
 
       if (width === 375) {
-        await page.getByRole('button', { name: teacherCard }).click();
+        await page.getByRole('button', { name: facultyCard }).click();
         await expect(page.getByRole('dialog')).toBeVisible();
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
         await page.screenshot({ path: testInfo.outputPath('signin-375.png'), fullPage: true });

@@ -52,7 +52,7 @@ export function Hero() {
           <p className="mx-auto mt-3 mb-8 max-w-2xl px-6 text-base md:text-lg text-[var(--text-muted)] leading-relaxed">
             Create professional, well-structured question papers in minutes with AI assistance.
             <br className="hidden md:block" />
-            Perfect for college and polytechnic teachers.
+            Perfect for college and polytechnic faculty.
           </p>
 
           <div className="flex justify-center gap-4 flex-wrap">

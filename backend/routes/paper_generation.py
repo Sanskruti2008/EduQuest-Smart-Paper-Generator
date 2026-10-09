@@ -6,8 +6,8 @@ import time
 from pathlib import Path
 
 from dotenv import load_dotenv
-from flask import Blueprint, jsonify, request, send_file
-from utils.auth import require_roles
+from flask import Blueprint, current_app, g, jsonify, request, send_file
+from utils.auth import require_roles, require_supabase_roles
 from services.generation_executor import (
     GenerationBusyError,
     GenerationTimeoutError,
@@ -18,18 +18,29 @@ generation_bp = Blueprint("generation_bp", __name__)
 
 
 @generation_bp.route("/api/paper-generation/subjects", methods=["GET"])
-@require_roles("admin", "faculty")
+@require_supabase_roles("admin", "faculty")
 def get_paper_generation_subjects():
     try:
-        from database import get_supabase_client
+        from database import get_supabase_admin_client
 
-        response = (
-            get_supabase_client()
-            .table("subject")
+        client = get_supabase_admin_client()
+        subjects_query = (
+            client.table("subject")
             .select("subject_id,subject_name,subject_code,branch,semester")
-            .order("subject_name")
-            .execute()
         )
+        if str(g.current_user.get("role", "")).lower() == "faculty":
+            assignments = (
+                client.table("faculty_subject_assignment")
+                .select("subject_id")
+                .eq("faculty_id", g.current_user["user_id"])
+                .eq("is_active", True)
+                .execute()
+            ).data or []
+            subject_ids = [row["subject_id"] for row in assignments]
+            if not subject_ids:
+                return jsonify({"success": True, "subjects": []}), 200
+            subjects_query = subjects_query.in_("subject_id", subject_ids)
+        response = subjects_query.order("subject_name").execute()
         subjects = [
             {
                 "subject_id": row["subject_id"],
@@ -44,10 +55,11 @@ def get_paper_generation_subjects():
             "success": True,
             "subjects": subjects,
         }), 200
-    except Exception as error:
+    except Exception:
+        current_app.logger.exception("Unable to load subjects for paper generation")
         return jsonify({
             "success": False,
-            "error": f"Unable to load subjects for paper generation: {error}",
+            "error": "Unable to load subjects for paper generation.",
         }), 500
 
 
@@ -59,13 +71,46 @@ _PIPELINE_ROOT = (
 
 
 @generation_bp.route("/api/generate-question-paper", methods=["POST"])
-@require_roles("admin", "faculty")
+@require_supabase_roles("admin", "faculty")
 def generate_question_paper():
     body = request.get_json(silent=True)
     if not isinstance(body, dict):
         return jsonify({"success": False, "error": "A JSON faculty input object is required."}), 400
 
     try:
+        if str(g.current_user.get("role", "")).lower() == "faculty":
+            subject_id = body.get("subject_id")
+            if isinstance(subject_id, bool) or (
+                isinstance(subject_id, float) and not subject_id.is_integer()
+            ):
+                subject_id = None
+            try:
+                subject_id = int(subject_id)
+            except (TypeError, ValueError):
+                subject_id = None
+            if subject_id is None or subject_id <= 0:
+                return jsonify({
+                    "success": False,
+                    "error": "Select an assigned subject before generating a paper.",
+                }), 400
+            from database import get_supabase_admin_client
+
+            assignments = (
+                get_supabase_admin_client()
+                .table("faculty_subject_assignment")
+                .select("subject_id")
+                .eq("faculty_id", g.current_user["user_id"])
+                .eq("subject_id", subject_id)
+                .eq("is_active", True)
+                .limit(1)
+                .execute()
+            ).data
+            if not assignments:
+                return jsonify({
+                    "success": False,
+                    "error": "You are not assigned to generate papers for this subject.",
+                }), 403
+
         selected_units = body.get("selected_units")
         rua_allocation = body.get("rua_allocation")
         if not isinstance(selected_units, list) or not isinstance(rua_allocation, dict):

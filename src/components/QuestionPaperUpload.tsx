@@ -148,7 +148,7 @@ const QuestionPaperUpload: React.FC = () => {
   const fetchRecentPapers = async () => {
     setLoadingPapers(true);
     try {
-      const token = sessionStorage.getItem('adminToken') || sessionStorage.getItem('teacherAuthenticated');
+      const token = sessionStorage.getItem('adminToken') || sessionStorage.getItem('facultyAuthenticated');
       if (!token) return;
 
       const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/uploaded-papers?limit=5`, {
@@ -216,7 +216,7 @@ const QuestionPaperUpload: React.FC = () => {
       return;
     }
 
-    const token = sessionStorage.getItem('adminToken') || sessionStorage.getItem('teacherAuthenticated');
+    const token = sessionStorage.getItem('adminToken') || sessionStorage.getItem('facultyAuthenticated');
     if (!token) {
       setResult({ success: false, error: 'Login required to upload question papers.' });
       return;
@@ -232,7 +232,7 @@ const QuestionPaperUpload: React.FC = () => {
     formData.append('subject', subject);
     // Ask backend to return extracted data for review instead of auto-saving
     formData.append('review', 'true');
-    formData.append('uploadedBy', sessionStorage.getItem('teacherAuthenticated') ? 'teacher' : 'admin');
+    formData.append('uploadedBy', sessionStorage.getItem('facultyAuthenticated') ? 'faculty' : 'admin');
 
     try {
       const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/upload-question-paper`, {
@@ -337,7 +337,7 @@ const QuestionPaperUpload: React.FC = () => {
 
   const handleSaveToDb = async () => {
     if (!editableData || !result) return;
-    const token = sessionStorage.getItem('adminToken') || sessionStorage.getItem('teacherAuthenticated');
+    const token = sessionStorage.getItem('adminToken') || sessionStorage.getItem('facultyAuthenticated');
     if (!token) { alert('Login required'); return; }
 
     try {

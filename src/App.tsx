@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { QuestionBankProvider } from './context/QuestionBankContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Dashboard from './pages/Dashboard';
-const TeacherDashboard = lazy(() => import('./pages/TeacherDashboard'));
+const FacultyDashboard = lazy(() => import('./pages/FacultyDashboard'));
 import StudentDashboard from './pages/StudentDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import ModeratorDashboard from './pages/ModeratorDashboard';
@@ -55,21 +55,21 @@ function App() {
             />
             <Route path="/moderator-dashboard" element={<ModeratorDashboard />} />
             <Route
-              path="/teacher-dashboard"
+              path="/faculty-dashboard"
               element={
                 <Suspense
                   fallback={
                     <div className="min-h-screen flex items-center justify-center text-slate-600">
-                      Loading Teacher Dashboard...
+                      Loading Faculty Dashboard...
                     </div>
                   }
                 >
-                  <TeacherDashboard />
+                  <FacultyDashboard />
                 </Suspense>
               }
             />
             <Route path="/student-dashboard" element={<StudentDashboard />} />
-            <Route path="/teacher" element={<TeacherDashboard />} />
+            <Route path="/faculty" element={<FacultyDashboard />} />
             <Route path="/question-bank" element={<QuestionBank />} />
             <Route path="/student-question-bank" element={<StudentQuestionBank />} />
             <Route path="/student-curriculum" element={<StudentCurriculum />} />

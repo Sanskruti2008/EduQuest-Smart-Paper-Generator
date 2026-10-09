@@ -153,7 +153,7 @@ const SyllabusAnalyzer: React.FC = () => {
       <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.10),_transparent_32%),linear-gradient(180deg,_#f8fbff_0%,_#ffffff_58%,_#eef4ff_100%)] text-slate-900">
         <div className="border-b border-white/70 bg-white/75 backdrop-blur-xl">
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <Link to="/teacher-dashboard" className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition-colors hover:border-blue-200 hover:text-slate-900">
+            <Link to="/faculty-dashboard" className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition-colors hover:border-blue-200 hover:text-slate-900">
               <ArrowLeft className="w-4 h-4" />
               Back to Dashboard
             </Link>

@@ -40,7 +40,7 @@ export default function Sidebar({ collapsed, onToggle, widthClass, activeKey, on
           {!collapsed && (
             <div>
               <p className="text-lg font-semibold">EduQuest</p>
-              <p className="text-xs text-slate-500">Teacher Console</p>
+              <p className="text-xs text-slate-500">Faculty Console</p>
             </div>
           )}
         </div>

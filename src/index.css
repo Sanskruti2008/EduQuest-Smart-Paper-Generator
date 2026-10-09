@@ -153,35 +153,35 @@
   }
 }
 
-:is(.admin-dashboard, .teacher-dashboard) [class*="bg-white"] {
+:is(.admin-dashboard, .faculty-dashboard) [class*="bg-white"] {
   background-color: var(--surface) !important;
 }
 
-:is(.admin-dashboard, .teacher-dashboard) [class*="bg-slate-50"],
-:is(.admin-dashboard, .teacher-dashboard) [class*="bg-gray-50"] {
+:is(.admin-dashboard, .faculty-dashboard) [class*="bg-slate-50"],
+:is(.admin-dashboard, .faculty-dashboard) [class*="bg-gray-50"] {
   background-color: var(--surface-2) !important;
 }
 
-:is(.admin-dashboard, .teacher-dashboard) [class*="text-slate-900"],
-:is(.admin-dashboard, .teacher-dashboard) [class*="text-slate-800"],
-:is(.admin-dashboard, .teacher-dashboard) [class*="text-slate-700"] {
+:is(.admin-dashboard, .faculty-dashboard) [class*="text-slate-900"],
+:is(.admin-dashboard, .faculty-dashboard) [class*="text-slate-800"],
+:is(.admin-dashboard, .faculty-dashboard) [class*="text-slate-700"] {
   color: var(--text) !important;
 }
 
-:is(.admin-dashboard, .teacher-dashboard) [class*="text-slate-600"],
-:is(.admin-dashboard, .teacher-dashboard) [class*="text-slate-500"],
-:is(.admin-dashboard, .teacher-dashboard) [class*="text-slate-400"] {
+:is(.admin-dashboard, .faculty-dashboard) [class*="text-slate-600"],
+:is(.admin-dashboard, .faculty-dashboard) [class*="text-slate-500"],
+:is(.admin-dashboard, .faculty-dashboard) [class*="text-slate-400"] {
   color: var(--text-muted) !important;
 }
 
-:is(.admin-dashboard, .teacher-dashboard) [class*="border-white"],
-:is(.admin-dashboard, .teacher-dashboard) [class*="border-slate-"] {
+:is(.admin-dashboard, .faculty-dashboard) [class*="border-white"],
+:is(.admin-dashboard, .faculty-dashboard) [class*="border-slate-"] {
   border-color: var(--border) !important;
 }
 
-:is(.admin-dashboard, .teacher-dashboard) input:not([type="checkbox"]),
-:is(.admin-dashboard, .teacher-dashboard) select,
-:is(.admin-dashboard, .teacher-dashboard) textarea {
+:is(.admin-dashboard, .faculty-dashboard) input:not([type="checkbox"]),
+:is(.admin-dashboard, .faculty-dashboard) select,
+:is(.admin-dashboard, .faculty-dashboard) textarea {
   background-color: var(--input-bg);
   border-color: var(--input-border);
   color: var(--text);
