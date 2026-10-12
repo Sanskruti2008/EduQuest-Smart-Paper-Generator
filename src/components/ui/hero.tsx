@@ -1,6 +1,6 @@
+import { ArrowRight, Sparkles } from "lucide-react";
 import { useEffect } from "react";
 import { renderCanvas } from "./canvas";
-import { Sparkles, ArrowRight } from "lucide-react";
 
 export function Hero() {
   useEffect(() => {
@@ -13,7 +13,7 @@ export function Hero() {
         <div className="mb-6">
           <div className="relative flex items-center whitespace-nowrap rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-xs leading-6 text-[var(--text-muted)] shadow-sm hover:shadow-md transition-all">
             <Sparkles className="h-4 w-4 mr-2 text-[var(--accent-text)]" />
-            Introducing EduQuest.ai
+            Introducing EduQuest – Smart Question Paper Generator
             <button
               onClick={() => {
                 document.getElementById('dashboard-selection')?.scrollIntoView({ behavior: 'smooth' });
@@ -46,7 +46,7 @@ export function Hero() {
           </div>
 
           <h2 className="mt-10 text-2xl md:text-3xl font-bold text-[var(--text)]">
-            Welcome to EduQuest.ai
+            Welcome to EduQuest – Smart Question Paper Generator
           </h2>
 
           <p className="mx-auto mt-3 mb-8 max-w-2xl px-6 text-base md:text-lg text-[var(--text-muted)] leading-relaxed">

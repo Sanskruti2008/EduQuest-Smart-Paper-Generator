@@ -1,43 +1,40 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { API_CONFIG } from '../utils/constants';
+import { motion } from 'framer-motion';
 import {
-  Bell,
-  ChevronLeft,
-  ChevronRight,
-  ClipboardCheck,
-  FileCheck,
-  FileUp,
-  FileText,
-  LayoutDashboard,
-  LogOut,
-  Printer,
-  Search,
-  Settings,
-  ShieldCheck,
-  UserCog,
-  Users,
-  Wand2,
-  LineChart
+    Bell,
+    ChevronLeft,
+    ChevronRight,
+    ClipboardCheck,
+    FileCheck,
+    FileText,
+    FileUp,
+    LayoutDashboard,
+    LogOut,
+    Search,
+    ShieldCheck,
+    UserCog,
+    Users,
+    Wand2
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+    Area,
+    AreaChart,
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Cell,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis
+} from 'recharts';
+import QuestionPaperUpload from '../components/QuestionPaperUpload';
 import ThemeToggle from '../components/ThemeToggle';
 import FacultyManagement from '../components/admin/FacultyManagement';
-import { motion } from 'framer-motion';
-import QuestionPaperUpload from '../components/QuestionPaperUpload';
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis
-} from 'recharts';
+import { API_CONFIG } from '../utils/constants';
 
 type AdminDashboardStats = {
   total_papers: number;
@@ -128,7 +125,7 @@ export default function AdminDashboard() {
             </div>
             {!sidebarCollapsed && (
               <div>
-                <p className="text-lg font-bold text-slate-800">EduQuest</p>
+                <p className="text-lg font-bold text-slate-800">EduQuest – Smart Question Paper Generator</p>
                 <p className="text-xs font-semibold text-amber-600 tracking-wide uppercase">SysAdmin</p>
               </div>
             )}
@@ -173,7 +170,7 @@ export default function AdminDashboard() {
                 <LayoutDashboard className="h-5 w-5" />
               </button>
               <div>
-                <p className="text-sm font-medium text-amber-600">EduQuest Core</p>
+                <p className="text-sm font-medium text-amber-600">EduQuest – Smart Question Paper Generator</p>
                 <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-600">System Admin Portal</h1>
               </div>
             </div>

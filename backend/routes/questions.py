@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify
-from services.db_service import search_questions, get_all_questions
-from services.similarity_ingestion_service import get_unique_question_bank
+from services.db_service import get_unique_question_bank, get_all_questions, search_questions
 
 questions_bp = Blueprint('questions_bp', __name__)
 
@@ -11,10 +10,12 @@ def get_unique_question_bank_endpoint():
         branch = request.args.get('branch')
         semester = request.args.get('semester')
         subject = request.args.get('subject')
+        subject_id = request.args.get('subject_id', type=int)
         questions = get_unique_question_bank(
             branch=branch,
             semester=semester,
             subject=subject,
+            subject_id=subject_id,
         )
         return jsonify({
             'success': True,
@@ -37,12 +38,13 @@ def get_questions():
         branch = request.args.get('branch')
         semester = request.args.get('semester')
         subject = request.args.get('subject')
+        subject_id = request.args.get('subject_id', type=int)
         difficulty = request.args.get('difficulty')
         chapter = request.args.get('chapter')
         bloom_level = request.args.get('bloom_level')
         limit = request.args.get('limit', type=int, default=100)
 
-        questions = get_all_questions(branch, semester, subject, limit)
+        questions = get_all_questions(branch, semester, subject, limit, subject_id=subject_id)
         if difficulty:
             questions = [q for q in questions if q.get('difficulty') == difficulty]
         if chapter:

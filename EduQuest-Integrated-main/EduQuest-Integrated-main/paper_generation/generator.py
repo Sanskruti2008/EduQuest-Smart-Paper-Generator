@@ -15,6 +15,7 @@ def generate_question_paper(
     output_path=None,
     blueprint_db_id=None,
     generated_by=None,
+    persistence_client=None,
 ):
     """
     Generate a validated question paper from an approved blueprint.
@@ -29,7 +30,10 @@ def generate_question_paper(
     """
 
     engine = SimilarityEngine()
-    service = PaperGenerationService(engine)
+    service = PaperGenerationService(
+        engine,
+        persistence_client=persistence_client,
+    )
 
     result = service.generate(
         blueprint=blueprint,

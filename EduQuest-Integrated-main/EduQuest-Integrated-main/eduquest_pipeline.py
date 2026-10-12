@@ -95,12 +95,29 @@ def generate_final_question_paper(
         output_dir / "selected_questions.json"
     )
 
+    persistence_client = None
+    if persist:
+        try:
+            from database import get_supabase_admin_client
+
+            persistence_client = get_supabase_admin_client()
+        except Exception:
+            return {
+                "status": "FAILED",
+                "stage": "PERSISTENCE_CONFIGURATION",
+                "error": (
+                    "PERSISTENCE_CONFIGURATION_ERROR: Server-side Supabase "
+                    "service-role client is unavailable."
+                ),
+            }
+
     try:
         generation_result = generate_question_paper(
             blueprint=blueprint,
             subject=subject,
             persist=persist,
             output_path=str(selected_json_path),
+            persistence_client=persistence_client,
         )
 
     except Exception as error:

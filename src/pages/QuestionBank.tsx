@@ -1,13 +1,20 @@
-import { Fragment, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Book, BookOpen, Bookmark, CheckCircle2, Download, Edit2, Filter, GraduationCap, Layers, Loader2, Plus, Search, Tag, Target, Trash2, Upload } from 'lucide-react';
+import { Fragment, useEffect, useState } from 'react';
 import Header from '../components/Header';
 import QuestionModal from '../components/QuestionModal';
-import { useQuestionBank, Question } from '../context/QuestionBankContext';
+import { Question, useQuestionBank } from '../context/QuestionBankContext';
 import { API_CONFIG, BRANCHES, SEMESTERS, SUBJECT_CATALOG, formatBranchSemester } from '../utils/constants';
-import { Search, Filter, Plus, Edit2, Trash2, BookOpen, Upload, Download, Loader2, GraduationCap, Layout, Book, Layers, Tag, Bookmark, CheckCircle2, Target } from 'lucide-react';
+
+interface SubjectOption {
+  subject_id: number | string;
+  subject_name: string;
+  branch: string;
+  semester: number | string;
+}
 
 interface UniqueQuestion {
-  canonical_id: string;
+  canonical_id: string | number;
   canonical_question: string;
   subject?: string;
   question_type?: string;
@@ -20,14 +27,16 @@ const QuestionBank = () => {
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
   const [selectedSemester, setSelectedSemester] = useState<string | null>(null);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+  const [selectedSubjectId, setSelectedSubjectId] = useState<number | string | null>(null);
+  const [databaseSubjects, setDatabaseSubjects] = useState<SubjectOption[]>([]);
 
   // Fetch DB questions whenever branch + semester are both chosen
   useEffect(() => {
     if (selectedBranch && selectedSemester) {
-      fetchDbQuestions(selectedBranch, selectedSemester);
+      fetchDbQuestions(selectedBranch, selectedSemester, selectedSubject, selectedSubjectId);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedBranch, selectedSemester]);
+  }, [selectedBranch, selectedSemester, selectedSubject, selectedSubjectId]);
   
   const [searchTerm, setSearchTerm] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState('all');
@@ -36,6 +45,32 @@ const QuestionBank = () => {
   const [uniqueQuestions, setUniqueQuestions] = useState<UniqueQuestion[]>([]);
   const [uniqueLoading, setUniqueLoading] = useState(true);
   const [uniqueError, setUniqueError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const token = sessionStorage.getItem('authToken') || sessionStorage.getItem('adminToken');
+
+    const loadSubjects = async () => {
+      try {
+        const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/paper-generation/subjects`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          signal: controller.signal,
+        });
+        if (!response.ok) return;
+        const payload = await response.json();
+        if (Array.isArray(payload.subjects)) {
+          setDatabaseSubjects(payload.subjects);
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          console.error('[QuestionBank] Failed to load subject metadata:', error);
+        }
+      }
+    };
+
+    void loadSubjects();
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     if (!selectedBranch || !selectedSemester || !selectedSubject) {
@@ -50,8 +85,12 @@ const QuestionBank = () => {
         const params = new URLSearchParams({
           branch: selectedBranch,
           semester: selectedSemester,
-          subject: selectedSubject,
         });
+        if (selectedSubjectId !== null) {
+          params.set('subject_id', String(selectedSubjectId));
+        } else {
+          params.set('subject', selectedSubject);
+        }
         const controller = new AbortController();
         const timeout = window.setTimeout(() => controller.abort(), 8000);
         const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/unique-question-bank?${params}`, {
@@ -72,7 +111,7 @@ const QuestionBank = () => {
     };
 
     fetchUniqueQuestions();
-  }, [selectedBranch, selectedSemester, selectedSubject]);
+  }, [selectedBranch, selectedSemester, selectedSubject, selectedSubjectId]);
 
   // Get unique values
   const selectedGrade = selectedBranch && selectedSemester ? formatBranchSemester(selectedBranch, selectedSemester) : null;
@@ -82,7 +121,14 @@ const QuestionBank = () => {
   const catalogSubjects = selectedBranch && selectedSemester
     ? SUBJECT_CATALOG[selectedBranch]?.[selectedSemester] || []
     : [];
-  const availableSubjects = subjects.length > 0 ? subjects : catalogSubjects;
+  const databaseSubjectOptions = selectedBranch && selectedSemester
+    ? databaseSubjects.filter(subject =>
+        subject.branch === selectedBranch && String(subject.semester) === selectedSemester
+      )
+    : [];
+  const availableSubjects = databaseSubjectOptions.length > 0
+    ? databaseSubjectOptions.map(subject => subject.subject_name)
+    : (subjects.length > 0 ? subjects : catalogSubjects);
 
   const filteredQuestions = selectedGrade && selectedSubject
     ? questions.filter(q => {
@@ -183,6 +229,7 @@ const QuestionBank = () => {
                         setSelectedBranch(branch);
                         setSelectedSemester(null);
                         setSelectedSubject(null);
+                        setSelectedSubjectId(null);
                       }}
                       className={`p-5 rounded-2xl border-2 font-bold text-lg transition-all ${
                         selectedBranch === branch
@@ -209,6 +256,7 @@ const QuestionBank = () => {
                     setSelectedBranch(null);
                     setSelectedSemester(null);
                     setSelectedSubject(null);
+                    setSelectedSubjectId(null);
                   }}
                   className="flex items-center gap-2 text-slate-600 hover:text-amber-600 font-medium mb-6 transition-colors"
                 >
@@ -231,6 +279,7 @@ const QuestionBank = () => {
                       onClick={() => {
                         setSelectedSemester(semester);
                         setSelectedSubject(null);
+                        setSelectedSubjectId(null);
                       }}
                       className={`p-5 rounded-2xl border-2 font-bold text-lg transition-all ${
                         selectedSemester === semester
@@ -257,6 +306,7 @@ const QuestionBank = () => {
                     onClick={() => {
                       setSelectedSemester(null);
                       setSelectedSubject(null);
+                      setSelectedSubjectId(null);
                     }}
                     className="flex items-center gap-2 text-slate-600 hover:text-amber-600 font-medium transition-colors"
                   >
@@ -268,6 +318,7 @@ const QuestionBank = () => {
                       setSelectedBranch(null);
                       setSelectedSemester(null);
                       setSelectedSubject(null);
+                      setSelectedSubjectId(null);
                     }}
                     className="flex items-center gap-2 text-slate-600 hover:text-amber-600 font-medium transition-colors"
                   >
@@ -288,7 +339,13 @@ const QuestionBank = () => {
                   {availableSubjects.map(subject => (
                     <button
                       key={subject}
-                      onClick={() => setSelectedSubject(subject)}
+                      onClick={() => {
+                        setSelectedSubject(subject);
+                        const databaseSubject = databaseSubjectOptions.find(
+                          option => option.subject_name === subject
+                        );
+                        setSelectedSubjectId(databaseSubject?.subject_id ?? null);
+                      }}
                       className={`p-5 rounded-2xl border-2 font-bold text-lg transition-all text-left flex items-center justify-between group ${
                         selectedSubject === subject
                           ? 'border-amber-400 bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg shadow-orange-500/20 scale-[1.02] border-transparent'
@@ -363,6 +420,7 @@ const QuestionBank = () => {
                 setSelectedBranch(null);
                 setSelectedSemester(null);
                 setSelectedSubject(null);
+                setSelectedSubjectId(null);
               }}
               className="px-5 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white font-semibold transition-all border border-white/40"
             >

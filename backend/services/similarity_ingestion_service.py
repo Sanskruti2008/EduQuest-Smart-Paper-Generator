@@ -117,32 +117,17 @@ def get_unique_question_bank(
     branch: str | None = None,
     semester: str | None = None,
     subject: str | None = None,
+    subject_id: int | None = None,
 ) -> list[dict[str, Any]]:
-    """Read canonical questions created by the integrated similarity engine."""
-    if not _ENGINE_ROOT.is_dir():
-        raise RuntimeError(
-            f"Integrated similarity engine directory not found: {_ENGINE_ROOT}"
-        )
+    """Read canonical questions from Supabase, where mappings are authoritative."""
+    from database import get_unique_question_bank as get_unique_from_database
 
-    engine_root = str(_ENGINE_ROOT)
-    if engine_root not in sys.path:
-        sys.path.insert(0, engine_root)
-
-    from src.services.canonical_repository import CanonicalRepository
-    from src.services.unique_question_bank_service import UniqueQuestionBankService
-
-    repository = CanonicalRepository(
-        file_path=str(_ENGINE_ROOT / "data" / "canonical_questions.json")
+    return get_unique_from_database(
+        branch=branch,
+        semester=semester,
+        subject=subject,
+        subject_id=subject_id,
     )
-    service = UniqueQuestionBankService(repository)
-    questions = service.get_by_subject(subject) if subject else service.get_all_unique_questions()
-    normalized_branch = str(branch or "").strip().casefold()
-    normalized_semester = str(semester or "").strip().casefold()
-    return [
-        question for question in questions
-        if (not normalized_branch or str(question.get("branch") or "").strip().casefold() == normalized_branch)
-        and (not normalized_semester or str(question.get("semester") or "").strip().casefold() == normalized_semester)
-    ]
 
 
 def _flatten_questions(papers_data: list[dict[str, Any]]) -> list[dict[str, Any]]:

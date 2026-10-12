@@ -15,8 +15,11 @@ def save_paper(filename: str, branch: str, semester: str, subject: str, papers_d
 def get_paper_by_id(pid: int):
     return db.get_paper_by_id(pid)
 
-def get_all_questions(branch=None, semester=None, subject=None, limit=100):
-    return db.get_all_questions(branch, semester, subject, limit)
+def get_all_questions(branch=None, semester=None, subject=None, limit=100, subject_id=None):
+    return db.get_all_questions(branch, semester, subject, limit, subject_id=subject_id)
+
+def get_unique_question_bank(branch=None, semester=None, subject=None, subject_id=None):
+    return db.get_unique_question_bank(branch, semester, subject, subject_id)
 
 def search_questions(term: str, branch=None, semester=None, subject=None, limit=50):
     return db.search_questions(term, branch, semester, subject, limit)

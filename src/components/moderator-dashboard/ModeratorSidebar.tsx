@@ -26,7 +26,7 @@ export default function ModeratorSidebar({
           <ShieldCheck className="h-5 w-5" />
         </div>
         <div>
-          <p className="text-lg font-bold text-slate-800">EduQuest</p>
+          <p className="text-lg font-bold text-slate-800">EduQuest – Smart Question Paper Generator</p>
           <p className="text-xs font-semibold text-amber-600 tracking-wide uppercase">Faculty Reviewer</p>
         </div>
       </div>

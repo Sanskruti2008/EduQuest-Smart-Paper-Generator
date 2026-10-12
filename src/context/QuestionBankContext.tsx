@@ -1,8 +1,9 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { formatBranchSemester, API_CONFIG } from '../utils/constants';
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { API_CONFIG, formatBranchSemester } from '../utils/constants';
 
 export interface Question {
   id: number;
+  canonical_id?: string | number;
   text: string;
   chapter: string;
   subject: string;
@@ -33,7 +34,7 @@ export interface Feedback {
 interface QuestionBankContextType {
   questions: Question[];
   loading: boolean;
-  fetchDbQuestions: (branch?: string | null, semester?: string | null, subject?: string | null) => Promise<void>;
+  fetchDbQuestions: (branch?: string | null, semester?: string | null, subject?: string | null, subjectId?: number | string | null) => Promise<void>;
   addQuestion: (question: Omit<Question, 'id' | 'createdAt'>) => void;
   updateQuestion: (id: number, question: Partial<Question>) => void;
   deleteQuestion: (id: number) => void;
@@ -121,13 +122,18 @@ export const QuestionBankProvider = ({ children }: QuestionBankProviderProps) =>
     branch?: string | null,
     semester?: string | null,
     subject?: string | null,
+    subjectId?: number | string | null,
   ): Promise<void> => {
     setLoading(true);
     try {
       const params = new URLSearchParams({ limit: '300' });
       if (branch)   params.set('branch',   branch);
       if (semester) params.set('semester', semester);
-      if (subject)  params.set('subject',  subject);
+      if (subjectId !== null && subjectId !== undefined) {
+        params.set('subject_id', String(subjectId));
+      } else if (subject) {
+        params.set('subject', subject);
+      }
 
       const controller = new AbortController();
       const timeout = window.setTimeout(() => controller.abort(), 8000);
@@ -155,6 +161,7 @@ export const QuestionBankProvider = ({ children }: QuestionBankProviderProps) =>
           ?? (q.created_at ? String(q.created_at).split('-')[0] : String(new Date().getFullYear()));
         return {
           id         : Number(q.id ?? q.question_id),
+          canonical_id: q.canonical_id,
           text       : String(q.text || q.question_text || ''),
           chapter    : String(q.chapter || 'General'),
           subject    : String(q.subject || subject || 'Unknown'),

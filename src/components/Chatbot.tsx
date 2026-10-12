@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { X, Send, Bot, User, Mic, Volume2, MicOff, MessageCircle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ColorOrb } from './ui/color-orb';
-import { AILoader } from './ui/ai-loader';
-import { SimilarQuestions } from './SimilarQuestions';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Bot, MessageCircle, Mic, MicOff, Send, User, Volume2, X } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import { API_CONFIG } from '../utils/constants';
+import { SimilarQuestions } from './SimilarQuestions';
+import { AILoader } from './ui/ai-loader';
+import { ColorOrb } from './ui/color-orb';
 
 interface Message {
   id: string;
@@ -18,7 +18,7 @@ export const Chatbot: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: 'Hello! I\'m your EduQuest.ai assistant. How can I help you today?',
+      text: 'Hello! I\'m your EduQuest – Smart Question Paper Generator assistant. How can I help you today?',
       sender: 'bot',
       timestamp: new Date(),
     },
@@ -377,7 +377,7 @@ export const Chatbot: React.FC = () => {
                     <Bot size={40} className="text-gray-400 mx-auto mb-3" />
                     <h4 className="text-base font-medium text-gray-700 mb-1">Start a conversation</h4>
                     <p className="text-sm text-gray-500">
-                      Ask me anything about EduQuest
+                      Ask me anything about EduQuest – Smart Question Paper Generator
                     </p>
                   </div>
                 )}
