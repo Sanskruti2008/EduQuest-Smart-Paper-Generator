@@ -53,6 +53,22 @@ class FakeQuery:
                     ]
                 return FakeResponse(list(rows))
 
+        if self.table_name == "papergenerationlog":
+            paper_ids = self.filters.get("paper_id")
+            rows = self.client.generation_logs
+            if paper_ids is not None:
+                rows = [row for row in rows if row["paper_id"] in paper_ids]
+            return FakeResponse([
+                {
+                    "paper_id": row["paper_id"],
+                    "generated_at": row.get("generated_at"),
+                }
+                for row in rows
+            ])
+
+        if self.table_name == "questionpaper":
+            return FakeResponse(list(self.client.papers))
+
         if self.table_name == "subject":
             rows = [
                 row for row in self.client.subjects
@@ -250,11 +266,12 @@ def _questions():
     return questions
 
 
-def _service():
+def _service(persistence_client=None):
     questions = _questions()
     client = FakeClient(questions)
     service = PaperGenerationService(
-        FakeSimilarityEngine(questions, client)
+        FakeSimilarityEngine(questions, client),
+        persistence_client=client if persistence_client is None else persistence_client,
     )
     return service, client
 
@@ -295,6 +312,45 @@ def test_first_generation_and_empty_usage_history_succeed_and_persist_27_records
     assert all(question["_usage_count"] == 0 for question in _selected_questions(result))
 
 
+def test_persistence_uses_injected_admin_client_not_retrieval_client():
+    questions = _questions()
+    retrieval_client = FakeClient(questions)
+    admin_client = FakeClient(questions)
+    service = PaperGenerationService(
+        FakeSimilarityEngine(questions, retrieval_client),
+        persistence_client=admin_client,
+    )
+
+    result = service.generate(_blueprint(), "Operating Systems", persist=True)
+
+    assert result["persistence"]["status"] == "SAVED"
+    assert service.client is retrieval_client
+    assert service.persistence_service.client is admin_client
+    assert len(retrieval_client.papers) == 0
+    assert len(admin_client.papers) == 1
+    assert len(admin_client.question_paper_mappings) == 27
+    assert len(admin_client.usage_history) == 27
+    assert len(admin_client.generation_logs) == 1
+
+
+def test_persistence_fails_closed_without_server_side_client():
+    questions = _questions()
+    service = PaperGenerationService(
+        FakeSimilarityEngine(questions, FakeClient(questions)),
+        persistence_client=None,
+    )
+
+    try:
+        service.generate(_blueprint(), "Operating Systems", persist=True)
+    except RuntimeError as error:
+        assert str(error) == (
+            "PERSISTENCE_CONFIGURATION_ERROR: Server-side Supabase "
+            "service-role client is unavailable."
+        )
+    else:
+        raise AssertionError("Persistence must fail closed without an admin client")
+
+
 def test_second_persisted_generation_prefers_fresh_questions_and_stays_valid():
     service, client = _service()
 
@@ -318,6 +374,29 @@ def test_second_persisted_generation_prefers_fresh_questions_and_stays_valid():
     assert second["persistence"]["usage_records"] == 27
 
 
+def test_partial_reuse_prefers_unused_questions_before_reuse():
+    all_questions = _questions()
+    questions = all_questions[:7] + all_questions[50:83]
+    client = FakeClient(questions)
+    service = PaperGenerationService(
+        FakeSimilarityEngine(questions, client),
+        persistence_client=client,
+    )
+
+    first = service.generate(_blueprint(), "Operating Systems", persist=True)
+    second = service.generate(_blueprint(), "Operating Systems", persist=True)
+    first_ids = {
+        question["canonical_id"] for question in _selected_questions(first)
+    }
+    second_ids = {
+        question["canonical_id"] for question in _selected_questions(second)
+    }
+
+    _assert_blueprint_valid(service, second)
+    assert len(first_ids - second_ids) == 13
+    assert len(second_ids - first_ids) == 13
+
+
 def test_equal_usage_counts_still_produce_diverse_valid_selections():
     service, client = _service()
     client.usage_history = [
@@ -335,6 +414,116 @@ def test_equal_usage_counts_still_produce_diverse_valid_selections():
         )))
 
     assert len(set(selected_papers)) > 1
+
+
+def test_usage_metadata_prefers_never_used_then_oldest_last_used():
+    service, client = _service()
+    client.usage_history = [
+        {"paper_id": 1, "question_id": "DB_2-0"},
+        {"paper_id": 2, "question_id": "DB_2-1"},
+        {"paper_id": 1, "question_id": "DB_4-0"},
+    ]
+    client.generation_logs = [
+        {"paper_id": 1, "generated_at": "2026-01-01T00:00:00+00:00"},
+        {"paper_id": 2, "generated_at": "2026-02-01T00:00:00+00:00"},
+    ]
+
+    metadata = service.usage_service.get_candidate_usage_metadata([
+        {"canonical_id": "CAN_2-0", "question_id": "DB_2-0"},
+        {"canonical_id": "CAN_2-1", "question_id": "DB_2-1"},
+        {"canonical_id": "CAN_2-2", "question_id": "DB_2-2"},
+    ])
+
+    assert metadata["CAN_2-2"] == {
+        "usage_count": 0,
+        "last_used_at": None,
+    }
+    assert metadata["CAN_2-0"]["last_used_at"] == "2026-01-01T00:00:00+00:00"
+    assert metadata["CAN_2-1"]["last_used_at"] == "2026-02-01T00:00:00+00:00"
+
+
+def test_previous_signatures_use_configuration_and_canonical_ids():
+    service, client = _service()
+    blueprint = _blueprint()
+    selection = service.selection_service.generate_selection(
+        service.repository.get_questions_for_generation(subject="Operating Systems"),
+        blueprint,
+        seed=7,
+    )
+    client.papers.append({
+        "paper_id": 1,
+        "raw_json": {"blueprint": blueprint, "selection": selection},
+    })
+    signatures = service.usage_service.get_previous_paper_signatures(blueprint)
+
+    assert len(signatures) == 1
+    assert signatures[0]["combination"] == {
+        question["canonical_id"]
+        for question in _selected_questions({"selection": selection})
+    }
+
+
+def test_failed_persistence_does_not_update_usage_history_or_previous_papers():
+    service, client = _service()
+    result = service.generate(_blueprint(), "Operating Systems")
+    client.fail_atomic_persistence = True
+
+    try:
+        service.persistence_service.save_generated_paper(
+            _blueprint(),
+            result["selection"],
+        )
+    except RuntimeError as error:
+        assert "PERSISTENCE_ERROR" in str(error)
+    else:
+        raise AssertionError("Persistence RPC failure must fail generation")
+
+    assert client.usage_history == []
+    assert client.papers == []
+    assert client.generation_logs == []
+
+
+def test_fully_used_bank_changes_sequence_when_combination_is_unavoidable():
+    all_questions = _questions()
+    questions = all_questions[:7] + all_questions[50:70]
+    client = FakeClient(questions)
+    service = PaperGenerationService(
+        FakeSimilarityEngine(questions, client),
+        persistence_client=client,
+    )
+
+    first = service.generate(_blueprint(), "Operating Systems", persist=True)
+    second = service.generate(_blueprint(), "Operating Systems", persist=True)
+    first_signature = service.usage_service.paper_signature(first["selection"])
+    second_signature = service.usage_service.paper_signature(second["selection"])
+
+    _assert_blueprint_valid(service, second)
+    assert first_signature["combination"] == second_signature["combination"]
+    assert first_signature["sequence"] != second_signature["sequence"]
+    assert second["variation"]["status"] == "DIFFERENT_SEQUENCE"
+
+
+def test_fixed_selector_seed_is_reproducible_for_tie_breaking():
+    service, _ = _service()
+    candidates = service.repository.get_questions_for_generation(
+        subject="Operating Systems"
+    )
+    first = service.selection_service.generate_selection(
+        candidates,
+        _blueprint(),
+        usage_counts={candidate["canonical_id"]: 0 for candidate in candidates},
+        seed=1234,
+    )
+    second = service.selection_service.generate_selection(
+        candidates,
+        _blueprint(),
+        usage_counts={candidate["canonical_id"]: 0 for candidate in candidates},
+        seed=1234,
+    )
+
+    assert service.usage_service.paper_signature(first) == (
+        service.usage_service.paper_signature(second)
+    )
 
 
 def test_usage_history_read_failure_falls_back_to_zero_counts():

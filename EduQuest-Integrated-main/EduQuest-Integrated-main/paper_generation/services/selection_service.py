@@ -239,6 +239,7 @@ class SelectionService:
         blueprint,
         usage_counts=None,
         seed=None,
+        excluded_combinations=None,
     ):
         """Generate an exact blueprint-compliant paper using CP-SAT."""
         feasibility = self.check_feasibility(candidates, blueprint)
@@ -249,6 +250,7 @@ class SelectionService:
             blueprint,
             usage_counts=usage_counts,
             seed=seed,
+            excluded_combinations=excluded_combinations,
         )
         sections = self._build_sections(generated_questions, blueprint)
         output = {"paper_information": blueprint["paper_information"], "sections": sections}
@@ -268,17 +270,32 @@ class SelectionService:
         blueprint,
         usage_counts=None,
         seed=None,
+        excluded_combinations=None,
     ):
         """Select exact generated-paper questions with CP-SAT."""
         unique_candidates = self._unique_candidates(candidates)
         has_usage_counts = usage_counts is not None
         usage_counts = usage_counts or {}
         rng = random.Random(seed)
-        unique_candidates.sort(
-            key=lambda q: (
-                usage_counts.get(q["canonical_id"], 0),
+
+        def priority_key(question):
+            usage = usage_counts.get(question["canonical_id"], 0)
+            usage_count = (
+                usage.get("usage_count", 0)
+                if isinstance(usage, dict)
+                else usage
+            )
+            return (
+                int(usage_count),
+                0 if question.get("_last_used_at") is None else 1,
+                "" if question.get("_last_used_at") is None else str(
+                    question["_last_used_at"]
+                ),
                 rng.random(),
             )
+
+        unique_candidates.sort(
+            key=priority_key
         )
         if not unique_candidates:
             raise ValueError("UNSATISFIABLE_SELECTION: no candidates available")
@@ -299,6 +316,18 @@ class SelectionService:
         model = cp_model.CpModel()
         x = [model.NewBoolVar(f"q_{i}") for i in range(len(unique_candidates))]
         model.Add(sum(x) == total_questions)
+        candidate_index_by_id = {
+            question["canonical_id"]: index
+            for index, question in enumerate(unique_candidates)
+        }
+        for combination in excluded_combinations or ():
+            excluded_indices = [
+                candidate_index_by_id[canonical_id]
+                for canonical_id in combination
+                if canonical_id in candidate_index_by_id
+            ]
+            if len(excluded_indices) == total_questions:
+                model.Add(sum(x[index] for index in excluded_indices) <= total_questions - 1)
         allowed_marks=set(required_counts)
         for marks,target in required_counts.items():
             ids=[i for i,q in enumerate(unique_candidates) if int(q["marks"])==marks]
@@ -328,7 +357,11 @@ class SelectionService:
             usage_weight = total_questions * max(n - 1, 0) + 1
             model.Minimize(sum(
                 (
-                    int(usage_counts.get(q["canonical_id"], 0)) * usage_weight
+                    int(
+                        usage_counts.get(q["canonical_id"], 0)["usage_count"]
+                        if isinstance(usage_counts.get(q["canonical_id"], 0), dict)
+                        else usage_counts.get(q["canonical_id"], 0)
+                    ) * usage_weight
                     + i
                 ) * x[i]
                 for i, q in enumerate(unique_candidates)
@@ -350,6 +383,25 @@ class SelectionService:
         output = self.generate_selection(candidates, blueprint)
         self.export_selected_questions(output, blueprint, output_path)
         return output
+
+    def vary_question_order(self, selection, seed=None):
+        """Shuffle only within existing sections and retain blueprint validity."""
+
+        rng = random.Random(seed)
+        for section in selection["sections"].values():
+            rng.shuffle(section["questions"])
+        selection["reference_attempted_selection"] = (
+            self._reference_attempted_selection(
+                selection["sections"],
+                {"question_pattern": {
+                    name: {
+                        "questions_to_attempt": section["questions_to_attempt"],
+                    }
+                    for name, section in selection["sections"].items()
+                }},
+            )
+        )
+        return selection
 
     def export_selected_questions(self, selection, blueprint, output_path=None):
         """Export a validated selection using Anushka's formatter contract."""

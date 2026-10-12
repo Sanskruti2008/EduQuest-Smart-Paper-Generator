@@ -19,6 +19,12 @@ class PaperPersistenceService:
         generated_by=None,
         blueprint_db_id=None,
     ):
+        if self.client is None:
+            raise RuntimeError(
+                "PERSISTENCE_CONFIGURATION_ERROR: Server-side Supabase "
+                "service-role client is unavailable."
+            )
+
         # --------------------------------------------------
         # 1. Read basic paper information
         # --------------------------------------------------

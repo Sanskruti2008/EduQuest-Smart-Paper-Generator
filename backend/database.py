@@ -1061,36 +1061,110 @@ def save_paper_with_questions(filename: str, branch: str, semester: str,
 # ---------------------------------------------------------------------------
 # Read
 # ---------------------------------------------------------------------------
-def get_all_questions(branch=None, semester=None, subject=None, limit=100, offset=0):
+def _resolve_subject(sb, branch=None, semester=None, subject=None, subject_id=None):
+    query = sb.table("subject").select("subject_id, subject_name, branch, semester")
+    if subject_id is not None:
+        query = query.eq("subject_id", subject_id)
+    elif subject:
+        query = query.ilike("subject_name", str(subject).strip())
+    candidates = query.execute().data or []
+    requested_branch = str(branch or "").strip().casefold()
+    requested_semester = _norm_sem(semester) if semester is not None else ""
+    for candidate in candidates:
+        if requested_branch and str(candidate.get("branch") or "").strip().casefold() != requested_branch:
+            continue
+        if requested_semester and _norm_sem(candidate.get("semester")) != requested_semester:
+            continue
+        return candidate
+    return None
+
+
+def get_all_questions(branch=None, semester=None, subject=None, limit=100, offset=0, subject_id=None):
     try:
         sb = get_supabase_client()
-        mq = sb.table("questionpapermapping").select(
-            "question_id, questionpaper!fk_mapping_paper!inner(paper_id, created_at, raw_json, exam_year, exam_type)"
-        )
-        if branch or semester:
-            # filter later in Python since raw_json isn't queryable by column
-            pass
-        mq = mq.range(offset, offset + limit - 1)
-        mr = mq.execute()
-        if not mr.data:
+        resolved_subject = _resolve_subject(sb, branch, semester, subject, subject_id)
+        if (branch or semester or subject or subject_id is not None) and not resolved_subject:
             return []
 
-        paper_by_qid = {m["question_id"]: m.get("questionpaper", {}) for m in mr.data}
-        q_ids = list(paper_by_qid.keys())
-        qr    = sb.table("question").select("*").in_("question_id", q_ids).execute()
+        question_query = sb.table("question").select("*")
+        if resolved_subject:
+            question_query = question_query.eq("subject_id", resolved_subject["subject_id"])
+        qr = question_query.execute()
+        if not qr.data:
+            return []
+
+        q_ids = [row["question_id"] for row in qr.data]
+        mr = sb.table("questionpapermapping").select(
+            "question_id, questionpaper!fk_mapping_paper(paper_id, created_at, raw_json, exam_year, exam_type)"
+        ).in_("question_id", q_ids).execute()
+        paper_by_qid = {m["question_id"]: m.get("questionpaper") or {} for m in (mr.data or [])}
 
         results = []
         for row in qr.data:
             pi  = paper_by_qid.get(row["question_id"], {})
             pj  = pi.get("raw_json") or {}
-            if branch   and pj.get("branch",   "").lower().strip() != branch.lower().strip():   continue
-            if semester and _norm_sem(pj.get("semester")) != _norm_sem(semester):                continue
-            if subject  and pj.get("subject",  "").lower() != subject.lower():  continue
             results.append(_row_to_question(row, pi))
-        return results
+        return results[offset:offset + limit]
     except Exception as e:
         print(f"[DB] get_all_questions error: {e}")
         return []
+
+
+def get_unique_question_bank(branch=None, semester=None, subject=None, subject_id=None):
+    """Return one canonical record per mapped question for a subject context."""
+    sb = get_supabase_client()
+    resolved_subject = _resolve_subject(sb, branch, semester, subject, subject_id)
+    if not resolved_subject:
+        return []
+
+    questions = sb.table("question").select(
+        "question_id, question_type, difficulty_level, marks, subject_id, unit_id, bloom_level, rua, chapter"
+    ).eq("subject_id", resolved_subject["subject_id"]).execute().data or []
+    if not questions:
+        return []
+
+    question_ids = [question["question_id"] for question in questions]
+    mappings = sb.table("canonical_question_mapping").select(
+        "canonical_id, question_id, similarity_score, assignment_method"
+    ).in_("question_id", question_ids).execute().data or []
+    if not mappings:
+        return []
+
+    canonical_ids = list({mapping["canonical_id"] for mapping in mappings})
+    canonicals = sb.table("canonical_question").select(
+        "canonical_id, canonical_question, concept_name"
+    ).in_("canonical_id", canonical_ids).execute().data or []
+    canonical_by_id = {item["canonical_id"]: item for item in canonicals}
+    question_by_id = {item["question_id"]: item for item in questions}
+    unique = {}
+    for mapping in mappings:
+        canonical_id = mapping["canonical_id"]
+        question = question_by_id.get(mapping["question_id"])
+        canonical = canonical_by_id.get(canonical_id)
+        if not question or not canonical:
+            continue
+        existing = unique.get(canonical_id)
+        if existing and mapping["question_id"] >= existing["question_id"]:
+            continue
+        unique[canonical_id] = {
+            "canonical_id": canonical_id,
+            "canonical_question": canonical.get("canonical_question"),
+            "question": canonical.get("canonical_question"),
+            "question_text": canonical.get("canonical_question"),
+            "concept_name": canonical.get("concept_name"),
+            "subject": resolved_subject.get("subject_name"),
+            "branch": resolved_subject.get("branch"),
+            "semester": resolved_subject.get("semester"),
+            "question_type": question.get("question_type"),
+            "difficulty": question.get("difficulty_level"),
+            "marks": question.get("marks"),
+            "unit_id": question.get("unit_id"),
+            "bloom_level": question.get("bloom_level"),
+            "rua": question.get("rua"),
+            "chapter": question.get("chapter"),
+            "question_id": question["question_id"],
+        }
+    return sorted(unique.values(), key=lambda item: str(item["canonical_id"]))
 
 def search_questions(search_term, branch=None, semester=None, subject=None, limit=50):
     try:

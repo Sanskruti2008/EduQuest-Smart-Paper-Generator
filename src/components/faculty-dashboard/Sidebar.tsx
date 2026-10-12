@@ -1,14 +1,14 @@
 import {
-  ChevronLeft,
-  ChevronRight,
-  ClipboardCheck,
-  FolderOpen,
-  GraduationCap,
-  LayoutDashboard,
-  LibraryBig,
-  FileOutput,
-  ListTodo,
-  LogOut
+    ChevronLeft,
+    ChevronRight,
+    ClipboardCheck,
+    FileOutput,
+    FolderOpen,
+    GraduationCap,
+    LayoutDashboard,
+    LibraryBig,
+    ListTodo,
+    LogOut
 } from 'lucide-react';
 
 const sidebarItems = [
@@ -39,7 +39,7 @@ export default function Sidebar({ collapsed, onToggle, widthClass, activeKey, on
           </div>
           {!collapsed && (
             <div>
-              <p className="text-lg font-semibold">EduQuest</p>
+              <p className="text-lg font-semibold">EduQuest – Smart Question Paper Generator</p>
               <p className="text-xs text-slate-500">Faculty Console</p>
             </div>
           )}

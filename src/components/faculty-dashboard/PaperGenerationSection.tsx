@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
 import { Download, FileCheck2, Loader2, Plus, Wand2, X } from 'lucide-react';
-import SectionHeader from './SectionHeader';
+import { useEffect, useMemo, useState } from 'react';
 import { API_CONFIG, BRANCHES, SEMESTERS } from '../../utils/constants';
+import SectionHeader from './SectionHeader';
 
 type RUA = { R: number; U: number; A: number };
 type Pattern = { generate: number; attempt: number; marks: number };
@@ -284,7 +284,7 @@ export default function PaperGenerationSection() {
       const link = document.createElement('a');
       const safeSubject = reviewPaper.paper_information.subject.replace(/[^A-Za-z0-9_-]+/g, '_');
       link.href = url;
-      link.download = `${safeSubject || 'EduQuest'}_Question_Paper.docx`;
+      link.download = `${safeSubject || 'EduQuest – Smart Question Paper Generator'}_Question_Paper.docx`;
       link.click();
       URL.revokeObjectURL(url);
     } catch (downloadError) {

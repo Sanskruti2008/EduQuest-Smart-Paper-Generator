@@ -1,9 +1,9 @@
+import { Check, GraduationCap, LoaderCircle, ShieldCheck, X } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, GraduationCap, LoaderCircle, ShieldCheck, X } from 'lucide-react';
+import ThemeToggle from '../components/ThemeToggle';
 import { Hero } from '../components/ui/hero';
 import { API_CONFIG } from '../utils/constants';
-import ThemeToggle from '../components/ThemeToggle';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -166,7 +166,7 @@ const Dashboard = () => {
               AI-Powered Question Paper Generation
             </h2>
             <p className="text-[var(--text-muted)] text-lg mb-6">
-              EduQuest.ai combines advanced AI technology with intuitive design to help educators create 
+              EduQuest – Smart Question Paper Generator combines advanced AI technology with intuitive design to help educators create
               professional question papers in minutes and students practice effectively.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
@@ -216,9 +216,9 @@ const Dashboard = () => {
                 <GraduationCap className="w-7 h-7 text-white" />
               </div>
               <div>
-                <p className="text-xs font-semibold tracking-wide text-[var(--accent-text)]">EduQuest Core</p>
+                <p className="text-xs font-semibold tracking-wide text-[var(--accent-text)]">EduQuest – Smart Question Paper Generator</p>
                 <h2 id="login-modal-title" className="text-lg sm:text-2xl font-bold text-[var(--text)]">{credentials.role === 'admin' ? 'Administrator' : 'Faculty'} Sign in</h2>
-                <p className="text-sm text-[var(--text-muted)]">Securely sign in to your EduQuest account</p>
+                <p className="text-sm text-[var(--text-muted)]">Securely sign in to your EduQuest – Smart Question Paper Generator account</p>
               </div>
             </div>
 

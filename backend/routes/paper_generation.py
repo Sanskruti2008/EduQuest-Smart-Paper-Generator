@@ -203,6 +203,11 @@ def generate_question_paper():
             "success": True,
             "paper_information": selected_questions.get("paper_information", {}),
             "sections": selected_questions.get("sections", {}),
+            "variation": (
+                generation_result.get("variation", {})
+                if isinstance(generation_result, dict)
+                else {}
+            ),
             "generation_milliseconds": round((time.perf_counter() - started_at) * 1000),
         })
         response.call_on_close(lambda: shutil.rmtree(output_dir, ignore_errors=True))
