@@ -3,6 +3,7 @@ from zipfile import ZipFile
 
 from app import create_app
 from routes import stats as stats_route
+from utils import auth as auth_utils
 from utils.auth import _generate_role_token
 
 
@@ -54,7 +55,15 @@ def test_reviewed_paper_download_uses_edited_question_text(monkeypatch):
     app = create_app()
     app.config['TESTING'] = True
     client = app.test_client()
-    token = _generate_role_token('faculty@example.test', 'faculty')
+    monkeypatch.setattr(
+        auth_utils,
+        'get_supabase_profile',
+        lambda _token: {
+            'user_id': 2,
+            'role': 'faculty',
+            'is_active': True,
+        },
+    )
     reviewed_paper = {
         'paper_information': {
             'branch': 'CSE',
@@ -84,7 +93,7 @@ def test_reviewed_paper_download_uses_edited_question_text(monkeypatch):
     response = client.post(
         '/api/download-reviewed-paper',
         json=reviewed_paper,
-        headers={'Authorization': f'Bearer {token}'},
+        headers={'Authorization': 'Bearer supabase-faculty-token'},
     )
 
     assert response.status_code == 200

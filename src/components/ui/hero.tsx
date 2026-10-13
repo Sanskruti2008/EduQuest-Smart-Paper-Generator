@@ -32,7 +32,7 @@ export function Hero() {
             <div className="relative mx-auto h-full max-w-5xl border border-[var(--border)] bg-[var(--surface-2)] p-6 md:p-10 lg:p-14 rounded-[20px] shadow-[var(--shadow)]">
               <h1 className="select-none text-center text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight">
                 <span className="text-[var(--text)]">
-                  AI-Powered Question Paper Generator
+                  EduQuest Smart Paper generation System
                 </span>
               </h1>
               <div className="flex items-center justify-center gap-1.5 mt-6">

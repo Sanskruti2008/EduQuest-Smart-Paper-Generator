@@ -208,6 +208,7 @@ class PaperPersistenceService:
         generation_log = {
             "blueprint_id": blueprint_db_id,
             "generated_by": generated_by,
+            "initial_status": "SUBMITTED_FOR_MODERATION",
             "total_questions": total_questions,
             "total_marks": total_marks,
             "generated_at": generated_at,

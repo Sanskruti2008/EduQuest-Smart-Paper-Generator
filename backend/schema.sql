@@ -1,5 +1,5 @@
 -- ============================================================
--- EduQuest.ai – Supabase Schema
+-- EduQuest Smart Paper generation System – Supabase Schema
 -- Run this entire script in the Supabase SQL Editor
 -- ============================================================
 
@@ -64,7 +64,9 @@ CREATE TABLE IF NOT EXISTS faculty_subject_assignment (
     subject_id BIGINT NOT NULL REFERENCES subject(subject_id) ON DELETE RESTRICT,
     assigned_by BIGINT NOT NULL REFERENCES "User"(user_id) ON DELETE RESTRICT,
     assigned_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    is_active BOOLEAN NOT NULL DEFAULT TRUE
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    can_generate BOOLEAN NOT NULL DEFAULT TRUE,
+    can_moderate BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_faculty_subject_assignment
@@ -78,6 +80,14 @@ ALTER TABLE faculty_subject_assignment ALTER COLUMN assigned_at SET DEFAULT NOW(
 ALTER TABLE faculty_subject_assignment ALTER COLUMN assigned_at SET NOT NULL;
 ALTER TABLE faculty_subject_assignment ALTER COLUMN is_active SET DEFAULT TRUE;
 ALTER TABLE faculty_subject_assignment ALTER COLUMN is_active SET NOT NULL;
+ALTER TABLE faculty_subject_assignment
+    ADD COLUMN IF NOT EXISTS can_generate BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE faculty_subject_assignment
+    ADD COLUMN IF NOT EXISTS can_moderate BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE faculty_subject_assignment ALTER COLUMN can_generate SET DEFAULT TRUE;
+ALTER TABLE faculty_subject_assignment ALTER COLUMN can_generate SET NOT NULL;
+ALTER TABLE faculty_subject_assignment ALTER COLUMN can_moderate SET DEFAULT FALSE;
+ALTER TABLE faculty_subject_assignment ALTER COLUMN can_moderate SET NOT NULL;
 
 -- ── 3. unit  (chapter inside a subject) ──────────────────────
 CREATE TABLE IF NOT EXISTS unit (
@@ -157,6 +167,14 @@ CREATE TABLE IF NOT EXISTS questionpaper (
     exam_year   INTEGER,
     exam_date   DATE,
     raw_json    JSONB  DEFAULT '{}',   -- stores filename, branch, semester, subject_code, etc.
+    generated_by BIGINT REFERENCES "User"(user_id) ON DELETE SET NULL,
+    moderated_by BIGINT REFERENCES "User"(user_id) ON DELETE SET NULL,
+    moderated_at TIMESTAMPTZ,
+    moderation_comments TEXT,
+    reviewed_by BIGINT REFERENCES "User"(user_id) ON DELETE SET NULL,
+    reviewed_at TIMESTAMPTZ,
+    review_comments TEXT,
+    status TEXT NOT NULL DEFAULT 'FINALIZED',
     created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 

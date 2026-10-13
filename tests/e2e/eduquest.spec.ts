@@ -201,7 +201,6 @@ test.describe('EduQuest dashboard smoke tests', () => {
       ['Assign Duties', 'Assign Duties'],
       ['Finalized Papers', 'Uploaded Question Papers'],
       ['Review Papers', 'Section Under Construction'],
-      ['Approval Workflow', 'Approval Workflow'],
     ] as const;
 
     await page.goto(baseURL);
@@ -235,6 +234,7 @@ test.describe('EduQuest dashboard smoke tests', () => {
       'AI Monitoring',
       'Reports & Analytics',
       'System Settings',
+      'Approval Workflow',
     ]) {
       await expect(page.getByRole('button', { name: removedSection, exact: true })).toHaveCount(0);
     }

@@ -7,6 +7,7 @@ import {
     FileCheck,
     FileText,
     FileUp,
+    Eye,
     LayoutDashboard,
     LogOut,
     Search,
@@ -34,6 +35,8 @@ import {
 import QuestionPaperUpload from '../components/QuestionPaperUpload';
 import ThemeToggle from '../components/ThemeToggle';
 import FacultyManagement from '../components/admin/FacultyManagement';
+import AssignDuties from '../components/admin/AssignDuties';
+import ReviewPapers from '../components/admin/ReviewPapers';
 import { API_CONFIG } from '../utils/constants';
 
 type AdminDashboardStats = {
@@ -60,8 +63,8 @@ export default function AdminDashboard() {
     { key: 'faculty', label: 'Faculty Management', icon: Users },
     { key: 'assignment', label: 'Assign Duties', icon: UserCog },
     { key: 'finalized', label: 'Finalized Papers', icon: FileCheck },
+    { key: 'generated', label: 'Generated Papers', icon: Wand2 },
     { key: 'review', label: 'Review Papers', icon: FileCheck },
-    { key: 'workflow', label: 'Approval Workflow', icon: ClipboardCheck },
     { key: 'logout', label: 'Logout', icon: LogOut }
   ];
 
@@ -90,18 +93,10 @@ export default function AdminDashboard() {
         return <PaperAssignment />;
       case 'finalized':
         return <FinalizedPapers />;
+      case 'generated':
+        return <GeneratedPapers />;
       case 'review':
-        return (
-          <section className="px-4 py-8 md:px-8">
-            <div className="rounded-2xl bg-white/70 backdrop-blur-xl shadow-xl border border-white/60 p-6 flex flex-col items-center justify-center min-h-[400px]">
-              <ShieldCheck className="h-16 w-16 text-amber-300 mb-4" />
-              <h2 className="text-xl font-semibold text-slate-700">Section Under Construction</h2>
-              <p className="text-slate-500 mt-2">The Review Papers module is being built.</p>
-            </div>
-          </section>
-        );
-      case 'workflow':
-        return <ApprovalWorkflow />;
+        return <ReviewPapers />;
       default:
         return (
           <section className="px-4 py-8 md:px-8">
@@ -657,651 +652,7 @@ function AdminRuaExtraction() {
 
 
 function PaperAssignment() {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [assignmentView, setAssignmentView] = useState<'assign' | 'assigned'>('assign');
-  const [selectedDept, setSelectedDept] = useState('');
-  const [selectedSem, setSelectedSem] = useState('');
-  const [selectedSubject, setSelectedSubject] = useState('');
-  const [selectedPaperSetter, setSelectedPaperSetter] = useState('');
-  const [selectedModerator, setSelectedModerator] = useState('');
-  const [showOtherFacultyPicker, setShowOtherFacultyPicker] = useState('');
-  const [showDutyAssignedPopup, setShowDutyAssignedPopup] = useState(false);
-  const [assignedStep, setAssignedStep] = useState(1);
-  const [selectedAssignedDept, setSelectedAssignedDept] = useState('');
-  const [selectedAssignedSemester, setSelectedAssignedSemester] = useState('');
-  const [assignedRoles, setAssignedRoles] = useState<Array<{
-    id: number;
-    department: string;
-    departmentCode: string;
-    semester: string;
-    subject: string;
-    paperSetter: string;
-    moderator: string;
-    assignedAt: string;
-  }>>([]);
-  
-  // Mock department data
-  const departments = [
-    { id: 'ce', name: 'Computer Technology', code: 'CE' },
-    { id: 'cse', name: 'Computer Science Engineering', code: 'CSE' },
-    { id: 'ece', name: 'Electronics & Communication', code: 'ECE' },
-    { id: 'mech', name: 'Mechanical Engineering', code: 'MECH' },
-    { id: 'civil', name: 'Civil Engineering', code: 'CIVIL' },
-  ];
-  
-  // Mock subjects per department
-  const subjectsByDept = {
-    'ce': [
-      { id: 'iom', name: 'Industrial Organization and Management (IOM)' },
-    ],
-    'cse': [
-      { id: 'dbms', name: 'Database Management Systems' },
-      { id: 'os', name: 'Operating Systems' },
-      { id: 'ai', name: 'Artificial Intelligence' },
-      { id: 'dsa', name: 'Data Structures & Algorithms' },
-    ],
-    'ece': [
-      { id: 'signals', name: 'Signals & Systems' },
-      { id: 'circuits', name: 'Digital Circuits' },
-      { id: 'comm', name: 'Communication Systems' },
-    ],
-  };
-  
-  // Mock faculty per department
-  const facultyByDept = {
-    'cse': [
-      'Dr. Sarah Connor',
-      'Prof. Alan Turing',
-      'Dr. Grace Hopper',
-      'Prof. John von Neumann',
-    ],
-    'ece': [
-      'Dr. Nikola Tesla',
-      'Prof. Michael Faraday',
-      'Dr. Hedy Lamarr',
-    ],
-  };
-  
-  const semesters = ['1', '2', '3', '4', '5', '6'];
-  
-  // Mock faculty workload data (papers assigned + in progress)
-  const facultyWorkload = {
-    'cse': {
-      'Dr. Sarah Connor': { assigned: 5, inProgress: 2, total: 7 },
-      'Prof. Alan Turing': { assigned: 3, inProgress: 1, total: 4 },
-      'Dr. Grace Hopper': { assigned: 8, inProgress: 3, total: 11 },
-      'Prof. John von Neumann': { assigned: 2, inProgress: 0, total: 2 },
-    },
-    'ece': {
-      'Dr. Nikola Tesla': { assigned: 6, inProgress: 2, total: 8 },
-      'Prof. Michael Faraday': { assigned: 4, inProgress: 1, total: 5 },
-    },
-  };
-  
-  const getWorkloadColor = (total) => {
-    if (total >= 10) return 'bg-red-100 text-red-700 border-red-300';
-    if (total >= 7) return 'bg-amber-100 text-amber-700 border-amber-300';
-    return 'bg-emerald-100 text-emerald-700 border-emerald-300';
-  };
-
-  const selectedDeptData = departments.find(d => d.id === selectedDept);
-  const selectedFacultyList = facultyWorkload[selectedDept] || {};
-  const deptFaculty = facultyByDept[selectedDept] || [];
-  const deptSubjects = subjectsByDept[selectedDept] || [];
-  const selectedSubjectData = deptSubjects.find(s => s.id === selectedSubject);
-
-  const handleDeptSelect = (deptId) => {
-    setSelectedDept(deptId);
-    setSelectedSem('');
-    setSelectedSubject('');
-    setSelectedPaperSetter('');
-    setSelectedModerator('');
-    setShowOtherFacultyPicker('');
-    setCurrentStep(2);
-  };
-
-  const handleSemSelect = (sem) => {
-    setSelectedSem(sem);
-    setCurrentStep(3);
-  };
-
-  const handleSubjectSelect = (subId) => {
-    setSelectedSubject(subId);
-    setCurrentStep(4);
-  };
-
-  const handleBackToDept = () => {
-    setSelectedDept('');
-    setSelectedSem('');
-    setSelectedSubject('');
-    setSelectedPaperSetter('');
-    setSelectedModerator('');
-    setShowOtherFacultyPicker('');
-    setCurrentStep(1);
-  };
-
-  const handleSetterSelect = (faculty) => {
-    setSelectedPaperSetter(faculty);
-    setShowOtherFacultyPicker('');
-  };
-
-  const handleModeratorSelect = (faculty) => {
-    setSelectedModerator(faculty);
-    setShowOtherFacultyPicker('');
-  };
-
-  const handleCompleteAssignment = () => {
-    if (!selectedPaperSetter || !selectedModerator) return;
-
-    const assignmentRecord = {
-      id: Date.now(),
-      department: selectedDeptData?.name || 'Unknown Department',
-      departmentCode: selectedDeptData?.code || 'NA',
-      semester: selectedSem,
-      subject: selectedSubjectData?.name || 'Unknown Subject',
-      paperSetter: selectedPaperSetter,
-      moderator: selectedModerator,
-      assignedAt: new Date().toLocaleString(),
-    };
-
-    setAssignedRoles((prev) => [assignmentRecord, ...prev]);
-
-    setShowDutyAssignedPopup(true);
-    handleBackToDept();
-    setAssignmentView('assigned');
-    setAssignedStep(1);
-    setSelectedAssignedDept('');
-    setSelectedAssignedSemester('');
-
-    window.setTimeout(() => {
-      setShowDutyAssignedPopup(false);
-    }, 2200);
-  };
-
-  const assignmentHierarchy = assignedRoles.reduce((acc, assignment) => {
-    const deptKey = `${assignment.department} (${assignment.departmentCode})`;
-    const semKey = `Semester ${assignment.semester}`;
-
-    if (!acc[deptKey]) acc[deptKey] = {};
-    if (!acc[deptKey][semKey]) acc[deptKey][semKey] = {};
-    if (!acc[deptKey][semKey][assignment.subject]) acc[deptKey][semKey][assignment.subject] = [];
-
-    acc[deptKey][semKey][assignment.subject].push({
-      id: `${assignment.id}-setter`,
-      role: 'Paper Setter',
-      faculty: assignment.paperSetter,
-      assignedAt: assignment.assignedAt,
-    });
-
-    acc[deptKey][semKey][assignment.subject].push({
-      id: `${assignment.id}-moderator`,
-      role: 'Moderator',
-      faculty: assignment.moderator,
-      assignedAt: assignment.assignedAt,
-    });
-
-    return acc;
-  }, {} as Record<string, Record<string, Record<string, Array<{ id: string; role: string; faculty: string; assignedAt: string }>>>>);
-
-  const totalAssignedRoles = assignedRoles.length * 2;
-  const assignedDepartments = Object.keys(assignmentHierarchy);
-  const assignedSemesters = selectedAssignedDept
-    ? Object.keys(assignmentHierarchy[selectedAssignedDept] || {})
-    : [];
-  const assignedSubjects = selectedAssignedDept && selectedAssignedSemester
-    ? assignmentHierarchy[selectedAssignedDept]?.[selectedAssignedSemester] || {}
-    : {};
-
-  const openAssignView = () => {
-    setAssignmentView('assign');
-  };
-
-  const openAssignedView = () => {
-    setAssignmentView('assigned');
-    setAssignedStep(1);
-    setSelectedAssignedDept('');
-    setSelectedAssignedSemester('');
-  };
-
-  return (
-    <section className="px-4 py-8 md:px-8 space-y-6">
-      {showDutyAssignedPopup && (
-        <div className="fixed top-6 right-6 z-50 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 shadow-lg">
-          <p className="text-sm font-semibold text-emerald-700">Duty assigned successfully.</p>
-        </div>
-      )}
-
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-800">Assign Duties</h2>
-          {assignmentView === 'assign' ? (
-            <p className="text-sm text-slate-500 mt-1">Step {currentStep} of 4: {
-              currentStep === 1 ? 'Select Department' : 
-              currentStep === 2 ? 'Select Semester' :
-              currentStep === 3 ? 'Select Subject' :
-              'Assign Moderator & Setter'
-            }</p>
-          ) : (
-            <p className="text-sm text-slate-500 mt-1">Assigned Step {assignedStep} of 3: {
-              assignedStep === 1 ? 'Department' :
-              assignedStep === 2 ? 'Semester' :
-              'Subject Roles'
-            }</p>
-          )}
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="rounded-xl border border-slate-200 p-1 bg-white/80">
-            <button
-              onClick={openAssignView}
-              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition ${
-                assignmentView === 'assign'
-                  ? 'bg-slate-800 text-white'
-                  : 'text-slate-600 hover:bg-slate-100'
-              }`}
-            >
-              Create Assignment
-            </button>
-            <button
-              onClick={openAssignedView}
-              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition ${
-                assignmentView === 'assigned'
-                  ? 'bg-slate-800 text-white'
-                  : 'text-slate-600 hover:bg-slate-100'
-              }`}
-            >
-              Assigned Roles
-            </button>
-          </div>
-
-          {assignmentView === 'assign' && (
-            <div className="flex gap-1">
-              {[1, 2, 3, 4].map((step) => (
-                <div key={step} className={`h-1 flex-1 rounded-full transition ${
-                  step <= currentStep ? 'bg-amber-500' : 'bg-slate-200'
-                }`} style={{ width: '12px' }} />
-              ))}
-            </div>
-          )}
-
-          {assignmentView === 'assigned' && assignedRoles.length > 0 && (
-            <div className="flex gap-1">
-              {[1, 2, 3].map((step) => (
-                <div key={step} className={`h-1 flex-1 rounded-full transition ${
-                  step <= assignedStep ? 'bg-emerald-500' : 'bg-slate-200'
-                }`} style={{ width: '12px' }} />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {assignmentView === 'assigned' && (
-        <motion.div
-          key={`assigned-step-page-${assignedStep}`}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2 }}
-          className="bg-white/80 backdrop-blur-md rounded-2xl p-8 shadow-sm border border-white/60 space-y-6"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-2xl font-bold text-slate-800">Assigned Roles</h3>
-              <p className="text-slate-600 mt-1">Page flow: Department → Semester → Subject roles.</p>
-            </div>
-            <span className="px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
-              {totalAssignedRoles} Role Assignments
-            </span>
-          </div>
-
-          {assignedRoles.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
-              <p className="font-semibold text-slate-700">No roles assigned yet.</p>
-              <p className="text-sm text-slate-500 mt-2">Create an assignment from the Create Assignment page to see it here.</p>
-            </div>
-          ) : (
-            <>
-              {assignedStep === 1 && (
-                <div className="space-y-5">
-                  <p className="text-xs font-bold uppercase tracking-wider text-emerald-600">Page 1: Department</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {assignedDepartments.map((dept) => (
-                      <button
-                        key={dept}
-                        onClick={() => {
-                          setSelectedAssignedDept(dept);
-                          setSelectedAssignedSemester('');
-                          setAssignedStep(2);
-                        }}
-                        className="rounded-xl border border-slate-200 bg-white p-5 text-left hover:border-emerald-400 hover:bg-emerald-50 transition"
-                      >
-                        <p className="text-base font-bold text-slate-800">{dept}</p>
-                        <p className="text-xs text-slate-500 mt-2">Tap to view semesters</p>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {assignedStep === 2 && (
-                <div className="space-y-5">
-                  <p className="text-xs font-bold uppercase tracking-wider text-emerald-600">Page 2: Semester</p>
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="text-sm text-slate-600">Department: <span className="font-semibold text-slate-800">{selectedAssignedDept}</span></p>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {assignedSemesters.map((semester) => (
-                      <button
-                        key={semester}
-                        onClick={() => {
-                          setSelectedAssignedSemester(semester);
-                          setAssignedStep(3);
-                        }}
-                        className="rounded-xl border border-slate-200 bg-white p-5 text-left hover:border-emerald-400 hover:bg-emerald-50 transition"
-                      >
-                        <p className="text-base font-bold text-slate-800">{semester}</p>
-                        <p className="text-xs text-slate-500 mt-2">Tap to view subjects and roles</p>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="pt-2">
-                    <button
-                      onClick={() => {
-                        setAssignedStep(1);
-                        setSelectedAssignedDept('');
-                      }}
-                      className="px-5 py-2 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100 transition"
-                    >
-                      ← Back to Departments
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {assignedStep === 3 && (
-                <div className="space-y-5">
-                  <p className="text-xs font-bold uppercase tracking-wider text-emerald-600">Page 3: Subject Roles</p>
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-1">
-                    <p className="text-sm text-slate-600">Department: <span className="font-semibold text-slate-800">{selectedAssignedDept}</span></p>
-                    <p className="text-sm text-slate-600">Semester: <span className="font-semibold text-slate-800">{selectedAssignedSemester}</span></p>
-                  </div>
-
-                  <div className="space-y-4">
-                    {Object.entries(assignedSubjects).map(([subject, roles]) => (
-                      <div key={`${selectedAssignedDept}-${selectedAssignedSemester}-${subject}`} className="rounded-lg border border-slate-200 bg-slate-50 p-4 space-y-3">
-                        <p className="font-semibold text-slate-800">{subject}</p>
-                        <div className="grid md:grid-cols-2 gap-2">
-                          {roles.map((roleEntry) => (
-                            <div key={roleEntry.id} className="rounded-md border border-slate-200 bg-white px-3 py-2 flex items-center justify-between gap-3">
-                              <div>
-                                <p className="text-xs text-slate-500">{roleEntry.role}</p>
-                                <p className="text-sm font-semibold text-slate-800">{roleEntry.faculty}</p>
-                              </div>
-                              <span className="text-xs text-slate-500 whitespace-nowrap">{roleEntry.assignedAt}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="pt-2">
-                    <button
-                      onClick={() => {
-                        setAssignedStep(2);
-                        setSelectedAssignedSemester('');
-                      }}
-                      className="px-5 py-2 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100 transition"
-                    >
-                      ← Back to Semesters
-                    </button>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </motion.div>
-      )}
-
-      {assignmentView === 'assign' && (
-        <motion.div
-          key={`assign-step-page-${currentStep}`}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2 }}
-        >
-      {/* Step 1: Department Selection */}
-      {currentStep === 1 && (
-        <div className="bg-white/80 backdrop-blur-md rounded-2xl p-8 shadow-sm border border-white/60 space-y-6 min-h-[400px] flex flex-col justify-center">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-amber-600 mb-2">Page 1: Department</p>
-            <h3 className="text-2xl font-bold text-slate-800 mb-2">Choose Department</h3>
-            <p className="text-slate-600 mb-8">Select which department you want to assign duties for.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {departments.map((dept) => (
-              <button
-                key={dept.id}
-                onClick={() => handleDeptSelect(dept.id)}
-                className="p-6 rounded-2xl border-2 border-slate-200 bg-white hover:border-amber-400 hover:bg-amber-50 font-semibold transition flex flex-col text-left"
-              >
-                <p className="text-lg text-slate-800">{dept.name}</p>
-                <p className="text-sm text-slate-500 mt-2">Department Code: {dept.code}</p>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Step 2: Semester Selection */}
-      {currentStep === 2 && (
-        <div className="bg-white/80 backdrop-blur-md rounded-2xl p-8 shadow-sm border border-white/60 space-y-6 min-h-[400px] flex flex-col justify-center">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-amber-600 mb-2">Page 2: Semester</p>
-            <h3 className="text-2xl font-bold text-slate-800 mb-2">Choose Semester</h3>
-            <p className="text-slate-600 mb-8">
-              For <span className="font-semibold text-amber-600">{selectedDeptData?.name}</span>
-            </p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {semesters.map((sem) => (
-              <button
-                key={sem}
-                onClick={() => handleSemSelect(sem)}
-                className="p-8 rounded-2xl border-2 border-slate-200 bg-white hover:border-amber-400 hover:bg-amber-50 font-semibold transition text-center"
-              >
-                <p className="text-3xl text-amber-600 mb-2">{sem}</p>
-                <p className="text-sm text-slate-500">Semester</p>
-              </button>
-            ))}
-          </div>
-
-          <div className="flex justify-start pt-6">
-            <button
-              onClick={handleBackToDept}
-              className="px-6 py-2 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100 transition"
-            >
-              ← Back to Departments
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Step 3: Subject Selection */}
-      {currentStep === 3 && (
-        <div className="bg-white/80 backdrop-blur-md rounded-2xl p-8 shadow-sm border border-white/60 space-y-6 min-h-[400px] flex flex-col justify-center">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-amber-600 mb-2">Page 3: Subject</p>
-            <h3 className="text-2xl font-bold text-slate-800 mb-2">Choose Subject</h3>
-            <p className="text-slate-600 mb-2">
-              <span className="font-semibold text-amber-600">{selectedDeptData?.name}</span> | Semester <span className="font-semibold text-amber-600">{selectedSem}</span>
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {deptSubjects.map((subject) => (
-              <button
-                key={subject.id}
-                onClick={() => handleSubjectSelect(subject.id)}
-                className="p-6 rounded-2xl border-2 border-slate-200 bg-white hover:border-amber-400 hover:bg-amber-50 font-semibold transition flex flex-col text-left"
-              >
-                <p className="text-lg text-slate-800">{subject.name}</p>
-              </button>
-            ))}
-          </div>
-
-          <div className="flex justify-start pt-6">
-            <button
-              onClick={() => setCurrentStep(2)}
-              className="px-6 py-2 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100 transition"
-            >
-              ← Back to Semester
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Step 4: Moderator & Setter Selection */}
-      {currentStep === 4 && (
-        <div className="bg-white/80 backdrop-blur-md rounded-2xl p-8 shadow-sm border border-white/60 space-y-6">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-amber-600 mb-2">Page 4: Role Assignment</p>
-            <h3 className="text-2xl font-bold text-slate-800 mb-2">Assign Moderator & Setter</h3>
-            <p className="text-slate-600 mb-6">
-              <span className="font-semibold text-amber-600">{selectedDeptData?.name}</span> | Sem {selectedSem} | {selectedSubjectData?.name}
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Paper Setter */}
-            <div className="space-y-4">
-              <h4 className="text-lg font-bold text-slate-800">Paper Setter</h4>
-              {!showOtherFacultyPicker.includes('setter') ? (
-                <select
-                  value={selectedPaperSetter}
-                  onChange={(e) => {
-                    if (e.target.value === 'other') {
-                      setShowOtherFacultyPicker('setter');
-                    } else {
-                      handleSetterSelect(e.target.value);
-                    }
-                  }}
-                  className="w-full p-3 rounded-xl border border-slate-200 bg-white outline-none focus:ring-2 focus:ring-amber-400"
-                >
-                  <option value="">Choose faculty...</option>
-                  {deptFaculty.map((faculty) => (
-                    <option key={faculty} value={faculty}>
-                      {faculty}
-                    </option>
-                  ))}
-                  <option value="other">Other (from all faculties)</option>
-                </select>
-              ) : (
-                <div className="space-y-2">
-                  <div className="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto">
-                    {deptFaculty.map((faculty) => (
-                      <button
-                        key={faculty}
-                        onClick={() => handleSetterSelect(faculty)}
-                        className="p-3 rounded-lg border border-slate-200 bg-white text-left hover:border-amber-400 hover:bg-amber-50 transition"
-                      >
-                        <p className="text-sm font-medium text-slate-800">{faculty}</p>
-                      </button>
-                    ))}
-                  </div>
-                  <button
-                    onClick={() => setShowOtherFacultyPicker('')}
-                    className="w-full p-2 text-sm text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-100 transition"
-                  >
-                    Back to Dropdown
-                  </button>
-                </div>
-              )}
-              {selectedPaperSetter && (
-                <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
-                  <p className="text-sm text-amber-900">
-                    <span className="font-bold">Selected:</span> {selectedPaperSetter}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Moderator */}
-            <div className="space-y-4">
-              <h4 className="text-lg font-bold text-slate-800">Moderator</h4>
-              {!showOtherFacultyPicker.includes('moderator') ? (
-                <select
-                  value={selectedModerator}
-                  onChange={(e) => {
-                    if (e.target.value === 'other') {
-                      setShowOtherFacultyPicker('moderator');
-                    } else {
-                      handleModeratorSelect(e.target.value);
-                    }
-                  }}
-                  className="w-full p-3 rounded-xl border border-slate-200 bg-white outline-none focus:ring-2 focus:ring-amber-400"
-                >
-                  <option value="">Choose faculty...</option>
-                  {deptFaculty.map((faculty) => (
-                    <option key={faculty} value={faculty}>
-                      {faculty}
-                    </option>
-                  ))}
-                  <option value="other">Other (from all faculties)</option>
-                </select>
-              ) : (
-                <div className="space-y-2">
-                  <div className="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto">
-                    {deptFaculty.map((faculty) => (
-                      <button
-                        key={faculty}
-                        onClick={() => handleModeratorSelect(faculty)}
-                        className="p-3 rounded-lg border border-slate-200 bg-white text-left hover:border-amber-400 hover:bg-amber-50 transition"
-                      >
-                        <p className="text-sm font-medium text-slate-800">{faculty}</p>
-                      </button>
-                    ))}
-                  </div>
-                  <button
-                    onClick={() => setShowOtherFacultyPicker('')}
-                    className="w-full p-2 text-sm text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-100 transition"
-                  >
-                    Back to Dropdown
-                  </button>
-                </div>
-              )}
-              {selectedModerator && (
-                <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
-                  <p className="text-sm text-emerald-900">
-                    <span className="font-bold">Selected:</span> {selectedModerator}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="flex justify-between pt-6 border-t border-slate-200">
-            <button
-              onClick={() => setCurrentStep(3)}
-              className="px-6 py-2 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100 transition"
-            >
-              ← Back to Subject
-            </button>
-            <button
-              onClick={handleCompleteAssignment}
-              disabled={!selectedPaperSetter || !selectedModerator}
-              className="px-6 py-2 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Complete Assignment ✓
-            </button>
-          </div>
-        </div>
-      )}
-        </motion.div>
-      )}
-
-
-    </section>
-  );
+  return <AssignDuties />;
 }
 
 function AIMonitoring() {
@@ -1368,105 +719,6 @@ function AIMonitoring() {
                 </div>
              </div>
            </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ApprovalWorkflow() {
-  const steps = [
-    { title: 'Generate Draft', owner: 'Paper Setter', status: 'Complete' },
-    { title: 'Auto Validation', owner: 'AI Engine', status: 'Complete' },
-    { title: 'Faculty Review', owner: 'Faculty Reviewer', status: 'In Review' },
-    { title: 'Final Approval', owner: 'Admin', status: 'Pending' }
-  ];
-
-  const queue = [
-    { paper: 'DBMS Midterm', stage: 'Faculty Review', eta: '2 hrs', priority: 'High' },
-    { paper: 'OS Unit Test 2', stage: 'Auto Validation', eta: '15 min', priority: 'Medium' },
-    { paper: 'AI Foundations', stage: 'Final Approval', eta: 'Today', priority: 'Low' }
-  ];
-
-  return (
-    <section className="px-4 py-8 md:px-8 space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-slate-800">Approval Workflow</h2>
-        <p className="text-sm text-slate-500">Track progress from paper generation through final approval.</p>
-      </div>
-
-      <div className="grid lg:grid-cols-4 gap-4">
-        {steps.map((step, i) => (
-          <div key={i} className="bg-white/80 backdrop-blur-md rounded-2xl p-5 shadow-sm border border-white/60">
-            <p className="text-xs font-semibold text-amber-600 uppercase tracking-wide">Step {i + 1}</p>
-            <h3 className="text-base font-bold text-slate-800 mt-2">{step.title}</h3>
-            <p className="text-xs text-slate-500 mt-1">Owner: {step.owner}</p>
-            <span className={`inline-flex mt-3 px-2.5 py-1 rounded-lg text-xs font-semibold ${
-              step.status === 'Complete'
-                ? 'bg-emerald-100 text-emerald-700'
-                : step.status === 'In Review'
-                ? 'bg-amber-100 text-amber-700'
-                : 'bg-slate-100 text-slate-600'
-            }`}>
-              {step.status}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white/80 backdrop-blur-md rounded-2xl p-6 shadow-sm border border-white/60">
-          <h3 className="text-lg font-bold text-slate-800 mb-4">Active Review Queue</h3>
-          <div className="space-y-3">
-            {queue.map((item, i) => (
-              <div key={i} className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
-                <div>
-                  <p className="text-sm font-semibold text-slate-800">{item.paper}</p>
-                  <p className="text-xs text-slate-500">Stage: {item.stage}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs font-semibold text-slate-700">ETA: {item.eta}</p>
-                  <span className={`inline-flex mt-1 px-2 py-0.5 rounded-md text-xs font-semibold ${
-                    item.priority === 'High'
-                      ? 'bg-rose-100 text-rose-700'
-                      : item.priority === 'Medium'
-                      ? 'bg-amber-100 text-amber-700'
-                      : 'bg-emerald-100 text-emerald-700'
-                  }`}>
-                    {item.priority}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-white/80 backdrop-blur-md rounded-2xl p-6 shadow-sm border border-white/60">
-          <h3 className="text-lg font-bold text-slate-800">SLA Compliance</h3>
-          <p className="text-xs text-slate-500 mt-1">Average approval time last 30 days.</p>
-          <div className="mt-6 space-y-4">
-            <div>
-              <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
-                <span>Draft to Review</span>
-                <span>6.4 hrs</span>
-              </div>
-              <div className="mt-2 h-2 rounded-full bg-slate-100">
-                <div className="h-2 rounded-full bg-emerald-400" style={{ width: '72%' }}></div>
-              </div>
-            </div>
-            <div>
-              <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
-                <span>Review to Approval</span>
-                <span>12.1 hrs</span>
-              </div>
-              <div className="mt-2 h-2 rounded-full bg-slate-100">
-                <div className="h-2 rounded-full bg-amber-400" style={{ width: '54%' }}></div>
-              </div>
-            </div>
-            <button className="w-full mt-2 rounded-xl bg-slate-900 text-white text-sm font-semibold py-2.5 hover:bg-slate-800 transition">
-              View Workflow Report
-            </button>
-          </div>
         </div>
       </div>
     </section>
@@ -1638,6 +890,169 @@ function FinalizedPapers() {
                 <h4 className="font-semibold">OCR Preview / Notes</h4>
                 <pre className="max-h-64 overflow-auto p-3 bg-slate-50 rounded-md text-xs">{selectedPaper.ocr_text || selectedPaper.preview || JSON.stringify(selectedPaper, null, 2)}</pre>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+type GeneratedAdminPaper = {
+  paper_id: number;
+  title: string;
+  subject: string;
+  subject_code: string;
+  branch: string;
+  semester: string | number;
+  exam_type: string;
+  questions: number;
+  marks: number;
+  generated_at: string | null;
+  created_by: string;
+};
+
+type GeneratedAdminPaperDetails = GeneratedAdminPaper & {
+  paper_information: Record<string, unknown>;
+  sections: Record<string, {
+    questions_to_attempt?: number;
+    questions: Array<{ question_text: string; marks?: number }>;
+  }>;
+};
+
+function GeneratedPapers() {
+  const [papers, setPapers] = useState<GeneratedAdminPaper[]>([]);
+  const [selectedPaper, setSelectedPaper] = useState<GeneratedAdminPaperDetails | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [viewLoading, setViewLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadPapers = async () => {
+      const token = sessionStorage.getItem('adminToken');
+      if (!token) {
+        setError('Admin authorization is required to load generated papers.');
+        setLoading(false);
+        return;
+      }
+      try {
+        const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/generated-papers`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Unable to load generated papers.');
+        setPapers(Array.isArray(result.papers) ? result.papers : []);
+      } catch (loadError) {
+        setError(loadError instanceof Error ? loadError.message : 'Unable to load generated papers.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    void loadPapers();
+  }, []);
+
+  const openPaper = async (paperId: number) => {
+    const token = sessionStorage.getItem('adminToken');
+    if (!token) return;
+    setViewLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/generated-papers/${paperId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await response.json();
+      if (!response.ok || !result.paper) throw new Error(result.error || 'Unable to open generated paper.');
+      const summary = papers.find((paper) => paper.paper_id === paperId);
+      setSelectedPaper({ ...result.paper, ...summary } as GeneratedAdminPaperDetails);
+    } catch (openError) {
+      setError(openError instanceof Error ? openError.message : 'Unable to open generated paper.');
+    } finally {
+      setViewLoading(false);
+    }
+  };
+
+  return (
+    <section className="space-y-6 px-4 py-8 md:px-8">
+      <div>
+        <h2 className="text-2xl font-bold text-slate-800">Generated Papers</h2>
+        <p className="text-sm text-slate-500">AI-generated papers with the faculty member who created each paper.</p>
+      </div>
+      {error && <p className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700">{error}</p>}
+      {loading ? (
+        <div className="rounded-2xl bg-white/80 p-10 text-center text-slate-500">Loading generated papers...</div>
+      ) : papers.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white/80 p-10 text-center text-slate-500">
+          No generated papers found.
+        </div>
+      ) : (
+        <div className="overflow-hidden rounded-2xl border border-white/60 bg-white/80 shadow-sm">
+          <table className="w-full text-left text-sm">
+            <thead className="border-b border-slate-100 bg-slate-50/70 text-slate-500">
+              <tr>
+                <th className="px-5 py-4 font-medium">Paper</th>
+                <th className="px-5 py-4 font-medium">Created by</th>
+                <th className="px-5 py-4 font-medium">Semester</th>
+                <th className="px-5 py-4 font-medium">Questions</th>
+                <th className="px-5 py-4 font-medium">Generated</th>
+                <th className="px-5 py-4 text-right font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {papers.map((paper) => (
+                <tr key={paper.paper_id} className="hover:bg-slate-50/60">
+                  <td className="px-5 py-4">
+                    <p className="font-semibold text-slate-800">{paper.title}</p>
+                    <p className="text-xs text-slate-500">{paper.subject_code || 'No subject code'} · {paper.branch}</p>
+                  </td>
+                  <td className="px-5 py-4 font-medium text-slate-700">{paper.created_by}</td>
+                  <td className="px-5 py-4 text-slate-600">Sem {paper.semester}</td>
+                  <td className="px-5 py-4 text-slate-600">{paper.questions} · {paper.marks} marks</td>
+                  <td className="px-5 py-4 text-slate-600">
+                    {paper.generated_at ? new Date(paper.generated_at).toLocaleString() : 'N/A'}
+                  </td>
+                  <td className="px-5 py-4 text-right">
+                    <button
+                      type="button"
+                      onClick={() => void openPaper(paper.paper_id)}
+                      disabled={viewLoading}
+                      className="inline-flex items-center gap-1 font-medium text-amber-600 hover:text-orange-700 disabled:opacity-50"
+                    >
+                      <Eye className="h-4 w-4" /> View
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {selectedPaper && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
+            <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-4">
+              <div>
+                <h3 className="text-xl font-bold text-slate-800">{selectedPaper.title}</h3>
+                <p className="mt-1 text-sm text-slate-600">Created by {selectedPaper.created_by} · {selectedPaper.exam_type}</p>
+              </div>
+              <button type="button" onClick={() => setSelectedPaper(null)} className="text-sm font-medium text-slate-500 hover:text-slate-800">Close</button>
+            </div>
+            <div className="mt-5 space-y-5">
+              {Object.entries(selectedPaper.sections || {}).map(([sectionName, section]) => (
+                <section key={sectionName}>
+                  <div className="mb-2 flex justify-between">
+                    <h4 className="font-bold text-slate-800">{sectionName}</h4>
+                    {section.questions_to_attempt !== undefined && <span className="text-xs text-slate-500">Attempt {section.questions_to_attempt}</span>}
+                  </div>
+                  <ol className="space-y-2">
+                    {section.questions.map((question, index) => (
+                      <li key={`${sectionName}-${index}`} className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+                        <span className="mr-2 font-semibold">{index + 1}.</span>{question.question_text}
+                        {question.marks !== undefined && <span className="float-right text-slate-500">{question.marks} marks</span>}
+                      </li>
+                    ))}
+                  </ol>
+                </section>
+              ))}
             </div>
           </div>
         </div>

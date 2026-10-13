@@ -4,11 +4,22 @@ import ThemeToggle from '../ThemeToggle';
 interface TopNavProps {
   collapsed: boolean;
   onToggle: () => void;
-  darkMode: boolean;
-  onToggleDarkMode: () => void;
+  department: string | null;
+  facultyName: string;
+  responsibilityLabel: string;
 }
 
-export default function TopNav({ collapsed, onToggle }: TopNavProps) {
+export default function TopNav({
+  collapsed,
+  onToggle,
+  department,
+  facultyName,
+  responsibilityLabel,
+}: TopNavProps) {
+  const workspaceLabel = department?.trim()
+    ? `${department.trim()} • Faculty Workspace`
+    : 'Faculty Workspace';
+
   return (
     <header className="sticky top-0 z-20 border-b border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur-xl shadow-sm">
       <div className="flex flex-col gap-4 px-4 py-4 md:flex-row md:items-center md:justify-between">
@@ -22,7 +33,7 @@ export default function TopNav({ collapsed, onToggle }: TopNavProps) {
             <LayoutDashboard className="h-5 w-5" />
           </button>
           <div>
-            <p className="text-sm text-slate-500">Semester 6 • CSE</p>
+            <p className="text-sm text-slate-500">{workspaceLabel}</p>
             <h1 className="text-xl font-semibold">Faculty Dashboard</h1>
           </div>
         </div>
@@ -48,8 +59,8 @@ export default function TopNav({ collapsed, onToggle }: TopNavProps) {
           <div className="flex items-center gap-2 rounded-2xl bg-white px-3 py-2 shadow-sm">
             <div className="h-8 w-8 rounded-full bg-gradient-to-br from-orange-400 to-yellow-400"></div>
             <div className="hidden md:block">
-              <p className="text-sm font-semibold">Prof. Aria</p>
-              <p className="text-xs text-slate-500">Paper Setter</p>
+              <p className="text-sm font-semibold">{facultyName}</p>
+              <p className="text-xs text-slate-500">{responsibilityLabel}</p>
             </div>
           </div>
         </div>

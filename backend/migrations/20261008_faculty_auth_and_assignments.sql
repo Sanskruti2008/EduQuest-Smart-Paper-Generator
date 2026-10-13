@@ -31,7 +31,9 @@ CREATE TABLE IF NOT EXISTS public.faculty_subject_assignment (
 ALTER TABLE public.faculty_subject_assignment
     ADD COLUMN IF NOT EXISTS assigned_by BIGINT REFERENCES public."User"(user_id) ON DELETE RESTRICT,
     ADD COLUMN IF NOT EXISTS assigned_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;
+    ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    ADD COLUMN IF NOT EXISTS can_generate BOOLEAN NOT NULL DEFAULT TRUE,
+    ADD COLUMN IF NOT EXISTS can_moderate BOOLEAN NOT NULL DEFAULT FALSE;
 
 UPDATE public.faculty_subject_assignment
 SET assigned_at = NOW()
@@ -43,7 +45,11 @@ ALTER TABLE public.faculty_subject_assignment
     ALTER COLUMN assigned_at SET DEFAULT NOW(),
     ALTER COLUMN assigned_at SET NOT NULL,
     ALTER COLUMN is_active SET DEFAULT TRUE,
-    ALTER COLUMN is_active SET NOT NULL;
+    ALTER COLUMN is_active SET NOT NULL,
+    ALTER COLUMN can_generate SET DEFAULT TRUE,
+    ALTER COLUMN can_generate SET NOT NULL,
+    ALTER COLUMN can_moderate SET DEFAULT FALSE,
+    ALTER COLUMN can_moderate SET NOT NULL;
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_faculty_subject_assignment
     ON public.faculty_subject_assignment(faculty_id, subject_id);

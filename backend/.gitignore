@@ -1,5 +1,6 @@
 # Environment variables
 .env
+.temporary-admin-credentials.json
 
 # Python
 __pycache__/

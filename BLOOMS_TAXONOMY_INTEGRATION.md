@@ -1,8 +1,8 @@
-# Bloom's Taxonomy Integration in EduQuest.ai
+# Bloom's Taxonomy Integration in EduQuest Smart Paper generation System
 
 ## Overview
 
-EduQuest.ai now automatically classifies all generated questions according to **Bloom's Taxonomy**, a hierarchical framework for categorizing educational learning objectives based on cognitive complexity.
+EduQuest Smart Paper generation System now automatically classifies all generated questions according to **Bloom's Taxonomy**, a hierarchical framework for categorizing educational learning objectives based on cognitive complexity.
 
 ## Bloom's Taxonomy Levels
 

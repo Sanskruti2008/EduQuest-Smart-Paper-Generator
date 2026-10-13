@@ -69,7 +69,7 @@ const BRANCH_CONFIG = {
       '2': ['Basic Electronics', 'Digital Techniques', 'Programming in C', 'Applied Mathematics – II', 'Engineering Graphics'],
       '3': ['Data Structures using C', 'Digital Electronics', 'Computer Organization', 'Object Oriented Programming', 'Discrete Mathematics'],
       '4': ['Operating Systems', 'Database Management Systems', 'Computer Networks', 'Web Development', 'Software Engineering'],
-      '5': ['Microprocessors & Interfaces', 'Advanced Java', 'Artificial Intelligence', 'Information Security', 'Industrial Organization and Management (IOM)', 'Elective – I'],
+      '5': ['Microprocessors & Interfaces', 'Advanced Java', 'Artificial Intelligence', 'Information Security', 'Industrial Organization and Management (IOM)', 'PHP', 'Elective – I'],
       '6': ['Mobile Application Development', 'Cloud Computing', 'Machine Learning', 'Project Work', 'Elective – II'],
     },
   },

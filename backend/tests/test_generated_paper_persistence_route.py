@@ -1,10 +1,11 @@
-from io import BytesIO
+﻿from io import BytesIO
 from pathlib import Path
 import sys
 from types import ModuleType
 from zipfile import ZipFile
 
 import pytest
+from postgrest.exceptions import APIError
 
 from app import create_app
 from utils import auth as auth_utils
@@ -112,9 +113,14 @@ def _advance_java_faculty_input():
 def _authenticate_faculty(
     monkeypatch,
     assigned_subject_ids=(1,),
+    can_generate_subject_ids=None,
     subjects=None,
     is_active=True,
+    missing_generation_flag=False,
 ):
+    if can_generate_subject_ids is None:
+        can_generate_subject_ids = assigned_subject_ids
+    can_generate_subject_ids = set(can_generate_subject_ids)
     profile = {
         "user_id": 42,
         "auth_user_id": "auth-user-42",
@@ -155,10 +161,25 @@ def _authenticate_faculty(
             if self.table_name == "faculty_subject_assignment":
                 assert self.filters.get("faculty_id") == 42
                 assert self.filters.get("is_active") is True
+                if missing_generation_flag and "can_generate" in self.filters:
+                    raise APIError({
+                        "code": "PGRST204",
+                        "message": (
+                            "Could not find the 'can_generate' column of "
+                            "'faculty_subject_assignment' in the schema cache"
+                        ),
+                    })
                 return Response([
-                    {"subject_id": subject_id}
+                    {
+                        "subject_id": subject_id,
+                        "can_generate": subject_id in can_generate_subject_ids,
+                    }
                     for subject_id in assigned_subject_ids
                     if self.filters.get("subject_id", subject_id) == subject_id
+                    and (
+                        "can_generate" not in self.filters
+                        or subject_id in can_generate_subject_ids
+                    )
                 ])
             rows = subjects or []
             if self.subject_ids is not None:
@@ -202,11 +223,13 @@ def test_frontend_generation_requires_complete_persistence_before_docx(
         faculty_input,
         output_dir,
         persist=False,
+        generated_by=None,
     ):
         calls.append({
             "faculty_input": faculty_input,
             "output_dir": output_dir,
             "persist": persist,
+            "generated_by": generated_by,
         })
         return _generation_result(paper, persistence)
 
@@ -226,6 +249,7 @@ def test_frontend_generation_requires_complete_persistence_before_docx(
 
     assert generate_response.status_code == 200
     assert calls and calls[0]["persist"] is True
+    assert calls[0]["generated_by"] == 42
     reviewed_paper = generate_response.get_json()
     assert sum(
         len(section["questions"])
@@ -310,13 +334,19 @@ def test_advance_java_request_preserves_real_code_and_passes_validation(monkeypa
     })
     pipeline = ModuleType("eduquest_pipeline")
 
-    def generate_final_question_paper(faculty_input, output_dir, persist=False):
+    def generate_final_question_paper(
+        faculty_input,
+        output_dir,
+        persist=False,
+        generated_by=None,
+    ):
         validation = validate_faculty_input(faculty_input)
         calls.append({
             "faculty_input": faculty_input,
             "valid": validation["valid"],
             "errors": validation["errors"],
             "persist": persist,
+            "generated_by": generated_by,
         })
         if not validation["valid"]:
             return {
@@ -339,6 +369,7 @@ def test_advance_java_request_preserves_real_code_and_passes_validation(monkeypa
     assert calls[0]["valid"] is True
     assert calls[0]["errors"] == []
     assert calls[0]["persist"] is True
+    assert calls[0]["generated_by"] == 42
     assert calls[0]["faculty_input"]["subject_code"] == "21526"
 
 
@@ -390,6 +421,31 @@ def test_paper_generation_subject_endpoint_filters_unassigned_subjects(monkeypat
     assert response.get_json()["subjects"] == [assigned]
 
 
+def test_paper_generation_subject_endpoint_supports_legacy_assignments(monkeypatch):
+    subject = {
+        "subject_id": 1,
+        "subject_name": "Advance Java",
+        "subject_code": "21526",
+        "branch": "Computer Technology",
+        "semester": "5",
+    }
+    token = _authenticate_faculty(
+        monkeypatch,
+        subjects=[subject],
+        missing_generation_flag=True,
+    )
+    app = create_app()
+    app.config["TESTING"] = True
+
+    response = app.test_client().get(
+        "/api/paper-generation/subjects",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()["subjects"] == [subject]
+
+
 def test_faculty_cannot_generate_a_paper_for_an_unassigned_subject(monkeypatch):
     token = _authenticate_faculty(monkeypatch, assigned_subject_ids=())
     app = create_app()
@@ -412,7 +468,70 @@ def test_faculty_cannot_generate_a_paper_for_an_unassigned_subject(monkeypatch):
     )
 
     assert response.status_code == 403
-    assert "not assigned" in response.get_json()["error"]
+    assert response.get_json()["message"] == (
+        "You are not assigned as a paper setter for this subject."
+    )
+
+
+def test_moderation_only_faculty_cannot_generate_a_paper(monkeypatch):
+    _authenticate_faculty(
+        monkeypatch,
+        assigned_subject_ids=(1,),
+        can_generate_subject_ids=(),
+    )
+    app = create_app()
+    app.config["TESTING"] = True
+    pipeline = ModuleType("eduquest_pipeline")
+    pipeline.generate_final_question_paper = lambda **_kwargs: pytest.fail(
+        "The pipeline must not run for a moderation-only assignment."
+    )
+    monkeypatch.setitem(sys.modules, "eduquest_pipeline", pipeline)
+
+    response = app.test_client().post(
+        "/api/generate-question-paper",
+        json={
+            "subject": "Operating Systems",
+            "subject_id": 1,
+            "selected_units": ["Unit-I"],
+            "rua_allocation": {"Unit-I": {"R": 94}},
+        },
+        headers={"Authorization": f"Bearer faculty-supabase-token"},
+    )
+
+    assert response.status_code == 403, response.get_json()
+    assert response.get_json()["message"] == (
+        "You are not assigned as a paper setter for this subject."
+    )
+
+
+def test_legacy_assignment_can_generate_when_generation_flag_is_missing(monkeypatch):
+    token = _authenticate_faculty(
+        monkeypatch,
+        missing_generation_flag=True,
+    )
+    app = create_app()
+    app.config["TESTING"] = True
+    pipeline = ModuleType("eduquest_pipeline")
+    pipeline.generate_final_question_paper = lambda **_kwargs: pytest.fail(
+        "Generation should not run for invalid paper input."
+    )
+    monkeypatch.setitem(sys.modules, "eduquest_pipeline", pipeline)
+
+    response = app.test_client().post(
+        "/api/generate-question-paper",
+        json={
+            "subject": "Operating Systems",
+            "subject_id": 1,
+            "selected_units": "Unit-I",
+            "rua_allocation": {"Unit-I": {"R": 94}},
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == 400
+    assert response.get_json()["error"] == (
+        "selected_units and rua_allocation must be provided as matching collections."
+    )
 
 
 def test_inactive_faculty_cannot_generate_a_paper(monkeypatch):

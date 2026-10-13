@@ -21,6 +21,8 @@ type FacultyRecord = {
   is_active: boolean;
   assigned_subjects_count: number;
   assigned_subject_ids: number[];
+  paper_setter_subjects_count: number;
+  moderator_subjects_count: number;
 };
 
 type FacultySubject = {
@@ -363,7 +365,7 @@ export default function FacultyManagement() {
                 <th className="px-5 py-4 font-medium">Email</th>
                 <th className="px-5 py-4 font-medium">Department</th>
                 <th className="px-5 py-4 font-medium">Account Status</th>
-                <th className="px-5 py-4 font-medium">Assigned Subjects</th>
+                <th className="px-5 py-4 font-medium">Responsibilities</th>
                 <th className="px-5 py-4 text-right font-medium">Actions</th>
               </tr>
             </thead>
@@ -392,7 +394,10 @@ export default function FacultyManagement() {
                       {faculty.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </td>
-                  <td className="px-5 py-4 text-slate-600">{faculty.assigned_subjects_count}</td>
+                  <td className="px-5 py-4 text-slate-600">
+                    <span className="block">{faculty.paper_setter_subjects_count} Paper Setter</span>
+                    <span className="mt-1 block text-xs">{faculty.moderator_subjects_count} Moderator</span>
+                  </td>
                   <td className="px-5 py-4">
                     <div className="flex justify-end gap-2">
                       <button onClick={() => openEditModal(faculty)} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">

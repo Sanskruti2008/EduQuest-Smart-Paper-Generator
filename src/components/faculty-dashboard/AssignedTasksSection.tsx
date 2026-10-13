@@ -105,6 +105,7 @@ export default function AssignedTasksSection({
               <p className="mt-4 text-sm text-slate-600">
                 {subject.branch} · Semester {subject.semester}
               </p>
+              <p className="mt-2 text-xs font-semibold text-amber-700">Paper Setter</p>
               <button
                 type="button"
                 onClick={() => onSectionSelect?.('paper-generation')}

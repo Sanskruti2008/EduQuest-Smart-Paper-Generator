@@ -120,9 +120,9 @@ def generate_final_question_paper(
             blueprint=blueprint,
             subject=subject,
             persist=persist,
+            generated_by=generated_by,
             output_path=str(selected_json_path),
             persistence_client=persistence_client,
-            generated_by=generated_by,
         )
 
     except Exception as error:

@@ -1,6 +1,8 @@
 from copy import deepcopy
 from types import SimpleNamespace
 
+from postgrest.exceptions import APIError
+
 from app import create_app
 from routes import core as core_route
 from routes import faculty as faculty_route
@@ -15,8 +17,21 @@ class FakeQuery:
         self.filters = []
         self.payload = None
 
-    def select(self, _fields):
+    def select(self, fields):
         self.action = "select"
+        self.fields = fields
+        if (
+            self.table_name == "faculty_subject_assignment"
+            and self.client.missing_assignment_columns
+            and "can_generate" in fields
+        ):
+            raise APIError({
+                "code": "PGRST204",
+                "message": (
+                    "Could not find the 'can_generate' column of "
+                    "'faculty_subject_assignment' in the schema cache"
+                ),
+            })
         return self
 
     def insert(self, payload):
@@ -46,6 +61,18 @@ class FakeQuery:
     def execute(self):
         rows = self.client.tables[self.table_name]
         if self.action == "insert":
+            if (
+                self.table_name == "faculty_subject_assignment"
+                and self.client.missing_assignment_columns
+                and "can_generate" in self.payload
+            ):
+                raise APIError({
+                    "code": "PGRST204",
+                    "message": (
+                        "Could not find the 'can_generate' column of "
+                        "'faculty_subject_assignment' in the schema cache"
+                    ),
+                })
             if self.table_name == "User" and self.client.fail_profile_insert:
                 raise RuntimeError("private database error")
             inserted = deepcopy(self.payload)
@@ -91,6 +118,7 @@ class FakeSupabaseClient:
         }
         self.auth = SimpleNamespace(admin=FakeAuthAdmin())
         self.fail_profile_insert = False
+        self.missing_assignment_columns = False
         self.next_user_id = 12
 
     def table(self, name):
@@ -122,7 +150,7 @@ def _faculty_payload():
     return {
         "name": "Tejashree Pawar",
         "employee_id": "FAC001",
-        "email": "tejashree.pawar@eduquest.ai",
+        "email": "tejashree.pawar@example.com",
         "department": "Computer Technology",
         "password": "temporary-password",
         "is_active": True,
@@ -139,7 +167,7 @@ def test_create_faculty_auth_user_and_profile(monkeypatch):
     assert response.status_code == 201
     assert response.get_json()["faculty"]["role"] == "faculty"
     assert response.get_json()["faculty"]["auth_user_id"] == "auth-faculty-uuid"
-    assert supabase.auth.admin.created[0]["email"] == "tejashree.pawar@eduquest.ai"
+    assert supabase.auth.admin.created[0]["email"] == "tejashree.pawar@example.com"
     assert supabase.auth.admin.created[0]["email_confirm"] is True
     profile = supabase.tables["User"][0]
     assert profile["role"] == "faculty"
@@ -173,7 +201,7 @@ def test_create_faculty_rejects_invalid_and_duplicate_data(monkeypatch):
     assert not supabase.auth.admin.created
 
     supabase.tables["User"].append(
-        {"user_id": 5, "email": "TEJASHREE.PAWAR@EDUQUEST.AI", "employee_id": "FAC005"}
+        {"user_id": 5, "email": "TEJASHREE.PAWAR@EXAMPLE.COM", "employee_id": "FAC005"}
     )
     duplicate_response = client.post(
         "/api/admin/faculty", json=_faculty_payload(), headers=_auth_headers()
@@ -238,6 +266,35 @@ def test_faculty_routes_require_supabase_admin_profile(monkeypatch):
     assert forbidden.status_code == 403
 
 
+def test_faculty_list_handles_missing_assignment_columns(monkeypatch):
+    client, supabase = _client(monkeypatch)
+    supabase.missing_assignment_columns = True
+    supabase.tables["User"] = [
+        {
+            "user_id": 12,
+            "auth_user_id": "faculty-12",
+            "name": "Active Faculty",
+            "role": "faculty",
+            "email": "active@example.test",
+            "employee_id": "FAC012",
+            "department": "Computer Technology",
+            "is_active": True,
+        }
+    ]
+    supabase.tables["faculty_subject_assignment"] = [
+        {"faculty_id": 12, "subject_id": 7, "is_active": True}
+    ]
+
+    response = client.get("/api/admin/faculty", headers=_auth_headers())
+
+    assert response.status_code == 200
+    faculty = response.get_json()["faculty"]
+    assert len(faculty) == 1
+    assert faculty[0]["assigned_subjects_count"] == 1
+    assert faculty[0]["paper_setter_subjects_count"] == 1
+    assert faculty[0]["moderator_subjects_count"] == 0
+
+
 def test_update_faculty_status_and_reject_role_changes(monkeypatch):
     client, supabase = _client(monkeypatch)
     supabase.tables["User"].append(
@@ -295,6 +352,99 @@ def test_assignment_reactivates_inactive_row_and_uses_authenticated_admin(monkey
     assignment = supabase.tables["faculty_subject_assignment"][0]
     assert assignment["is_active"] is True
     assert assignment["assigned_by"] == ADMIN_PROFILE["user_id"]
+    assert assignment["can_generate"] is True
+    assert assignment["can_moderate"] is False
+
+
+def test_assignment_updates_existing_subject_responsibilities(monkeypatch):
+    client, supabase = _client(monkeypatch)
+    supabase.tables["User"].append(
+        {"user_id": 12, "role": "faculty", "is_active": True}
+    )
+    supabase.tables["faculty_subject_assignment"].append({
+        "faculty_id": 12,
+        "subject_id": 7,
+        "assigned_by": 1,
+        "is_active": True,
+        "can_generate": True,
+        "can_moderate": False,
+    })
+
+    response = client.post(
+        "/api/admin/faculty/12/subjects",
+        json={"subject_id": 7, "can_generate": True, "can_moderate": True},
+        headers=_auth_headers(),
+    )
+
+    assert response.status_code == 200
+    assert len(supabase.tables["faculty_subject_assignment"]) == 1
+    assignment = supabase.tables["faculty_subject_assignment"][0]
+    assert assignment["can_generate"] is True
+    assert assignment["can_moderate"] is True
+
+
+def test_assignment_reports_duplicate_subject_as_conflict(monkeypatch):
+    client, supabase = _client(monkeypatch)
+    supabase.tables["User"].append(
+        {"user_id": 12, "role": "faculty", "is_active": True}
+    )
+
+    original_execute = FakeQuery.execute
+
+    def duplicate_execute(self):
+        if self.table_name == "faculty_subject_assignment" and self.action == "insert":
+            raise APIError({
+                "message": "duplicate key value violates unique constraint uq_faculty_subject_assignment"
+            })
+        return original_execute(self)
+
+    monkeypatch.setattr(FakeQuery, "execute", duplicate_execute)
+
+    response = client.post(
+        "/api/admin/faculty/12/subjects",
+        json={"subject_id": 7},
+        headers=_auth_headers(),
+    )
+
+    assert response.status_code == 409
+    assert response.get_json()["message"] == "Subject is already assigned."
+
+
+def test_assignment_falls_back_when_responsibility_columns_are_missing(monkeypatch):
+    client, supabase = _client(monkeypatch)
+    supabase.missing_assignment_columns = True
+    supabase.tables["User"].append(
+        {"user_id": 12, "role": "faculty", "is_active": True}
+    )
+
+    response = client.post(
+        "/api/admin/faculty/12/subjects",
+        json={"subject_id": 7},
+        headers=_auth_headers(),
+    )
+
+    assert response.status_code == 200
+    assignment = supabase.tables["faculty_subject_assignment"][0]
+    assert assignment["faculty_id"] == 12
+    assert assignment["subject_id"] == 7
+    assert "can_generate" not in assignment
+    assert "can_moderate" not in assignment
+
+
+def test_assignment_requires_at_least_one_responsibility(monkeypatch):
+    client, supabase = _client(monkeypatch)
+    supabase.tables["User"].append(
+        {"user_id": 12, "role": "faculty", "is_active": True}
+    )
+
+    response = client.post(
+        "/api/admin/faculty/12/subjects",
+        json={"subject_id": 7, "can_generate": False, "can_moderate": False},
+        headers=_auth_headers(),
+    )
+
+    assert response.status_code == 400
+    assert not supabase.tables["faculty_subject_assignment"]
 
 
 def test_inactive_faculty_cannot_receive_subject_assignment(monkeypatch):
@@ -337,11 +487,11 @@ def test_admin_login_uses_supabase_access_token(monkeypatch):
 
     response = client.post(
         "/api/admin/login",
-        json={"username": "admin@eduquest.ai", "password": "valid-password"},
+        json={"username": "admin@example.com", "password": "valid-password"},
     )
 
     assert response.status_code == 200
     assert response.get_json()["token"] == "verified-access-token"
     assert sign_in_calls == [
-        {"email": "admin@eduquest.ai", "password": "valid-password"}
+        {"email": "admin@example.com", "password": "valid-password"}
     ]

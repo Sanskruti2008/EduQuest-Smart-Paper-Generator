@@ -1,4 +1,4 @@
-# Starting EduQuest.ai Servers
+# Starting EduQuest Smart Paper generation System
 
 ## Quick Start (Windows)
 
@@ -12,7 +12,7 @@ cd "C:\Users\sanskruti\OneDrive\Desktop\EduQuest-Smart-Paper-Generator"
 
 **Frontend Server (Port 3000):**
 ```powershell
-cd "c:\Users\sanskruti\OneDrive\Desktop\EduQuest.ai"
+cd "C:\Users\sanskruti\OneDrive\Desktop\EduQuest-Smart-Paper-Generator"
 npm run dev
 ```
 

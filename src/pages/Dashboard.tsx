@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '../components/ThemeToggle';
 import { Hero } from '../components/ui/hero';
 import { API_CONFIG } from '../utils/constants';
+import { getSupabaseClient } from '../lib/supabase';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -16,11 +17,9 @@ const Dashboard = () => {
     e.preventDefault();
     setError('');
 
-    // Admin and faculty both obtain signed backend tokens before entering
-    // protected dashboards.
-    const roles: Record<string, { email: string, pass?: string, path: string, authKey: string }> = {
-      admin: { email: 'admin@eduquest.ai', path: '/admin-dashboard', authKey: 'adminAuthenticated' },
-      faculty: { email: 'faculty@eduquest.ai', path: '/faculty-dashboard', authKey: 'facultyAuthenticated' }
+    const roles: Record<string, { path: string, authKey: string }> = {
+      admin: { path: '/admin-dashboard', authKey: 'adminAuthenticated' },
+      faculty: { path: '/faculty-dashboard', authKey: 'facultyAuthenticated' }
     };
 
     const targetRole = roles[credentials.role];
@@ -32,6 +31,61 @@ const Dashboard = () => {
 
     setIsSubmitting(true);
     try {
+        if (credentials.role === 'faculty') {
+          const { data: authData, error: authError } =
+            await getSupabaseClient().auth.signInWithPassword({
+              email: credentials.email.trim(),
+              password: credentials.password,
+            });
+          if (authError) {
+            setError(authError.message || 'Invalid faculty credentials.');
+            return;
+          }
+          const accessToken = authData.session?.access_token;
+          if (import.meta.env.DEV) {
+            console.info('Supabase faculty sign-in:', {
+              userAuthenticated: Boolean(authData.user),
+              authUserId: authData.user?.id ?? null,
+              sessionExists: Boolean(authData.session),
+              accessTokenExists: Boolean(accessToken),
+            });
+          }
+          if (!accessToken) {
+            setError('Supabase did not return an authenticated faculty session.');
+            return;
+          }
+
+          const profileResponse = await fetch(
+            `${API_CONFIG.BACKEND_URL}/api/faculty/me`,
+            { headers: { Authorization: `Bearer ${accessToken}` } }
+          );
+          const profileData = await profileResponse.json().catch(() => null);
+          if (import.meta.env.DEV) {
+            console.info('/api/faculty/me login validation:', {
+              status: profileResponse.status,
+              success: Boolean(profileData?.success),
+              message: profileData?.message ?? null,
+              facultyProfileReturned: Boolean(profileData?.faculty),
+            });
+          }
+          if (!profileResponse.ok || !profileData?.success) {
+            await getSupabaseClient().auth.signOut();
+            setError(
+              profileResponse.status === 404
+                ? 'Your faculty account is not linked correctly. Contact the administrator.'
+                : profileData?.message || 'Unable to verify faculty profile.'
+            );
+            return;
+          }
+
+          sessionStorage.setItem(targetRole.authKey, 'true');
+          sessionStorage.setItem('authToken', accessToken);
+          sessionStorage.removeItem('facultyName');
+          setShowLoginModal(false);
+          navigate(targetRole.path);
+          return;
+        }
+
         const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/${credentials.role === 'admin' ? 'admin' : 'faculty'}/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -51,12 +105,18 @@ const Dashboard = () => {
         sessionStorage.setItem('authToken', data.token);
         if (credentials.role === 'admin') {
           sessionStorage.setItem('adminToken', data.token);
+        } else {
+          sessionStorage.removeItem('facultyName');
         }
         setShowLoginModal(false);
         navigate(targetRole.path);
         return;
-    } catch {
-      setError('Unable to reach authentication service. Please try again.');
+    } catch (loginError) {
+      setError(
+        loginError instanceof Error
+          ? loginError.message
+          : 'Unable to reach authentication service. Please try again.'
+      );
       return;
     } finally {
       setIsSubmitting(false);
@@ -256,7 +316,7 @@ const Dashboard = () => {
                     type="email"
                     value={credentials.email}
                     onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
-                    placeholder="you@eduquest.ai"
+                    placeholder="you@example.com"
                     required
                     className="w-full h-12 pl-4 pr-3 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-[3px] focus:ring-orange-500/20 focus:border-orange-500 bg-[var(--input-bg)] text-[var(--text)] transition duration-200"
                   />
@@ -294,10 +354,6 @@ const Dashboard = () => {
               </button>
             </form>
 
-            <div className="mt-5 border-t border-[var(--input-border)] pt-4 text-center">
-                <p className="text-xs text-[var(--text-muted)]">Demo guidance</p>
-                <p className="text-xs text-[var(--text)]">Email: <span className="font-semibold text-[var(--accent-text)]">{credentials.role}@eduquest.ai</span> — contact your administrator to obtain a secure password.</p>
-            </div>
           </div>
         </div>
       )}

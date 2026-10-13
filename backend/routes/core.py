@@ -25,14 +25,14 @@ QUESTION_DATABASE = [
 
 def generate_chat_response(message: str) -> str:
     if any(word in message for word in ['hello', 'hi', 'hey', 'greetings', 'hola', 'namaste']):
-        return "Hello! I'm your EduQuest.ai assistant. I can help you with question papers, settings, export options, and more."
+        return "Hello! I'm your EduQuest Smart Paper generation System assistant. I can help you with question papers, settings, export options, and more."
     if any(word in message for word in ['question', 'paper', 'exam', 'test', 'assessment']):
         return "I can help you manage the question bank, review uploaded papers, and inspect syllabus and similarity information."
     if message in ['yes', 'yeah', 'yep', 'sure', 'ok', 'okay']:
         return "Great! What specific aspect would you like to know more about?"
     if message in ['no', 'nope', 'nah']:
         return "No problem! Is there anything else I can help you with?"
-    return "I'm here to help you with EduQuest.ai. Ask me about the question bank, uploaded papers, syllabus analysis, or similarity detection."
+    return "I'm here to help you with EduQuest Smart Paper generation System. Ask me about the question bank, uploaded papers, syllabus analysis, or similarity detection."
 
 def preprocess_text(text: str) -> str:
     text = text.lower()

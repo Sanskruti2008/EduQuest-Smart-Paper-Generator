@@ -1,8 +1,8 @@
-# Supabase Setup Guide for EduQuest.ai
+# Supabase Setup Guide for EduQuest Smart Paper generation System
 
 ## 🚀 Quick Start
 
-Your EduQuest.ai project is now configured to use Supabase PostgreSQL instead of SQLite!
+EduQuest Smart Paper generation System is configured to use Supabase PostgreSQL instead of SQLite.
 
 ## 📋 Prerequisites
 
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS admin_users (
 -- >>> import bcrypt
 -- >>> bcrypt.hashpw(b"your-password", bcrypt.gensalt()).decode("utf-8")
 -- Then insert:
--- INSERT INTO admin_users (username, password_hash) VALUES ('admin@eduquest.ai', '<bcrypt-hash>');
+-- INSERT INTO admin_users (username, password_hash) VALUES ('admin@example.com', '<bcrypt-hash>');
 
 -- Enable Row Level Security (RLS)
 ALTER TABLE papers ENABLE ROW LEVEL SECURITY;
@@ -356,6 +356,6 @@ GET /api/questions/search?q=process&subject=Operating%20Systems
 
 ## 🎉 You're All Set!
 
-Your EduQuest.ai project is now powered by Supabase! Enjoy the benefits of a scalable, cloud-hosted database with real-time capabilities.
+EduQuest Smart Paper generation System is now powered by Supabase! Enjoy the benefits of a scalable, cloud-hosted database with real-time capabilities.
 
 For questions or issues, check the [Supabase Discord](https://discord.supabase.com/) or open an issue in your repository.

@@ -11,14 +11,11 @@ import {
     LogOut
 } from 'lucide-react';
 
-const sidebarItems = [
+const staticSidebarItems = [
   { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { key: 'assigned-tasks', label: 'Assigned Tasks', icon: ListTodo },
   { key: 'question-bank', label: 'Question Bank', icon: LibraryBig },
-  { key: 'paper-generation', label: 'Paper Generation', icon: FileOutput },
   { key: 'my-papers', label: 'My Papers', icon: FolderOpen },
-  { key: 'moderation', label: 'Moderation', icon: ClipboardCheck },
-  { key: 'logout', label: 'Logout', icon: LogOut }
+  { key: 'logout', label: 'Logout', icon: LogOut },
 ];
 
 interface SidebarProps {
@@ -27,9 +24,35 @@ interface SidebarProps {
   widthClass: string;
   activeKey: string;
   onSelect: (key: string) => void;
+  canGenerate: boolean;
+  canModerate: boolean;
 }
 
-export default function Sidebar({ collapsed, onToggle, widthClass, activeKey, onSelect }: SidebarProps) {
+export default function Sidebar({
+  collapsed,
+  onToggle,
+  widthClass,
+  activeKey,
+  onSelect,
+  canGenerate,
+  canModerate,
+}: SidebarProps) {
+  const sidebarItems = [
+    staticSidebarItems[0],
+    ...(canGenerate
+      ? [
+          { key: 'assigned-tasks', label: 'Assigned Tasks', icon: ListTodo },
+          { key: 'paper-generation', label: 'Paper Generation', icon: FileOutput },
+        ]
+      : []),
+    staticSidebarItems[1],
+    staticSidebarItems[2],
+    ...(canModerate
+      ? [{ key: 'moderation', label: 'Moderation', icon: ClipboardCheck }]
+      : []),
+    staticSidebarItems[3],
+  ];
+
   return (
     <aside className={`${widthClass} hidden lg:flex flex-col border-r border-[var(--border)] bg-[var(--surface)] backdrop-blur-xl shadow-xl transition-all duration-300`}>
       <div className="flex items-center justify-between px-6 py-6">
@@ -73,7 +96,6 @@ export default function Sidebar({ collapsed, onToggle, widthClass, activeKey, on
           ))}
         </ul>
       </nav>
-
     </aside>
   );
 }

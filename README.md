@@ -1,4 +1,4 @@
-# EduQuest.ai - AI-Powered Question Paper Generator
+# EduQuest Smart Paper generation System
 
 Generate professional question papers automatically using AI or build them manually with an intuitive drag-and-drop interface.
 

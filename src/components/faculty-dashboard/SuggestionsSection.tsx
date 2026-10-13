@@ -6,7 +6,7 @@ export default function SuggestionsSection() {
     <section id="ai-suggestions" className="px-4 pb-8 md:px-8">
       <SectionHeader
         title="AI Suggestions & Signals"
-        subtitle="Recommendations from EduQuest intelligence and activity alerts."
+        subtitle="Recommendations from the system and activity alerts."
         icon={Sparkles}
       />
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">

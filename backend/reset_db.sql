@@ -1,5 +1,5 @@
 -- ============================================================
--- EduQuest.ai - Full Database Reset
+-- EduQuest Smart Paper generation System - Full Database Reset
 -- Drops all tables and sequences, then recreates from scratch.
 -- Run this in the Supabase SQL Editor.
 -- ============================================================

@@ -7,7 +7,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from flask import Blueprint, current_app, g, jsonify, request, send_file
-from utils.auth import require_roles, require_supabase_roles
+from postgrest.exceptions import APIError
+from utils.auth import require_supabase_roles
 from services.generation_executor import (
     GenerationBusyError,
     GenerationTimeoutError,
@@ -105,7 +106,17 @@ def get_generated_papers():
             .in_("subject_id", subject_ids)
             .execute()
         ).data if subject_ids else []
+        creator_ids = list({
+            row["generated_by"] for row in logs if row.get("generated_by") is not None
+        })
+        creators = (
+            client.table("User")
+            .select("user_id,name,email")
+            .in_("user_id", creator_ids)
+            .execute()
+        ).data if creator_ids else []
         subjects_by_id = {row["subject_id"]: row for row in (subjects or [])}
+        creators_by_id = {row["user_id"]: row for row in (creators or [])}
         papers_by_id = {row["paper_id"]: row for row in papers}
 
         result = []
@@ -114,6 +125,7 @@ def get_generated_papers():
             if not paper:
                 continue
             subject = subjects_by_id.get(paper.get("subject_id"), {})
+            creator = creators_by_id.get(log.get("generated_by"), {})
             raw_json = paper.get("raw_json") or {}
             paper_information = raw_json.get("blueprint", {}).get("paper_information", {})
             result.append({
@@ -131,6 +143,7 @@ def get_generated_papers():
                 "questions": log.get("total_questions") or 0,
                 "marks": log.get("total_marks") or 0,
                 "generated_at": log.get("generated_at") or paper.get("created_at"),
+                "created_by": creator.get("name") or creator.get("email") or "Unknown faculty",
             })
         return jsonify({"success": True, "papers": result}), 200
     except Exception:
@@ -139,6 +152,53 @@ def get_generated_papers():
             "success": False,
             "error": "Unable to load generated papers.",
         }), 500
+def _is_missing_generation_flag_error(error: APIError) -> bool:
+    details = " ".join(
+        str(value or "")
+        for value in (
+            getattr(error, "details", None),
+            getattr(error, "message", None),
+            error,
+        )
+    ).lower()
+    return (
+        "can_generate" in details
+        and (
+            "does not exist" in details
+            or "unknown column" in details
+            or "not found" in details
+            or "could not find" in details
+            or "schema cache" in details
+        )
+    )
+
+
+def _get_faculty_generation_assignments(client, faculty_id: int, subject_id=None):
+    query = (
+        client.table("faculty_subject_assignment")
+        .select("subject_id")
+        .eq("faculty_id", faculty_id)
+        .eq("is_active", True)
+        .eq("can_generate", True)
+    )
+    if subject_id is not None:
+        query = query.eq("subject_id", subject_id)
+
+    try:
+        return query.execute().data or []
+    except APIError as exc:
+        if not _is_missing_generation_flag_error(exc):
+            raise
+
+    legacy_query = (
+        client.table("faculty_subject_assignment")
+        .select("subject_id")
+        .eq("faculty_id", faculty_id)
+        .eq("is_active", True)
+    )
+    if subject_id is not None:
+        legacy_query = legacy_query.eq("subject_id", subject_id)
+    return legacy_query.execute().data or []
 
 
 @generation_bp.route("/api/paper-generation/subjects", methods=["GET"])
@@ -153,13 +213,10 @@ def get_paper_generation_subjects():
             .select("subject_id,subject_name,subject_code,branch,semester")
         )
         if str(g.current_user.get("role", "")).lower() == "faculty":
-            assignments = (
-                client.table("faculty_subject_assignment")
-                .select("subject_id")
-                .eq("faculty_id", g.current_user["user_id"])
-                .eq("is_active", True)
-                .execute()
-            ).data or []
+            assignments = _get_faculty_generation_assignments(
+                client,
+                g.current_user["user_id"],
+            )
             subject_ids = [row["subject_id"] for row in assignments]
             if not subject_ids:
                 return jsonify({"success": True, "subjects": []}), 200
@@ -219,20 +276,15 @@ def generate_question_paper():
                 }), 400
             from database import get_supabase_admin_client
 
-            assignments = (
-                get_supabase_admin_client()
-                .table("faculty_subject_assignment")
-                .select("subject_id")
-                .eq("faculty_id", g.current_user["user_id"])
-                .eq("subject_id", subject_id)
-                .eq("is_active", True)
-                .limit(1)
-                .execute()
-            ).data
+            assignments = _get_faculty_generation_assignments(
+                get_supabase_admin_client(),
+                g.current_user["user_id"],
+                subject_id=subject_id,
+            )
             if not assignments:
                 return jsonify({
                     "success": False,
-                    "error": "You are not assigned to generate papers for this subject.",
+                    "message": "You are not assigned as a paper setter for this subject.",
                 }), 403
 
         selected_units = body.get("selected_units")
@@ -265,6 +317,7 @@ def generate_question_paper():
         output_dir = Path(tempfile.mkdtemp(prefix="eduquest-paper-"))
         from eduquest_pipeline import generate_final_question_paper
 
+        generated_by = int(g.current_user["user_id"])
         started_at = time.perf_counter()
         generation_input = dict(body)
         generation_input["_generated_by"] = g.current_user.get("user_id")
@@ -274,6 +327,7 @@ def generate_question_paper():
                     faculty_input=generation_input,
                     output_dir=str(output_dir),
                     persist=True,
+                    generated_by=generated_by,
                 )
             )
         except GenerationBusyError as error:
@@ -345,7 +399,7 @@ def generate_question_paper():
 
 
 @generation_bp.route("/api/download-reviewed-paper", methods=["POST"])
-@require_roles("admin", "faculty")
+@require_supabase_roles("admin", "faculty")
 def download_reviewed_paper():
     reviewed_paper = request.get_json(silent=True)
     if not isinstance(reviewed_paper, dict):
