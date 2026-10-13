@@ -17,6 +17,130 @@ from services.generation_executor import (
 generation_bp = Blueprint("generation_bp", __name__)
 
 
+@generation_bp.route("/api/generated-papers/<int:paper_id>", methods=["GET"])
+@require_supabase_roles("admin", "faculty")
+def get_generated_paper(paper_id):
+    try:
+        from database import get_supabase_admin_client
+
+        client = get_supabase_admin_client()
+        log_query = (
+            client.table("papergenerationlog")
+            .select("paper_id,generation_id,generated_at,generated_by,total_questions,total_marks")
+            .eq("paper_id", paper_id)
+            .limit(1)
+        )
+        if str(g.current_user.get("role", "")).lower() == "faculty":
+            log_query = log_query.eq("generated_by", g.current_user["user_id"])
+        log_rows = log_query.execute().data or []
+        if not log_rows:
+            return jsonify({"success": False, "error": "Generated paper not found."}), 404
+
+        paper_rows = (
+            client.table("questionpaper")
+            .select("paper_id,raw_json")
+            .eq("paper_id", paper_id)
+            .limit(1)
+            .execute()
+        ).data or []
+        if not paper_rows:
+            return jsonify({"success": False, "error": "Generated paper not found."}), 404
+
+        raw_json = paper_rows[0].get("raw_json") or {}
+        blueprint = raw_json.get("blueprint") or {}
+        selection = raw_json.get("selection") or {}
+        return jsonify({
+            "success": True,
+            "paper": {
+                **log_rows[0],
+                "paper_information": selection.get("paper_information")
+                    or blueprint.get("paper_information")
+                    or {},
+                "sections": selection.get("sections") or {},
+            },
+        }), 200
+    except Exception:
+        current_app.logger.exception("Unable to load generated paper")
+        return jsonify({
+            "success": False,
+            "error": "Unable to load generated paper.",
+        }), 500
+
+
+@generation_bp.route("/api/generated-papers", methods=["GET"])
+@require_supabase_roles("admin", "faculty")
+def get_generated_papers():
+    try:
+        from database import get_supabase_admin_client
+
+        client = get_supabase_admin_client()
+        logs_query = (
+            client.table("papergenerationlog")
+            .select(
+                "paper_id,generation_id,generated_at,generated_by,"
+                "total_questions,total_marks"
+            )
+            .order("generated_at", desc=True)
+        )
+        if str(g.current_user.get("role", "")).lower() == "faculty":
+            logs_query = logs_query.eq("generated_by", g.current_user["user_id"])
+
+        logs = logs_query.execute().data or []
+        paper_ids = [row["paper_id"] for row in logs if row.get("paper_id") is not None]
+        if not paper_ids:
+            return jsonify({"success": True, "papers": []}), 200
+
+        papers = (
+            client.table("questionpaper")
+            .select("paper_id,subject_id,exam_type,exam_year,raw_json,created_at")
+            .in_("paper_id", paper_ids)
+            .execute()
+        ).data or []
+        subject_ids = list({
+            row["subject_id"] for row in papers if row.get("subject_id") is not None
+        })
+        subjects = (
+            client.table("subject")
+            .select("subject_id,subject_name,subject_code,branch,semester")
+            .in_("subject_id", subject_ids)
+            .execute()
+        ).data if subject_ids else []
+        subjects_by_id = {row["subject_id"]: row for row in (subjects or [])}
+        papers_by_id = {row["paper_id"]: row for row in papers}
+
+        result = []
+        for log in logs:
+            paper = papers_by_id.get(log.get("paper_id"))
+            if not paper:
+                continue
+            subject = subjects_by_id.get(paper.get("subject_id"), {})
+            raw_json = paper.get("raw_json") or {}
+            paper_information = raw_json.get("blueprint", {}).get("paper_information", {})
+            result.append({
+                "paper_id": paper["paper_id"],
+                "generation_id": log.get("generation_id"),
+                "title": (
+                    f"{subject.get('subject_name') or paper_information.get('subject') or 'Question Paper'}"
+                    f" - {paper.get('exam_type') or paper_information.get('exam_type') or 'Exam'}"
+                ),
+                "subject": subject.get("subject_name") or paper_information.get("subject") or "",
+                "subject_code": subject.get("subject_code") or paper_information.get("subject_code") or "",
+                "branch": subject.get("branch") or paper_information.get("branch") or "",
+                "semester": subject.get("semester") or paper_information.get("semester") or "",
+                "exam_type": paper.get("exam_type") or paper_information.get("exam_type") or "",
+                "questions": log.get("total_questions") or 0,
+                "marks": log.get("total_marks") or 0,
+                "generated_at": log.get("generated_at") or paper.get("created_at"),
+            })
+        return jsonify({"success": True, "papers": result}), 200
+    except Exception:
+        current_app.logger.exception("Unable to load generated papers")
+        return jsonify({
+            "success": False,
+            "error": "Unable to load generated papers.",
+        }), 500
+
+
 @generation_bp.route("/api/paper-generation/subjects", methods=["GET"])
 @require_supabase_roles("admin", "faculty")
 def get_paper_generation_subjects():
@@ -142,10 +266,12 @@ def generate_question_paper():
         from eduquest_pipeline import generate_final_question_paper
 
         started_at = time.perf_counter()
+        generation_input = dict(body)
+        generation_input["_generated_by"] = g.current_user.get("user_id")
         try:
             result = generation_executor.submit(
                 lambda: generate_final_question_paper(
-                    faculty_input=body,
+                    faculty_input=generation_input,
                     output_dir=str(output_dir),
                     persist=True,
                 )

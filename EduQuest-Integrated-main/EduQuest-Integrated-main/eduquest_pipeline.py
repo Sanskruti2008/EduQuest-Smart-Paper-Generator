@@ -18,6 +18,7 @@ def generate_final_question_paper(
     faculty_input,
     output_dir="final_output",
     persist=False,
+    generated_by=None,
 ):
     """
     Complete EduQuest pipeline:
@@ -34,6 +35,9 @@ def generate_final_question_paper(
 
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+    generated_by = generated_by if generated_by is not None else faculty_input.pop(
+        "_generated_by", None
+    )
 
     print("\n========================================")
     print(" EDUQUEST END-TO-END PAPER GENERATION")
@@ -118,6 +122,7 @@ def generate_final_question_paper(
             persist=persist,
             output_path=str(selected_json_path),
             persistence_client=persistence_client,
+            generated_by=generated_by,
         )
 
     except Exception as error:
