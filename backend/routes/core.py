@@ -29,8 +29,13 @@ SYSTEM_HELP_TOPICS = [
         {
             'what is eduquest', 'what does eduquest do', 'how does eduquest work',
             'how does the system work', 'how does this system work', 'about eduquest',
+            'what is this app', 'what is this website', 'what is this system',
+            'what can i do here', 'what can i do on this app', 'what is this for',
+            'tell me about this app', 'tell me about the system',
+            'tell me about this system', 'how can this help me',
+            'why should i use this',
         },
-        {'eduquest', 'system', 'work', 'function', 'platform'},
+        {'eduquest', 'system', 'work', 'function', 'platform', 'app', 'website', 'purpose'},
         "EduQuest is a smart question-paper management system for faculty and administrators. "
         "It brings together question-paper OCR, question-bank search, syllabus and RUA analysis, "
         "AI-assisted paper generation, validation, review, and PDF/DOCX export in one workflow."
@@ -41,7 +46,7 @@ SYSTEM_HELP_TOPICS = [
             'how are questions extracted', 'how does question extraction work',
         },
         {'upload', 'ocr', 'extract', 'scanned', 'pdf', 'paper'},
-        "To import an existing paper, open Question Paper OCR and upload a PDF. "
+        "To import an existing paper, open Question Paper OCR at /ocr-upload and upload a PDF. "
         "The backend preprocesses the pages, uses Tesseract OCR to convert scanned content to text, "
         "then parses question numbers, sub-questions, marks, and course outcomes. "
         "Review the extracted questions before saving them to the question bank."
@@ -50,9 +55,12 @@ SYSTEM_HELP_TOPICS = [
         {
             'how does paper generation work', 'how do i generate a paper',
             'how are question papers generated', 'how to generate question paper',
+            'how can i make a paper', 'how do i make a paper',
+            'where can i make a paper', 'how can i create a paper',
         },
         {'generate', 'generation', 'paper', 'questions', 'ai'},
-        "In Paper Generation, choose the branch, semester, subject, exam type, total marks, and units. "
+        "To make a paper, open the Faculty Dashboard and select Paper Generation from the sidebar "
+        "(or use the Paper Generation page). Choose the branch, semester, subject, exam type, total marks, and units. "
         "Then set the question pattern, difficulty split, R/U/A (Remember, Understand, Apply) allocation, "
         "and course outcomes. EduQuest checks that these totals are consistent, selects suitable questions "
         "from the question bank, and opens the generated paper for review before it is finalized or exported."
@@ -61,9 +69,13 @@ SYSTEM_HELP_TOPICS = [
         {
             'what is the question bank', 'how does question bank work',
             'how do i search questions', 'where are questions stored',
+            'where will i find the question bank', 'where can i find the question bank',
+            'how do i find the question bank', 'where is the question bank',
+            'how can i open the question bank',
         },
         {'question', 'bank', 'search', 'filter', 'stored', 'reuse'},
-        "The Question Bank stores extracted and approved questions with metadata such as subject, unit, "
+        "You can open the Question Bank from the main navigation at /question-bank, or select Question Bank "
+        "in the Faculty Dashboard sidebar. It stores extracted and approved questions with metadata such as subject, unit, "
         "marks, difficulty, course outcome, and R/U/A level. Use search and filters to find reusable questions, "
         "inspect similar questions, and select reliable items for generated papers."
     ),
@@ -77,6 +89,26 @@ SYSTEM_HELP_TOPICS = [
         "It combines text sequence similarity and keyword overlap; where configured, an AI comparison can "
         "also score semantic similarity. A match above the selected threshold is shown so you can review "
         "the existing question before adding another version."
+    ),
+    (
+        {
+            'where can i upload a paper', 'where do i upload a paper',
+            'how can i upload a question paper', 'where is the ocr upload',
+            'how do i upload a question paper',
+        },
+        {'upload', 'paper', 'ocr', 'question'},
+        "To upload an existing question paper, open Question Paper OCR at /ocr-upload. "
+        "Upload the PDF, wait for OCR and question extraction to finish, review the results, "
+        "and then save the questions to the Question Bank."
+    ),
+    (
+        {
+            'where can i find syllabus analysis', 'where is syllabus analysis',
+            'how do i open syllabus analysis', 'how can i analyze the syllabus',
+        },
+        {'syllabus', 'analysis', 'find', 'open'},
+        "Open Syllabus Analysis at /syllabus-analyzer. Select a subject to view chapters, "
+        "R/U/A coverage, weightage, missing outcomes, comparisons, and study guidance."
     ),
     (
         {
@@ -150,9 +182,9 @@ def generate_chat_response(message: str) -> str:
         if _matches_help_topic(message, phrases, keywords):
             return response
     return (
-        "I can explain how EduQuest works, including paper generation, OCR uploads, the question bank, "
-        "similarity detection, syllabus/RUA analysis, roles and moderation, validation, and PDF/DOCX export. "
-        "What would you like to know?"
+        "I don't know the answer to that question. Please specify your question about EduQuest, "
+        "such as paper generation, OCR uploads, the question bank, similarity detection, "
+        "syllabus/RUA analysis, roles and moderation, validation, or PDF/DOCX export."
     )
 
 def preprocess_text(text: str) -> str:

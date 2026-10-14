@@ -14,38 +14,9 @@ from services.generation_executor import (
     GenerationTimeoutError,
     generation_executor,
 )
-
 generation_bp = Blueprint("generation_bp", __name__)
 
-
-@generation_bp.route("/api/generated-papers/<int:paper_id>/finalize", methods=["POST"])
-@require_supabase_roles("admin")
-def finalize_generated_paper(paper_id):
-    try:
-        from database import get_supabase_admin_client
-
-        query = (
-            get_supabase_admin_client()
-            .table("questionpaper")
-            .update({"status": "FINALIZED"})
-            .eq("paper_id", paper_id)
-            .neq("status", "FINALIZED")
-        )
-        result = query.execute().data or []
-        if not result:
-            return jsonify({
-                "success": False,
-                "error": "Paper not found or already finalized.",
-            }), 404
-        return jsonify({"success": True, "paper": result[0]}), 200
-    except Exception:
-        current_app.logger.exception("Unable to finalize generated paper")
-        return jsonify({
-            "success": False,
-            "error": "Unable to finalize generated paper.",
-        }), 500
-
-
+<<<<<<< Updated upstream
 @generation_bp.route("/api/generated-papers/<int:paper_id>", methods=["GET"])
 @require_supabase_roles("admin", "faculty")
 def get_generated_paper(paper_id):
@@ -121,7 +92,7 @@ def get_generated_papers():
 
         papers = (
             client.table("questionpaper")
-            .select("paper_id,subject_id,exam_type,exam_year,raw_json,created_at,status")
+            .select("paper_id,subject_id,exam_type,exam_year,raw_json,created_at")
             .in_("paper_id", paper_ids)
             .execute()
         ).data or []
@@ -138,7 +109,7 @@ def get_generated_papers():
             row["generated_by"] for row in logs if row.get("generated_by") is not None
         })
         creators = (
-            client.table("User")
+            client.table('"User"')
             .select("user_id,name,email")
             .in_("user_id", creator_ids)
             .execute()
@@ -172,7 +143,6 @@ def get_generated_papers():
                 "marks": log.get("total_marks") or 0,
                 "generated_at": log.get("generated_at") or paper.get("created_at"),
                 "created_by": creator.get("name") or creator.get("email") or "Unknown faculty",
-                "status": paper.get("status") or "SUBMITTED_FOR_MODERATION",
             })
         return jsonify({"success": True, "papers": result}), 200
     except Exception:
@@ -181,6 +151,7 @@ def get_generated_papers():
             "success": False,
             "error": "Unable to load generated papers.",
         }), 500
+=======
 def _is_missing_generation_flag_error(error: APIError) -> bool:
     details = " ".join(
         str(value or "")
@@ -228,6 +199,7 @@ def _get_faculty_generation_assignments(client, faculty_id: int, subject_id=None
     if subject_id is not None:
         legacy_query = legacy_query.eq("subject_id", subject_id)
     return legacy_query.execute().data or []
+>>>>>>> Stashed changes
 
 
 @generation_bp.route("/api/paper-generation/subjects", methods=["GET"])
