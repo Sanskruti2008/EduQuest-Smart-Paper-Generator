@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { API_CONFIG } from '../utils/constants';
@@ -77,7 +77,7 @@ const ReviewExtracted: React.FC = () => {
     if (!data) return;
     setSaving(true);
     try {
-      const token = sessionStorage.getItem('adminToken') || sessionStorage.getItem('facultyAuthenticated');
+      const token = sessionStorage.getItem('adminToken') || sessionStorage.getItem('authToken');
       const examInfo = {
         ...(data?.exam_info || {}),
         subject_name: (data?.exam_info?.subject_name || data?.exam_info?.subject || '').trim(),
@@ -103,7 +103,7 @@ const ReviewExtracted: React.FC = () => {
 
       const resp = await fetch(`${API_CONFIG.BACKEND_URL}/api/save-extracted-paper`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
         body: JSON.stringify(body),
       });
       const d = await resp.json();
@@ -211,7 +211,7 @@ const ReviewExtracted: React.FC = () => {
                           </button>
                         </div>
                         <div className="text-gray-600 line-through">{originalText || 'No original text captured'}</div>
-                        <div className="mt-1 text-amber-900">→ {suggestedText}</div>
+                        <div className="mt-1 text-amber-900">â†’ {suggestedText}</div>
                       </div>
                     )}
 

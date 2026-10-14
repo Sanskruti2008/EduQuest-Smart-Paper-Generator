@@ -34,6 +34,7 @@ export interface Feedback {
 interface QuestionBankContextType {
   questions: Question[];
   loading: boolean;
+  error: string | null;
   fetchDbQuestions: (branch?: string | null, semester?: string | null, subject?: string | null, subjectId?: number | string | null) => Promise<void>;
   addQuestion: (question: Omit<Question, 'id' | 'createdAt'>) => void;
   updateQuestion: (id: number, question: Partial<Question>) => void;
@@ -61,16 +62,26 @@ interface QuestionBankProviderProps {
 }
 
 export const QuestionBankProvider = ({ children }: QuestionBankProviderProps) => {
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions] = useState<Question[]>(() => {
+    const savedQuestions = localStorage.getItem('eduquest-question-bank');
+    if (!savedQuestions) return [];
+
+    try {
+      const parsedQuestions = JSON.parse(savedQuestions);
+      return Array.isArray(parsedQuestions) ? parsedQuestions : [];
+    } catch (error) {
+      console.error('Error loading saved questions:', error);
+      localStorage.removeItem('eduquest-question-bank');
+      return [];
+    }
+  });
+  const [error, setError] = useState<string | null>(null);
 
   // Feedback state
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // On mount: clear any stale localStorage keys (kept for forward-compat)
   useEffect(() => {
-    localStorage.removeItem('eduquest-question-bank');
-
     // Load feedbacks
     const savedFeedbacks = localStorage.getItem('eduquest-feedbacks');
     if (savedFeedbacks) {
@@ -85,6 +96,11 @@ export const QuestionBankProvider = ({ children }: QuestionBankProviderProps) =>
     }
   }, []);
 
+  // Auto-save manually added and edited questions.
+  useEffect(() => {
+    localStorage.setItem('eduquest-question-bank', JSON.stringify(questions));
+  }, [questions]);
+
   // Auto-save feedbacks to localStorage
   useEffect(() => {
     localStorage.setItem('eduquest-feedbacks', JSON.stringify(feedbacks));
@@ -93,7 +109,7 @@ export const QuestionBankProvider = ({ children }: QuestionBankProviderProps) =>
   const addQuestion = (question: Omit<Question, 'id' | 'createdAt'>) => {
     const newQuestion: Question = {
       ...question,
-      id: Date.now(),
+      id: -Date.now(),
       createdAt: new Date().toISOString(),
     };
     setQuestions(prev => [...prev, newQuestion]);
@@ -125,6 +141,7 @@ export const QuestionBankProvider = ({ children }: QuestionBankProviderProps) =>
     subjectId?: number | string | null,
   ): Promise<void> => {
     setLoading(true);
+    setError(null);
     try {
       const params = new URLSearchParams({ limit: '300' });
       if (branch)   params.set('branch',   branch);
@@ -144,7 +161,9 @@ export const QuestionBankProvider = ({ children }: QuestionBankProviderProps) =>
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const data = await resp.json();
 
-      if (!data.success || !Array.isArray(data.questions)) return;
+      if (!data.success || !Array.isArray(data.questions)) {
+        throw new Error(data.error || 'The question bank response was invalid.');
+      }
 
       const fullGrade = branch && semester ? formatBranchSemester(branch, semester) : '';
 
@@ -179,10 +198,23 @@ export const QuestionBankProvider = ({ children }: QuestionBankProviderProps) =>
         };
       }).filter((q: Question) => q.text.trim().length > 0);
 
-      // Replace with DB questions — only DB questions are shown in the question bank
-      setQuestions(mapped);
+      // Keep manual questions for the selected context alongside database rows.
+      setQuestions(previous => {
+        const manualQuestions = previous.filter(question =>
+          question.id < 0
+          && question.grade === fullGrade
+          && (!subject || question.subject === subject)
+        );
+        return [...mapped, ...manualQuestions];
+      });
     } catch (err) {
+      const message = err instanceof Error
+        ? err.name === 'AbortError'
+          ? 'The question bank took too long to respond. Please try again.'
+          : err.message
+        : 'Unable to load the question bank.';
       console.error('[QuestionBank] Failed to load from database:', err);
+      setError(message);
     } finally {
       setLoading(false);
     }

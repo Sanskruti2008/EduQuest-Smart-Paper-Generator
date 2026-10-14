@@ -4,17 +4,54 @@ import time, os, json
 from services.ocr_service import extract_and_clean
 from services.db_service import save_paper
 import database as db
-from utils.auth import require_admin
+from utils.auth import require_roles
 from utils.file_utils import allowed_file
 from services.similarity_ingestion_service import process_saved_questions_safely
 
 upload_bp = Blueprint('upload_bp', __name__)
 
 
+def _prepare_review_questions(extracted_data):
+    """Expose OCR candidates in review responses without changing clean-bank data."""
+    if not isinstance(extracted_data, dict):
+        return extracted_data
+
+    candidates = extracted_data.get('review_candidates') or []
+    papers = extracted_data.get('papers') or []
+    if not papers:
+        papers = [{'paper_number': 1, 'questions': []}]
+        extracted_data['papers'] = papers
+    if not candidates:
+        return extracted_data
+
+    existing = {
+        ' '.join(str(question.get('question_text', '')).casefold().split())
+        for paper in papers
+        for question in (paper.get('questions') or [])
+    }
+    review_questions = []
+    for candidate in candidates:
+        if not isinstance(candidate, dict):
+            continue
+        key = ' '.join(str(candidate.get('question_text', '')).casefold().split())
+        if key and key not in existing:
+            review_questions.append(dict(candidate))
+            existing.add(key)
+
+    if review_questions:
+        papers[0] = {
+            **papers[0],
+            'questions': [*(papers[0].get('questions') or []), *review_questions],
+        }
+        extracted_data['papers'] = papers
+    return extracted_data
+
+
 @upload_bp.route('/api/upload-question-paper', methods=['POST'])
-@require_admin
+@require_roles("admin", "faculty")
 def upload_question_paper():
     try:
+        review_mode = str(request.form.get('review', 'false')).lower() == 'true'
         if 'file' not in request.files:
             return jsonify({'error': 'No file provided'}), 400
         file = request.files['file']
@@ -54,12 +91,13 @@ def upload_question_paper():
                 exam_info.get('subject') or exam_info.get('subject_name') or subject or 'Unknown'
             ).strip() or 'Unknown'
             extracted_data['json_file'] = json_filename
+            if review_mode:
+                extracted_data = _prepare_review_questions(extracted_data)
 
         # Auto-save unless review
         paper_id = None
         db_error = None
         similarity = None
-        review_mode = str(request.form.get('review', 'false')).lower() == 'true'
         if questions_count > 0 and not review_mode:
             try:
                 exam_info = extracted_data.get('exam_info', {}) if extracted_data else {}
@@ -135,5 +173,3 @@ def upload_question_paper():
         if 'filepath' in locals() and os.path.exists(filepath):
             os.remove(filepath)
         return jsonify({'error': str(e)}), 500
-
-

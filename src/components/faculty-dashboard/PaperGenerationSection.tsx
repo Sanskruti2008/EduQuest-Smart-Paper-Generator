@@ -57,6 +57,7 @@ export default function PaperGenerationSection() {
   const [databaseSubjects, setDatabaseSubjects] = useState<SubjectOption[]>([]);
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
   const [subjectLoadError, setSubjectLoadError] = useState<string | null>(null);
+  const [subjectLoadAttempt, setSubjectLoadAttempt] = useState(0);
   const [examType, setExamType] = useState('University');
   const [totalMarks, setTotalMarks] = useState(70);
   const [selectedUnits, setSelectedUnits] = useState(unitNames);
@@ -113,7 +114,7 @@ export default function PaperGenerationSection() {
 
     void loadSubjects();
     return () => controller.abort();
-  }, []);
+  }, [subjectLoadAttempt]);
 
   const availableSubjects = useMemo(
     () => databaseSubjects.filter((option) =>
@@ -378,7 +379,26 @@ export default function PaperGenerationSection() {
           <label className="text-sm font-semibold text-slate-700">Exam type<select value={examType} onChange={(e) => setExamType(e.target.value)} className="form-select"><option>University</option><option>Internal</option><option>Unit Test</option></select></label>
           <label className="text-sm font-semibold text-slate-700">Total marks<input type="number" min="1" value={totalMarks} onChange={(e) => setTotalMarks(Number(e.target.value))} className="form-input" /></label>
         </div>
-        {subjectLoadError && <p role="alert" className="text-sm font-medium text-red-700">{subjectLoadError}</p>}
+        {subjectLoadError && (
+          <div role="alert" className="flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="font-semibold">Subjects are temporarily unavailable.</p>
+              <p className="mt-1 text-amber-800">{subjectLoadError}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSubjectLoadError(null);
+                setDatabaseSubjects([]);
+                setSelectedSubjectId('');
+                setSubjectLoadAttempt((attempt) => attempt + 1);
+              }}
+              className="shrink-0 rounded-lg border border-amber-300 bg-white px-3 py-2 font-semibold text-amber-900 transition hover:bg-amber-100"
+            >
+              Retry
+            </button>
+          </div>
+        )}
         {!subjectLoadError && availableSubjects.length === 0 && <p role="status" className="text-sm text-slate-600">No registered subjects with subject codes are available for this branch and semester.</p>}
 
         <div className="grid gap-6 xl:grid-cols-2">

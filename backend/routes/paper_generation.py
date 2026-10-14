@@ -18,6 +18,34 @@ from services.generation_executor import (
 generation_bp = Blueprint("generation_bp", __name__)
 
 
+@generation_bp.route("/api/generated-papers/<int:paper_id>/finalize", methods=["POST"])
+@require_supabase_roles("admin")
+def finalize_generated_paper(paper_id):
+    try:
+        from database import get_supabase_admin_client
+
+        query = (
+            get_supabase_admin_client()
+            .table("questionpaper")
+            .update({"status": "FINALIZED"})
+            .eq("paper_id", paper_id)
+            .neq("status", "FINALIZED")
+        )
+        result = query.execute().data or []
+        if not result:
+            return jsonify({
+                "success": False,
+                "error": "Paper not found or already finalized.",
+            }), 404
+        return jsonify({"success": True, "paper": result[0]}), 200
+    except Exception:
+        current_app.logger.exception("Unable to finalize generated paper")
+        return jsonify({
+            "success": False,
+            "error": "Unable to finalize generated paper.",
+        }), 500
+
+
 @generation_bp.route("/api/generated-papers/<int:paper_id>", methods=["GET"])
 @require_supabase_roles("admin", "faculty")
 def get_generated_paper(paper_id):
@@ -93,7 +121,7 @@ def get_generated_papers():
 
         papers = (
             client.table("questionpaper")
-            .select("paper_id,subject_id,exam_type,exam_year,raw_json,created_at")
+            .select("paper_id,subject_id,exam_type,exam_year,raw_json,created_at,status")
             .in_("paper_id", paper_ids)
             .execute()
         ).data or []
@@ -144,6 +172,7 @@ def get_generated_papers():
                 "marks": log.get("total_marks") or 0,
                 "generated_at": log.get("generated_at") or paper.get("created_at"),
                 "created_by": creator.get("name") or creator.get("email") or "Unknown faculty",
+                "status": paper.get("status") or "SUBMITTED_FOR_MODERATION",
             })
         return jsonify({"success": True, "papers": result}), 200
     except Exception:

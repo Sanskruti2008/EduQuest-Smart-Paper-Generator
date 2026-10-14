@@ -23,16 +23,137 @@ QUESTION_DATABASE = [
     {"id": 5, "text": "State and explain Newton's first law.", "subject": "Physics", "class": "9"},
 ]
 
+
+SYSTEM_HELP_TOPICS = [
+    (
+        {
+            'what is eduquest', 'what does eduquest do', 'how does eduquest work',
+            'how does the system work', 'how does this system work', 'about eduquest',
+        },
+        {'eduquest', 'system', 'work', 'function', 'platform'},
+        "EduQuest is a smart question-paper management system for faculty and administrators. "
+        "It brings together question-paper OCR, question-bank search, syllabus and RUA analysis, "
+        "AI-assisted paper generation, validation, review, and PDF/DOCX export in one workflow."
+    ),
+    (
+        {
+            'how do i upload a paper', 'how does ocr work', 'what is ocr',
+            'how are questions extracted', 'how does question extraction work',
+        },
+        {'upload', 'ocr', 'extract', 'scanned', 'pdf', 'paper'},
+        "To import an existing paper, open Question Paper OCR and upload a PDF. "
+        "The backend preprocesses the pages, uses Tesseract OCR to convert scanned content to text, "
+        "then parses question numbers, sub-questions, marks, and course outcomes. "
+        "Review the extracted questions before saving them to the question bank."
+    ),
+    (
+        {
+            'how does paper generation work', 'how do i generate a paper',
+            'how are question papers generated', 'how to generate question paper',
+        },
+        {'generate', 'generation', 'paper', 'questions', 'ai'},
+        "In Paper Generation, choose the branch, semester, subject, exam type, total marks, and units. "
+        "Then set the question pattern, difficulty split, R/U/A (Remember, Understand, Apply) allocation, "
+        "and course outcomes. EduQuest checks that these totals are consistent, selects suitable questions "
+        "from the question bank, and opens the generated paper for review before it is finalized or exported."
+    ),
+    (
+        {
+            'what is the question bank', 'how does question bank work',
+            'how do i search questions', 'where are questions stored',
+        },
+        {'question', 'bank', 'search', 'filter', 'stored', 'reuse'},
+        "The Question Bank stores extracted and approved questions with metadata such as subject, unit, "
+        "marks, difficulty, course outcome, and R/U/A level. Use search and filters to find reusable questions, "
+        "inspect similar questions, and select reliable items for generated papers."
+    ),
+    (
+        {
+            'how does similarity detection work', 'what is similarity detection',
+            'how are duplicate questions found', 'how do you detect similar questions',
+        },
+        {'similar', 'similarity', 'duplicate', 'duplicates', 'matching'},
+        "When you type a question, EduQuest can compare it with existing question-bank items. "
+        "It combines text sequence similarity and keyword overlap; where configured, an AI comparison can "
+        "also score semantic similarity. A match above the selected threshold is shown so you can review "
+        "the existing question before adding another version."
+    ),
+    (
+        {
+            'what is rua', 'how does rua work', 'what are rua levels',
+            'what does remember understand apply mean',
+        },
+        {'rua', 'remember', 'understand', 'apply', 'learning'},
+        "R/U/A represents Remember, Understand, and Apply learning levels. During paper generation, "
+        "you allocate the expected marks or questions across these levels for each selected unit. "
+        "The allocation is checked against the generated question pool so the paper matches your learning-outcome plan."
+    ),
+    (
+        {
+            'what is syllabus analysis', 'how does syllabus analysis work',
+            'what can i do with syllabus', 'how do i analyze syllabus',
+        },
+        {'syllabus', 'analysis', 'chapter', 'weightage', 'study', 'plan'},
+        "Syllabus Analysis lets you inspect subjects and chapters, review RUA analysis, view chapter weightage, "
+        "identify missing RUA coverage, compare chapters, and open preparation or study-plan guidance. "
+        "Use it before generation to balance coverage across the syllabus."
+    ),
+    (
+        {
+            'who can use eduquest', 'what are the user roles', 'admin or faculty',
+            'what can faculty do', 'what can admin do',
+        },
+        {'admin', 'faculty', 'role', 'roles', 'permission', 'moderation'},
+        "Faculty can manage assigned subjects, upload and review papers, generate papers, and submit work "
+        "through moderation. Administrators manage faculty, assignments, review and finalize papers, and "
+        "monitor system statistics. Access to protected actions requires the appropriate signed-in role."
+    ),
+    (
+        {
+            'how do i export a paper', 'what export formats are supported',
+            'can i download the paper', 'how to download paper',
+        },
+        {'export', 'download', 'pdf', 'docx', 'word', 'format', 'formats'},
+        "After reviewing a generated or extracted paper, use the download/export action. EduQuest supports "
+        "PDF and DOCX output so the finalized question paper can be printed or shared."
+    ),
+    (
+        {
+            'how does validation work', 'what checks are done',
+            'how are papers reviewed', 'what happens before finalizing',
+        },
+        {'validate', 'validation', 'review', 'finalize', 'check', 'marks', 'structure'},
+        "Before a paper is finalized, EduQuest checks required metadata and question structure, including "
+        "marks totals, question-pattern counts, difficulty allocation, R/U/A allocation, and selected units. "
+        "The review workflow lets faculty or administrators correct issues before approval and export."
+    ),
+]
+
+
+def _matches_help_topic(message: str, phrases: set, keywords: set) -> bool:
+    normalized = preprocess_text(message)
+    if normalized in phrases or any(phrase in normalized for phrase in phrases):
+        return True
+    words = set(normalized.split())
+    return len(words.intersection(keywords)) >= min(2, len(keywords))
+
+
 def generate_chat_response(message: str) -> str:
-    if any(word in message for word in ['hello', 'hi', 'hey', 'greetings', 'hola', 'namaste']):
+    normalized_message = preprocess_text(message)
+    if any(word in normalized_message.split() for word in ['hello', 'hi', 'hey', 'greetings', 'hola', 'namaste']):
         return "Hello! I'm your EduQuest Smart Paper generation System assistant. I can help you with question papers, settings, export options, and more."
-    if any(word in message for word in ['question', 'paper', 'exam', 'test', 'assessment']):
-        return "I can help you manage the question bank, review uploaded papers, and inspect syllabus and similarity information."
-    if message in ['yes', 'yeah', 'yep', 'sure', 'ok', 'okay']:
+    if normalized_message in ['yes', 'yeah', 'yep', 'sure', 'ok', 'okay']:
         return "Great! What specific aspect would you like to know more about?"
-    if message in ['no', 'nope', 'nah']:
+    if normalized_message in ['no', 'nope', 'nah']:
         return "No problem! Is there anything else I can help you with?"
-    return "I'm here to help you with EduQuest Smart Paper generation System. Ask me about the question bank, uploaded papers, syllabus analysis, or similarity detection."
+    for phrases, keywords, response in SYSTEM_HELP_TOPICS:
+        if _matches_help_topic(message, phrases, keywords):
+            return response
+    return (
+        "I can explain how EduQuest works, including paper generation, OCR uploads, the question bank, "
+        "similarity detection, syllabus/RUA analysis, roles and moderation, validation, and PDF/DOCX export. "
+        "What would you like to know?"
+    )
 
 def preprocess_text(text: str) -> str:
     text = text.lower()

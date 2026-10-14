@@ -11,6 +11,7 @@ type Paper = {
   semester: string | number;
   questions: number;
   marks: number;
+  status: string;
 };
 
 type PaperDetails = Paper & {
@@ -45,7 +46,7 @@ export default function MyPapersSection() {
       try {
         const token = sessionStorage.getItem('authToken') || sessionStorage.getItem('adminToken');
         const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/generated-papers`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          headers: token ? { Authorization: 'Bearer ' + token } : {},
           signal: controller.signal,
         });
         const result = await response.json();
@@ -67,7 +68,7 @@ export default function MyPapersSection() {
     try {
       const token = sessionStorage.getItem('authToken') || sessionStorage.getItem('adminToken');
       const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/generated-papers/${paperId}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        headers: token ? { Authorization: 'Bearer ' + token } : {},
       });
       const result = await response.json();
       if (!response.ok || !result.paper) throw new Error(result.error || 'Unable to open paper.');

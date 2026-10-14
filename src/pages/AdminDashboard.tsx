@@ -92,7 +92,7 @@ export default function AdminDashboard() {
       case 'assignment':
         return <PaperAssignment />;
       case 'finalized':
-        return <FinalizedPapers />;
+        return <FinalizedGeneratedPapers />;
       case 'generated':
         return <GeneratedPapers />;
       case 'review':
@@ -910,6 +910,7 @@ type GeneratedAdminPaper = {
   marks: number;
   generated_at: string | null;
   created_by: string;
+  status: string;
 };
 
 type GeneratedAdminPaperDetails = GeneratedAdminPaper & {
@@ -925,6 +926,7 @@ function GeneratedPapers() {
   const [selectedPaper, setSelectedPaper] = useState<GeneratedAdminPaperDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [viewLoading, setViewLoading] = useState(false);
+  const [finalizing, setFinalizing] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -971,6 +973,34 @@ function GeneratedPapers() {
     }
   };
 
+  const finalizePaper = async (paper: GeneratedAdminPaper) => {
+    if (paper.status === 'FINALIZED') return;
+    const token = sessionStorage.getItem('adminToken');
+    if (!token) {
+      setError('Admin authorization is required to finalize papers.');
+      return;
+    }
+    setFinalizing(paper.paper_id);
+    setError(null);
+    try {
+      const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/generated-papers/${paper.paper_id}/finalize`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Unable to finalize paper.');
+      }
+      setPapers((current) => current.map((item) =>
+        item.paper_id === paper.paper_id ? { ...item, status: 'FINALIZED' } : item
+      ));
+    } catch (finalizeError) {
+      setError(finalizeError instanceof Error ? finalizeError.message : 'Unable to finalize paper.');
+    } finally {
+      setFinalizing(null);
+    }
+  };
+
   return (
     <section className="space-y-6 px-4 py-8 md:px-8">
       <div>
@@ -1011,14 +1041,28 @@ function GeneratedPapers() {
                     {paper.generated_at ? new Date(paper.generated_at).toLocaleString() : 'N/A'}
                   </td>
                   <td className="px-5 py-4 text-right">
-                    <button
-                      type="button"
-                      onClick={() => void openPaper(paper.paper_id)}
-                      disabled={viewLoading}
-                      className="inline-flex items-center gap-1 font-medium text-amber-600 hover:text-orange-700 disabled:opacity-50"
-                    >
-                      <Eye className="h-4 w-4" /> View
-                    </button>
+                    <div className="inline-flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => void openPaper(paper.paper_id)}
+                        disabled={viewLoading}
+                        className="inline-flex items-center gap-1 font-medium text-amber-600 hover:text-orange-700 disabled:opacity-50"
+                      >
+                        <Eye className="h-4 w-4" /> View
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void finalizePaper(paper)}
+                        disabled={paper.status === 'FINALIZED' || finalizing === paper.paper_id}
+                        className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${
+                          paper.status === 'FINALIZED'
+                            ? 'cursor-default bg-emerald-100 text-emerald-700'
+                            : 'bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-60'
+                        }`}
+                      >
+                        {finalizing === paper.paper_id ? 'Finalizing...' : paper.status === 'FINALIZED' ? 'Finalized' : 'Finalize'}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -1043,6 +1087,131 @@ function GeneratedPapers() {
                     <h4 className="font-bold text-slate-800">{sectionName}</h4>
                     {section.questions_to_attempt !== undefined && <span className="text-xs text-slate-500">Attempt {section.questions_to_attempt}</span>}
                   </div>
+                  <ol className="space-y-2">
+                    {section.questions.map((question, index) => (
+                      <li key={`${sectionName}-${index}`} className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+                        <span className="mr-2 font-semibold">{index + 1}.</span>{question.question_text}
+                        {question.marks !== undefined && <span className="float-right text-slate-500">{question.marks} marks</span>}
+                      </li>
+                    ))}
+                  </ol>
+                </section>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function FinalizedGeneratedPapers() {
+  const [papers, setPapers] = useState<GeneratedAdminPaper[]>([]);
+  const [selectedPaper, setSelectedPaper] = useState<GeneratedAdminPaperDetails | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadFinalizedPapers = async () => {
+      const token = sessionStorage.getItem('adminToken');
+      if (!token) {
+        setError('Admin authorization is required to load finalized papers.');
+        setLoading(false);
+        return;
+      }
+      try {
+        const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/generated-papers`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const result = await response.json();
+        if (!response.ok || !Array.isArray(result.papers)) {
+          throw new Error(result.error || 'Unable to load finalized papers.');
+        }
+        setPapers(result.papers.filter((paper: GeneratedAdminPaper) => paper.status === 'FINALIZED'));
+      } catch (loadError) {
+        setError(loadError instanceof Error ? loadError.message : 'Unable to load finalized papers.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    void loadFinalizedPapers();
+  }, []);
+
+  const openPaper = async (paper: GeneratedAdminPaper) => {
+    const token = sessionStorage.getItem('adminToken');
+    if (!token) return;
+    try {
+      const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/generated-papers/${paper.paper_id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await response.json();
+      if (!response.ok || !result.paper) {
+        throw new Error(result.error || 'Unable to open finalized paper.');
+      }
+      setSelectedPaper({ ...result.paper, ...paper } as GeneratedAdminPaperDetails);
+    } catch (openError) {
+      setError(openError instanceof Error ? openError.message : 'Unable to open finalized paper.');
+    }
+  };
+
+  return (
+    <section className="space-y-6 px-4 py-8 md:px-8">
+      <div>
+        <h2 className="text-2xl font-bold text-slate-800">Finalized Papers</h2>
+        <p className="text-sm text-slate-500">Generated papers marked as finalized by a faculty member or administrator.</p>
+      </div>
+      {error && <p role="alert" className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700">{error}</p>}
+      {loading ? (
+        <div className="rounded-2xl bg-white/80 p-10 text-center text-slate-500">Loading finalized papers...</div>
+      ) : papers.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white/80 p-10 text-center text-slate-500">No finalized generated papers found.</div>
+      ) : (
+        <div className="overflow-hidden rounded-2xl border border-white/60 bg-white/80 shadow-sm">
+          <table className="w-full text-left text-sm">
+            <thead className="border-b border-slate-100 bg-slate-50/70 text-slate-500">
+              <tr>
+                <th className="px-5 py-4 font-medium">Paper</th>
+                <th className="px-5 py-4 font-medium">Created by</th>
+                <th className="px-5 py-4 font-medium">Semester</th>
+                <th className="px-5 py-4 font-medium">Finalized status</th>
+                <th className="px-5 py-4 text-right font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {papers.map((paper) => (
+                <tr key={paper.paper_id}>
+                  <td className="px-5 py-4">
+                    <p className="font-semibold text-slate-800">{paper.title}</p>
+                    <p className="text-xs text-slate-500">{paper.subject_code || 'No subject code'} · {paper.branch}</p>
+                  </td>
+                  <td className="px-5 py-4 text-slate-600">{paper.created_by}</td>
+                  <td className="px-5 py-4 text-slate-600">Sem {paper.semester}</td>
+                  <td className="px-5 py-4"><span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">Finalized</span></td>
+                  <td className="px-5 py-4 text-right">
+                    <button type="button" onClick={() => void openPaper(paper)} className="inline-flex items-center gap-1 font-medium text-amber-600 hover:text-orange-700">
+                      <Eye className="h-4 w-4" /> View
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {selectedPaper && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
+            <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-4">
+              <div>
+                <h3 className="text-xl font-bold text-slate-800">{selectedPaper.title}</h3>
+                <p className="mt-1 text-sm text-slate-600">Created by {selectedPaper.created_by} · {selectedPaper.exam_type}</p>
+              </div>
+              <button type="button" onClick={() => setSelectedPaper(null)} className="text-sm font-medium text-slate-500 hover:text-slate-800">Close</button>
+            </div>
+            <div className="mt-5 space-y-5">
+              {Object.entries(selectedPaper.sections || {}).map(([sectionName, section]) => (
+                <section key={sectionName}>
+                  <h4 className="mb-2 font-bold text-slate-800">{sectionName}</h4>
                   <ol className="space-y-2">
                     {section.questions.map((question, index) => (
                       <li key={`${sectionName}-${index}`} className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">

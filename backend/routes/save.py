@@ -4,7 +4,7 @@ import os
 import tempfile
 import time
 import database as db
-from utils.auth import require_admin
+from utils.auth import require_roles
 from services.grammar_service import clean_and_maybe_correct
 from services.db_service import save_paper
 from services.similarity_ingestion_service import process_saved_questions_safely
@@ -48,7 +48,7 @@ def _sync_extracted_json(json_filename, exam_info, papers_data):
 
 
 @save_bp.route('/api/save-extracted-paper', methods=['POST'])
-@require_admin
+@require_roles("admin", "faculty")
 def save_extracted_paper():
     try:
         body = request.get_json(force=True)

@@ -66,55 +66,55 @@ const BRANCH_CONFIG = {
     semesters: ['1', '2', '3', '4', '5', '6'],
     subjects: {
       '1': SEM1_COMMON,
-      '2': ['Basic Electronics', 'Digital Techniques', 'Programming in C', 'Applied Mathematics – II', 'Engineering Graphics'],
+      '2': ['Basic Electronics', 'Digital Techniques', 'Programming in C', 'Applied Mathematics â€“ II', 'Engineering Graphics'],
       '3': ['Data Structures using C', 'Digital Electronics', 'Computer Organization', 'Object Oriented Programming', 'Discrete Mathematics'],
       '4': ['Operating Systems', 'Database Management Systems', 'Computer Networks', 'Web Development', 'Software Engineering'],
-      '5': ['Microprocessors & Interfaces', 'Advanced Java', 'Artificial Intelligence', 'Information Security', 'Industrial Organization and Management (IOM)', 'PHP', 'Elective – I'],
-      '6': ['Mobile Application Development', 'Cloud Computing', 'Machine Learning', 'Project Work', 'Elective – II'],
+      '5': ['Microprocessors & Interfaces', 'Advanced Java', 'Artificial Intelligence', 'Information Security', 'Industrial Organization and Management (IOM)', 'PHP', 'Elective â€“ I'],
+      '6': ['Mobile Application Development', 'Cloud Computing', 'Machine Learning', 'Project Work', 'Elective â€“ II'],
     },
   },
   'Mechanical Engineering': {
     semesters: ['1', '2', '3', '4', '5', '6'],
     subjects: {
       '1': SEM1_COMMON,
-      '2': ['Applied Mathematics – II', 'Applied Mechanics', 'Material Science', 'Engineering Drawing – II', 'Basic Electronics'],
-      '3': ['Engineering Mechanics', 'Strength of Materials', 'Thermodynamics', 'Manufacturing Processes – I', 'Metrology'],
-      '4': ['Fluid Mechanics', 'Heat Transfer', 'Manufacturing Processes – II', 'Theory of Machines', 'Industrial Management'],
-      '5': ['Machine Design', 'Refrigeration & Air Conditioning', 'CNC Technology', 'Power Plant Engineering', 'Elective – I'],
-      '6': ['Mechatronics', 'Automobile Engineering', 'Project Work', 'Industrial Training', 'Elective – II'],
+      '2': ['Applied Mathematics â€“ II', 'Applied Mechanics', 'Material Science', 'Engineering Drawing â€“ II', 'Basic Electronics'],
+      '3': ['Engineering Mechanics', 'Strength of Materials', 'Thermodynamics', 'Manufacturing Processes â€“ I', 'Metrology'],
+      '4': ['Fluid Mechanics', 'Heat Transfer', 'Manufacturing Processes â€“ II', 'Theory of Machines', 'Industrial Management'],
+      '5': ['Machine Design', 'Refrigeration & Air Conditioning', 'CNC Technology', 'Power Plant Engineering', 'Elective â€“ I'],
+      '6': ['Mechatronics', 'Automobile Engineering', 'Project Work', 'Industrial Training', 'Elective â€“ II'],
     },
   },
   'Civil Engineering': {
     semesters: ['1', '2', '3', '4', '5', '6'],
     subjects: {
       '1': SEM1_COMMON,
-      '2': ['Applied Mathematics – II', 'Applied Mechanics', 'Building Materials & Construction', 'Engineering Drawing – II', 'Basic Electronics'],
-      '3': ['Surveying – I', 'Structural Mechanics', 'Concrete Technology', 'Hydraulics', 'Building Planning & Drawing'],
-      '4': ['Surveying – II', 'Structural Analysis', 'Geotechnical Engineering', 'Irrigation Engineering', 'Environmental Engineering'],
-      '5': ['Estimation & Costing', 'Reinforced Concrete Structures', 'Highway Engineering', 'Construction Management', 'Elective – I'],
-      '6': ['Transportation Engineering', 'Advanced Construction Techniques', 'Computer Aided Design', 'Project Work', 'Elective – II'],
+      '2': ['Applied Mathematics â€“ II', 'Applied Mechanics', 'Building Materials & Construction', 'Engineering Drawing â€“ II', 'Basic Electronics'],
+      '3': ['Surveying â€“ I', 'Structural Mechanics', 'Concrete Technology', 'Hydraulics', 'Building Planning & Drawing'],
+      '4': ['Surveying â€“ II', 'Structural Analysis', 'Geotechnical Engineering', 'Irrigation Engineering', 'Environmental Engineering'],
+      '5': ['Estimation & Costing', 'Reinforced Concrete Structures', 'Highway Engineering', 'Construction Management', 'Elective â€“ I'],
+      '6': ['Transportation Engineering', 'Advanced Construction Techniques', 'Computer Aided Design', 'Project Work', 'Elective â€“ II'],
     },
   },
   'Electrical Engineering': {
     semesters: ['1', '2', '3', '4', '5', '6'],
     subjects: {
       '1': SEM1_COMMON,
-      '2': ['Applied Mathematics – II', 'Applied Science – II', 'Basic Electronics', 'Engineering Drawing', 'DC Circuits'],
+      '2': ['Applied Mathematics â€“ II', 'Applied Science â€“ II', 'Basic Electronics', 'Engineering Drawing', 'DC Circuits'],
       '3': ['Circuit Theory', 'Electrical Measurements', 'Digital Electronics', 'AC Circuits', 'Electronic Devices'],
-      '4': ['Electrical Machines – I', 'Control Systems', 'Microprocessors', 'Power Electronics', 'Industrial Electronics'],
-      '5': ['Electrical Machines – II', 'Power Systems – I', 'Programmable Logic Controllers', 'Electrical Estimation', 'Elective – I'],
-      '6': ['Power Systems – II', 'Switchgear & Protection', 'Energy Management', 'Project Work', 'Elective – II'],
+      '4': ['Electrical Machines â€“ I', 'Control Systems', 'Microprocessors', 'Power Electronics', 'Industrial Electronics'],
+      '5': ['Electrical Machines â€“ II', 'Power Systems â€“ I', 'Programmable Logic Controllers', 'Electrical Estimation', 'Elective â€“ I'],
+      '6': ['Power Systems â€“ II', 'Switchgear & Protection', 'Energy Management', 'Project Work', 'Elective â€“ II'],
     },
   },
   'Electronics Engineering': {
     semesters: ['1', '2', '3', '4', '5', '6'],
     subjects: {
       '1': SEM1_COMMON,
-      '2': ['Applied Mathematics – II', 'Applied Science – II', 'DC Circuits', 'Engineering Drawing', 'Workshop Technology – II'],
-      '3': ['Analog Electronics – I', 'Digital Electronics', 'Electronic Measurements', 'AC Circuits', 'Electronic Devices & Circuits'],
-      '4': ['Analog Electronics – II', 'Communication Systems', 'Microprocessors & Applications', 'Linear Integrated Circuits', 'Power Electronics'],
-      '5': ['Embedded Systems', 'VLSI Design', 'Signal Processing', 'Industrial Electronics', 'Elective – I'],
-      '6': ['Advanced Communication Systems', 'IoT & Applications', 'Mobile Communication', 'Project Work', 'Elective – II'],
+      '2': ['Applied Mathematics â€“ II', 'Applied Science â€“ II', 'DC Circuits', 'Engineering Drawing', 'Workshop Technology â€“ II'],
+      '3': ['Analog Electronics â€“ I', 'Digital Electronics', 'Electronic Measurements', 'AC Circuits', 'Electronic Devices & Circuits'],
+      '4': ['Analog Electronics â€“ II', 'Communication Systems', 'Microprocessors & Applications', 'Linear Integrated Circuits', 'Power Electronics'],
+      '5': ['Embedded Systems', 'VLSI Design', 'Signal Processing', 'Industrial Electronics', 'Elective â€“ I'],
+      '6': ['Advanced Communication Systems', 'IoT & Applications', 'Mobile Communication', 'Project Work', 'Elective â€“ II'],
     },
   },
 };
@@ -148,11 +148,11 @@ const QuestionPaperUpload: React.FC = () => {
   const fetchRecentPapers = async () => {
     setLoadingPapers(true);
     try {
-      const token = sessionStorage.getItem('adminToken') || sessionStorage.getItem('facultyAuthenticated');
+      const token = sessionStorage.getItem('adminToken') || sessionStorage.getItem('authToken');
       if (!token) return;
 
       const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/uploaded-papers?limit=5`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: 'Bearer ' + token },
       });
 
       if (response.ok) {
@@ -216,7 +216,7 @@ const QuestionPaperUpload: React.FC = () => {
       return;
     }
 
-    const token = sessionStorage.getItem('adminToken') || sessionStorage.getItem('facultyAuthenticated');
+    const token = sessionStorage.getItem('adminToken') || sessionStorage.getItem('authToken');
     if (!token) {
       setResult({ success: false, error: 'Login required to upload question papers.' });
       return;
@@ -232,12 +232,12 @@ const QuestionPaperUpload: React.FC = () => {
     formData.append('subject', subject);
     // Ask backend to return extracted data for review instead of auto-saving
     formData.append('review', 'true');
-    formData.append('uploadedBy', sessionStorage.getItem('facultyAuthenticated') ? 'faculty' : 'admin');
+    formData.append('uploadedBy', sessionStorage.getItem('authToken') ? 'faculty' : 'admin');
 
     try {
       const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/upload-question-paper`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: 'Bearer ' + token },
         body: formData,
       });
 
@@ -337,7 +337,7 @@ const QuestionPaperUpload: React.FC = () => {
 
   const handleSaveToDb = async () => {
     if (!editableData || !result) return;
-    const token = sessionStorage.getItem('adminToken') || sessionStorage.getItem('facultyAuthenticated');
+    const token = sessionStorage.getItem('adminToken') || sessionStorage.getItem('authToken');
     if (!token) { alert('Login required'); return; }
 
     try {
@@ -361,7 +361,7 @@ const QuestionPaperUpload: React.FC = () => {
 
       const resp = await fetch(`${API_CONFIG.BACKEND_URL}/api/save-extracted-paper`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
         body: JSON.stringify(body),
       });
       const d = await resp.json();
@@ -398,21 +398,22 @@ const QuestionPaperUpload: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-md p-8">
-        <h2 className="text-3xl font-bold mb-6 text-gray-800">
+    <div className="w-full max-w-5xl mx-auto px-4 py-6 md:px-6">
+      <div className="rounded-[28px] border border-[#e7dcc7] bg-[#f7f1e9]/90 p-6 shadow-[0_10px_30px_rgba(15,23,42,0.06)] md:p-8">
+        <h2 className="text-[clamp(2.1rem,3vw,3rem)] font-black tracking-[-0.06em] text-[#1f2937] leading-none">
           Upload Question Paper
         </h2>
-        
-        <p className="text-gray-600 mb-6">
+
+        <p className="mt-5 max-w-3xl text-lg leading-8 text-[#4b5563]">
           Upload a PDF question paper to automatically extract questions using OCR
           and store them in the database.
         </p>
 
-        {/* File Upload Area */}
         <div
-          className={`border-2 border-dashed rounded-lg p-8 mb-6 text-center transition-colors ${
-            dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+          className={`mt-8 rounded-[22px] border-2 border-dashed p-8 text-center transition-all duration-200 md:p-10 ${
+            dragActive
+              ? 'border-[#f2a55a] bg-[#fff5eb] shadow-inner'
+              : 'border-[#d9d1c6] bg-transparent'
           }`}
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
@@ -420,34 +421,39 @@ const QuestionPaperUpload: React.FC = () => {
           onDrop={handleDrop}
         >
           {file ? (
-            <div className="space-y-3">
-              <div className="text-5xl">📄</div>
-              <p className="text-lg font-medium text-gray-700">{file.name}</p>
-              <p className="text-sm text-gray-500">
+            <div className="space-y-4">
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border border-[#d7d1c7] bg-[#f5f2ee] text-[#1f2937]">
+                <FileText className="h-11 w-11" strokeWidth={1.8} />
+              </div>
+              <p className="text-2xl font-semibold text-[#1f2937]">{file.name}</p>
+              <p className="text-base text-[#6b7280]">
                 {(file.size / 1024 / 1024).toFixed(2)} MB
               </p>
               <button
                 onClick={() => setFile(null)}
-                className="text-red-600 hover:text-red-700 text-sm font-medium"
+                className="inline-flex items-center gap-2 rounded-full border border-[#e5d4c7] bg-white px-4 py-2 text-sm font-semibold text-[#c2410c] transition hover:bg-[#fff7ed]"
               >
+                <span className="text-base">×</span>
                 Remove file
               </button>
             </div>
           ) : (
-            <div className="space-y-3">
-              <div className="text-5xl">📤</div>
-              <p className="text-lg font-medium text-gray-700">
+            <div className="space-y-5">
+              <div className="mx-auto flex h-24 w-24 items-center justify-center text-[#1e293b]">
+                <FileText className="h-20 w-20" strokeWidth={1.4} />
+              </div>
+              <p className="text-[2rem] font-medium leading-tight text-[#1f2937]">
                 Drag and drop your PDF here
               </p>
-              <p className="text-sm text-gray-500">or</p>
-              <label className="inline-block">
+              <p className="text-lg text-[#475569]">or</p>
+              <label className="inline-block cursor-pointer">
                 <input
                   type="file"
                   accept=".pdf"
                   onChange={handleFileChange}
                   className="hidden"
                 />
-                <span className="px-6 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700 transition-colors inline-block">
+                <span className="inline-flex items-center justify-center rounded-xl bg-[#1f68d8] px-7 py-3 text-lg font-semibold text-white shadow-[0_10px_20px_rgba(31,104,216,0.25)] transition hover:bg-[#175dc8]">
                   Browse Files
                 </span>
               </label>
@@ -455,11 +461,10 @@ const QuestionPaperUpload: React.FC = () => {
           )}
         </div>
 
-        {/* Form Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Branch <span className="text-red-500">*</span>
+            <label className="mb-2 block text-base font-semibold text-[#374151]">
+              Branch <span className="text-[#ef4444]">*</span>
             </label>
             <select
               value={branch}
@@ -468,7 +473,7 @@ const QuestionPaperUpload: React.FC = () => {
                 setSemester('');
                 setSubject('');
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="h-14 w-full rounded-xl border border-[#d5cec3] bg-white/80 px-4 text-base text-[#1f2937] shadow-sm outline-none transition focus:border-[#f2a55a] focus:ring-2 focus:ring-[#f7d7b7]"
             >
               <option value="">Select Branch</option>
               {Object.keys(BRANCH_CONFIG).map((b) => (
@@ -476,16 +481,16 @@ const QuestionPaperUpload: React.FC = () => {
               ))}
             </select>
           </div>
-          
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Semester <span className="text-red-500">*</span>
+            <label className="mb-2 block text-base font-semibold text-[#374151]">
+              Semester <span className="text-[#ef4444]">*</span>
             </label>
             <select
               value={semester}
               onChange={(e) => { setSemester(e.target.value); setSubject(''); }}
               disabled={!branch}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="h-14 w-full rounded-xl border border-[#d5cec3] bg-white/80 px-4 text-base text-[#1f2937] shadow-sm outline-none transition focus:border-[#f2a55a] focus:ring-2 focus:ring-[#f7d7b7] disabled:cursor-not-allowed disabled:bg-[#f3f4f6] disabled:text-[#9ca3af]"
             >
               <option value="">Select Semester</option>
               {availableSemesters.map((sem) => (
@@ -493,16 +498,16 @@ const QuestionPaperUpload: React.FC = () => {
               ))}
             </select>
           </div>
-          
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Subject <span className="text-red-500">*</span>
+            <label className="mb-2 block text-base font-semibold text-[#374151]">
+              Subject <span className="text-[#ef4444]">*</span>
             </label>
             <select
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               disabled={!branch || !semester}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="h-14 w-full rounded-xl border border-[#d5cec3] bg-white/80 px-4 text-base text-[#1f2937] shadow-sm outline-none transition focus:border-[#f2a55a] focus:ring-2 focus:ring-[#f7d7b7] disabled:cursor-not-allowed disabled:bg-[#f3f4f6] disabled:text-[#9ca3af]"
             >
               <option value="">{!branch ? 'Select Branch first' : !semester ? 'Select Semester first' : 'Select Subject'}</option>
               {availableSubjects.map((subj) => (
@@ -512,20 +517,19 @@ const QuestionPaperUpload: React.FC = () => {
           </div>
         </div>
 
-        {/* Upload Button */}
         <button
           onClick={handleUpload}
           disabled={uploading || !file}
-          className={`w-full py-3 rounded-lg font-semibold text-white transition-colors ${
+          className={`mt-8 flex w-full items-center justify-center rounded-xl py-4 text-xl font-bold text-white shadow-[0_12px_22px_rgba(240,144,49,0.25)] transition ${
             uploading || !file
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700'
+              ? 'cursor-not-allowed bg-[#d1d5db] text-[#ffffff] shadow-none'
+              : 'bg-[#f7a14d] hover:bg-[#f1922d]'
           }`}
         >
           {uploading ? (
-            <span className="flex items-center justify-center">
+            <span className="flex items-center justify-center gap-3">
               <svg
-                className="animate-spin h-5 w-5 mr-3"
+                className="h-5 w-5 animate-spin"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -544,7 +548,7 @@ const QuestionPaperUpload: React.FC = () => {
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 />
               </svg>
-              Processing... This may take a minute
+              Processing...
             </span>
           ) : (
             'Upload and Extract Questions'
@@ -561,7 +565,7 @@ const QuestionPaperUpload: React.FC = () => {
             {result.success ? (
               <div className="space-y-4">
                 <div className="flex items-start">
-                  <span className="text-2xl mr-3">✅</span>
+                  <span className="text-2xl mr-3">âœ…</span>
                   <div className="flex-1">
                     <h3 className="text-lg font-bold text-green-800 mb-2">
                       Success!
@@ -600,7 +604,7 @@ const QuestionPaperUpload: React.FC = () => {
                           )}
                           {result.paper_id && (
                             <li>
-                              Saved to DB — Paper ID: {result.paper_id}
+                              Saved to DB â€” Paper ID: {result.paper_id}
                             </li>
                           )}
                         </ul>
@@ -620,7 +624,7 @@ const QuestionPaperUpload: React.FC = () => {
                                 {q.question_text.length > 100 ? '...' : ''}
                               </p>
                               <p className="text-xs text-gray-500 mt-1">
-                                Marks: {q.marks} {q.course_outcome ? `| ${q.course_outcome}` : ''} {q.has_math ? '📐' : ''}
+                                Marks: {q.marks} {q.course_outcome ? `| ${q.course_outcome}` : ''} {q.has_math ? 'ðŸ“' : ''}
                               </p>
                             </div>
                           ))}
@@ -695,7 +699,7 @@ const QuestionPaperUpload: React.FC = () => {
               </div>
             ) : (
               <div className="flex items-start">
-                <span className="text-2xl mr-3">❌</span>
+                <span className="text-2xl mr-3">âŒ</span>
                 <div>
                   <h3 className="text-lg font-bold text-red-800 mb-2">
                     Upload Failed
@@ -711,7 +715,7 @@ const QuestionPaperUpload: React.FC = () => {
 
         {/* Instructions */}
         <div className="mt-8 p-4 bg-blue-50 rounded-lg">
-          <h4 className="font-semibold text-blue-900 mb-2">📋 Instructions:</h4>
+          <h4 className="font-semibold text-blue-900 mb-2">ðŸ“‹ Instructions:</h4>
           <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
             <li>Upload PDF files only (max 50MB)</li>
             <li>The system uses OCR to extract questions from scanned PDFs</li>

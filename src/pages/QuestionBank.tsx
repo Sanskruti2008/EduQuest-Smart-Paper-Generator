@@ -1,9 +1,8 @@
 import { motion } from 'framer-motion';
-import { Book, BookOpen, Bookmark, CheckCircle2, Download, Edit2, Filter, GraduationCap, Layers, Loader2, Plus, Search, Tag, Target, Trash2, Upload } from 'lucide-react';
+import { Book, Bookmark, CheckCircle2, GraduationCap, Layers, Loader2 } from 'lucide-react';
 import { Fragment, useEffect, useState } from 'react';
 import Header from '../components/Header';
-import QuestionModal from '../components/QuestionModal';
-import { Question, useQuestionBank } from '../context/QuestionBankContext';
+import { useQuestionBank } from '../context/QuestionBankContext';
 import { API_CONFIG, BRANCHES, SEMESTERS, SUBJECT_CATALOG, formatBranchSemester } from '../utils/constants';
 
 interface SubjectOption {
@@ -22,7 +21,7 @@ interface UniqueQuestion {
 }
 
 const QuestionBank = () => {
-  const { questions, loading, fetchDbQuestions, deleteQuestion } = useQuestionBank();
+  const { questions, loading, fetchDbQuestions } = useQuestionBank();
   
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
   const [selectedSemester, setSelectedSemester] = useState<string | null>(null);
@@ -38,10 +37,6 @@ const QuestionBank = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedBranch, selectedSemester, selectedSubject, selectedSubjectId]);
   
-  const [searchTerm, setSearchTerm] = useState('');
-  const [difficultyFilter, setDifficultyFilter] = useState('all');
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [uniqueQuestions, setUniqueQuestions] = useState<UniqueQuestion[]>([]);
   const [uniqueLoading, setUniqueLoading] = useState(true);
   const [uniqueError, setUniqueError] = useState<string | null>(null);
@@ -75,12 +70,16 @@ const QuestionBank = () => {
   useEffect(() => {
     if (!selectedBranch || !selectedSemester || !selectedSubject) {
       setUniqueQuestions([]);
+      setUniqueError(null);
       setUniqueLoading(false);
       return;
     }
 
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 8000);
     const fetchUniqueQuestions = async () => {
       setUniqueLoading(true);
+      setUniqueError(null);
       try {
         const params = new URLSearchParams({
           branch: selectedBranch,
@@ -91,8 +90,6 @@ const QuestionBank = () => {
         } else {
           params.set('subject', selectedSubject);
         }
-        const controller = new AbortController();
-        const timeout = window.setTimeout(() => controller.abort(), 8000);
         const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/unique-question-bank?${params}`, {
           signal: controller.signal,
         });
@@ -110,7 +107,11 @@ const QuestionBank = () => {
       }
     };
 
-    fetchUniqueQuestions();
+    void fetchUniqueQuestions();
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
   }, [selectedBranch, selectedSemester, selectedSubject, selectedSubjectId]);
 
   // Get unique values
@@ -129,42 +130,6 @@ const QuestionBank = () => {
   const availableSubjects = databaseSubjectOptions.length > 0
     ? databaseSubjectOptions.map(subject => subject.subject_name)
     : (subjects.length > 0 ? subjects : catalogSubjects);
-
-  const filteredQuestions = selectedGrade && selectedSubject
-    ? questions.filter(q => {
-        const matchesGrade = q.grade === selectedGrade;
-        const matchesSubject = q.subject === selectedSubject;
-        const matchesSearch = searchTerm === '' || 
-                             q.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                             q.chapter.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesDifficulty = difficultyFilter === 'all' || q.difficulty === difficultyFilter;
-        return matchesGrade && matchesSubject && matchesSearch && matchesDifficulty;
-      })
-    : [];
-
-  const handleDelete = (id: number) => {
-    if (window.confirm('Are you sure you want to delete this question?')) {
-      deleteQuestion(id);
-    }
-  };
-
-  const handleEdit = (question: Question) => {
-    setEditingQuestion(question);
-    setShowAddModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowAddModal(false);
-    setEditingQuestion(null);
-  };
-
-  const stats = {
-    total: filteredQuestions.length,
-    easy: filteredQuestions.filter(q => q.difficulty === 'Easy').length,
-    medium: filteredQuestions.filter(q => q.difficulty === 'Medium').length,
-    hard: filteredQuestions.filter(q => q.difficulty === 'Hard').length,
-    subjects: selectedSubject ? 1 : 0,
-  };
 
   // Show selection interface if not all selections are made
   if (!selectedBranch || !selectedSemester || !selectedSubject) {
@@ -378,33 +343,9 @@ const QuestionBank = () => {
 
   return (
     <div className="min-h-screen bg-[#f6efe5] text-slate-900">
-      <Header title="Question Bank" />
+    <Header title="Question Bank" />
 
-      {/* Stats Bar */}
-      <div className="bg-white/40 border-y border-white/60 py-8 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-slate-800">{stats.total}</div>
-              <div className="text-sm text-slate-500 font-medium mt-2">Total Questions</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-green-600">{stats.easy}</div>
-              <div className="text-sm text-slate-500 font-medium mt-2">Easy</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-amber-500">{stats.medium}</div>
-              <div className="text-sm text-slate-500 font-medium mt-2">Medium</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-red-500">{stats.hard}</div>
-              <div className="text-sm text-slate-500 font-medium mt-2">Hard</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
+    {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Current Selection Banner */}
         <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl p-6 mb-8 shadow-xl">
@@ -478,196 +419,7 @@ const QuestionBank = () => {
           )}
         </section>
 
-        {/* Header Actions */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8 items-start md:items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-800 mb-2">Questions</h1>
-            <p className="text-slate-600">Manage and organize your question repository</p>
-          </div>
-          <div className="flex gap-3 flex-wrap">
-            <button className="flex items-center gap-2 px-5 py-3 rounded-xl border border-slate-300 bg-white/80 hover:bg-white transition-all font-semibold text-slate-700 shadow-sm">
-              <Upload className="w-4 h-4 text-amber-500" />
-              Import
-            </button>
-            <button className="flex items-center gap-2 px-5 py-3 rounded-xl border border-slate-300 bg-white/80 hover:bg-white transition-all font-semibold text-slate-700 shadow-sm">
-              <Download className="w-4 h-4 text-amber-500" />
-              Export
-            </button>
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:shadow-lg shadow-orange-500/20 text-white font-semibold transition-all"
-            >
-              <Plus className="w-4 h-4" />
-              Add Question
-            </button>
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 border border-white/60 mb-8 shadow-lg shadow-slate-200/50">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
-              <input
-                type="text"
-                placeholder="Search by keywords..."
-                className="w-full pl-12 pr-4 py-3.5 rounded-xl border-2 border-white bg-white/50 focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-400/20 outline-none transition-all text-slate-700 font-medium placeholder-slate-400 shadow-inner"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="relative group">
-              <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
-              <select
-                className="w-full pl-12 pr-4 py-3.5 rounded-xl border-2 border-white bg-white/50 focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-400/20 outline-none transition-all appearance-none text-slate-700 font-medium shadow-inner cursor-pointer"
-                value={difficultyFilter}
-                onChange={(e) => setDifficultyFilter(e.target.value)}
-              >
-                <option value="all">All Difficulties</option>
-                <option value="Easy">Easy</option>
-                <option value="Medium">Medium</option>
-                <option value="Hard">Hard</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Questions List */}
-        <div className="space-y-6">
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-20 bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm">
-              <Loader2 className="w-12 h-12 text-amber-500 animate-spin mb-4" />
-              <p className="text-slate-500 font-medium">Loading questions from database…</p>
-            </div>
-          ) : filteredQuestions.length === 0 ? (
-            <div className="text-center py-20 bg-white/70 backdrop-blur-md rounded-2xl border-2 border-dashed border-amber-300 shadow-sm">
-              <div className="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <BookOpen className="w-12 h-12 text-amber-500" />
-              </div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-2">No questions found</h3>
-              <p className="text-slate-500 mb-8 max-w-md mx-auto">We couldn't find any questions matching your current filters. Try adjusting your search term or difficulty filter.</p>
-              <button 
-                onClick={() => setShowAddModal(true)}
-                className="px-8 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:shadow-lg shadow-orange-500/20 text-white font-semibold transition-all inline-flex items-center gap-2"
-              >
-                <Plus className="w-5 h-5" />
-                Add Your First Question
-              </button>
-            </div>
-          ) : (
-            filteredQuestions.map((question, index) => (
-              <motion.div
-                key={question.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 md:p-8 border border-white hover:shadow-xl hover:border-amber-300 transition-all shadow-md group relative overflow-hidden"
-              >
-                <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-amber-400 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="flex items-start justify-between gap-6">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-5 flex-wrap">
-                      <span className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 ${
-                        question.difficulty === 'Easy' ? 'bg-green-100 text-green-700 border border-green-200' :
-                        question.difficulty === 'Medium' ? 'bg-amber-100 text-amber-700 border border-amber-200' :
-                        'bg-red-100 text-red-700 border border-red-200'
-                      }`}>
-                        {question.difficulty === 'Hard' && <Target className="w-3 h-3" />}
-                        {question.difficulty === 'Medium' && <Layers className="w-3 h-3" />}
-                        {question.difficulty === 'Easy' && <CheckCircle2 className="w-3 h-3" />}
-                        {question.difficulty}
-                      </span>
-                      <span className="px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 border border-orange-200 flex items-center gap-1">
-                        <Bookmark className="w-3 h-3 text-orange-600" />
-                        {question.marks} MARKS
-                      </span>
-                      <span className="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 border border-slate-200 text-slate-700 flex items-center gap-1">
-                        <Tag className="w-3 h-3 text-slate-500" />
-                        {question.type}
-                      </span>
-                      <div className="flex items-center gap-2 text-sm text-slate-500 font-medium ml-2">
-                        <Book className="w-4 h-4 text-slate-400" />
-                        <span>{question.subject}</span>
-                        <span className="text-slate-300">•</span>
-                        <span>{question.chapter}</span>
-                      </div>
-                    </div>
-                    <p className="text-slate-800 font-medium leading-relaxed mb-4 text-lg">{question.text}</p>
-                    {/* Sub-questions */}
-                    {question.sub_questions && question.sub_questions.length > 0 && (
-                      <div className="mt-4 mb-4 pl-5 border-l-2 border-amber-300 space-y-3 bg-amber-50/30 p-4 rounded-r-xl">
-                        {question.sub_label && (
-                          <p className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-2 flex items-center gap-2">
-                            {question.sub_label}
-                          </p>
-                        )}
-                        {question.sub_questions.map((sq, si) => (
-                          <div key={si} className="flex items-start gap-3">
-                            <span className="text-sm font-bold text-amber-600 mt-0.5 w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
-                              {sq.label || `${si + 1}`}
-                            </span>
-                            <div className="flex-1 mt-0.5">
-                              <span className="text-base text-slate-700">{sq.text}</span>
-                              {sq.marks !== undefined && (
-                                <span className="ml-2 inline-block px-1.5 py-0.5 bg-orange-100/80 text-orange-700 text-xs font-bold rounded">
-                                  {sq.marks}M
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    {question.image && (
-                      <div className="mb-5 mt-2">
-                        <img 
-                          src={question.image} 
-                          alt="Question illustration" 
-                          className="max-w-full max-h-64 rounded-xl border border-white/60 object-contain shadow-md"
-                        />
-                      </div>
-                    )}
-                    {question.tags && question.tags.length > 0 && (
-                      <div className="flex gap-2 flex-wrap mt-2">
-                        {question.tags.map((tag, i) => (
-                          <span key={i} className="text-xs text-amber-700 bg-white/60 px-3 py-1.5 rounded-lg font-bold border border-white/60 shadow-sm transition-colors hover:bg-white hover:text-amber-600">
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex flex-row md:flex-col gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all translate-x-0 md:translate-x-4 md:group-hover:translate-x-0 relative z-10 shrink-0">
-                    <button 
-                      onClick={() => handleEdit(question)}
-                      className="p-3 bg-white rounded-xl hover:bg-amber-500 text-slate-400 hover:text-white transition-all shadow-sm border border-slate-100 hover:border-transparent hover:shadow-lg hover:shadow-amber-500/20"
-                      title="Edit"
-                    >
-                      <Edit2 className="w-5 h-5" />
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(question.id)}
-                      className="p-3 bg-white rounded-xl hover:bg-red-500 text-slate-400 hover:text-white transition-all shadow-sm border border-slate-100 hover:border-transparent hover:shadow-lg hover:shadow-red-500/20"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            ))
-          )}
-        </div>
       </main>
-
-      {/* Question Modal */}
-      <QuestionModal
-        isOpen={showAddModal}
-        onClose={handleCloseModal}
-        question={editingQuestion}
-        defaultGrade={selectedGrade || undefined}
-        defaultSubject={selectedSubject || undefined}
-      />
     </div>
   );
 };
