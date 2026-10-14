@@ -16,7 +16,6 @@ from services.generation_executor import (
 )
 generation_bp = Blueprint("generation_bp", __name__)
 
-<<<<<<< Updated upstream
 @generation_bp.route("/api/generated-papers/<int:paper_id>", methods=["GET"])
 @require_supabase_roles("admin", "faculty")
 def get_generated_paper(paper_id):
@@ -74,18 +73,42 @@ def get_generated_papers():
         from database import get_supabase_admin_client
 
         client = get_supabase_admin_client()
+        log_columns = (
+            "paper_id,generation_id,generated_at,generated_by,"
+            "total_questions,total_marks"
+        )
         logs_query = (
             client.table("papergenerationlog")
-            .select(
-                "paper_id,generation_id,generated_at,generated_by,"
-                "total_questions,total_marks"
-            )
+            .select(log_columns)
             .order("generated_at", desc=True)
         )
         if str(g.current_user.get("role", "")).lower() == "faculty":
             logs_query = logs_query.eq("generated_by", g.current_user["user_id"])
 
-        logs = logs_query.execute().data or []
+        try:
+            logs = logs_query.execute().data or []
+        except APIError as exc:
+            details = " ".join(
+                str(value or "")
+                for value in (
+                    getattr(exc, "details", None),
+                    getattr(exc, "message", None),
+                    exc,
+                )
+            ).lower()
+            if "generated_at" not in details or not any(
+                marker in details
+                for marker in ("does not exist", "unknown column", "schema cache", "not found")
+            ):
+                raise
+            fallback_query = (
+                client.table("papergenerationlog")
+                .select("paper_id,generation_id,generated_by,total_questions,total_marks")
+                .order("paper_id", desc=True)
+            )
+            if str(g.current_user.get("role", "")).lower() == "faculty":
+                fallback_query = fallback_query.eq("generated_by", g.current_user["user_id"])
+            logs = fallback_query.execute().data or []
         paper_ids = [row["paper_id"] for row in logs if row.get("paper_id") is not None]
         if not paper_ids:
             return jsonify({"success": True, "papers": []}), 200
@@ -109,7 +132,7 @@ def get_generated_papers():
             row["generated_by"] for row in logs if row.get("generated_by") is not None
         })
         creators = (
-            client.table('"User"')
+            client.table("User")
             .select("user_id,name,email")
             .in_("user_id", creator_ids)
             .execute()
@@ -151,7 +174,6 @@ def get_generated_papers():
             "success": False,
             "error": "Unable to load generated papers.",
         }), 500
-=======
 def _is_missing_generation_flag_error(error: APIError) -> bool:
     details = " ".join(
         str(value or "")
@@ -199,9 +221,6 @@ def _get_faculty_generation_assignments(client, faculty_id: int, subject_id=None
     if subject_id is not None:
         legacy_query = legacy_query.eq("subject_id", subject_id)
     return legacy_query.execute().data or []
->>>>>>> Stashed changes
-
-
 @generation_bp.route("/api/paper-generation/subjects", methods=["GET"])
 @require_supabase_roles("admin", "faculty")
 def get_paper_generation_subjects():
