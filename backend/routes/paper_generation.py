@@ -3,6 +3,7 @@ import sys
 import tempfile
 import shutil
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -37,7 +38,7 @@ def get_generated_paper(paper_id):
 
         paper_rows = (
             client.table("questionpaper")
-            .select("paper_id,raw_json")
+            .select("paper_id,raw_json,status")
             .eq("paper_id", paper_id)
             .limit(1)
             .execute()
@@ -52,6 +53,7 @@ def get_generated_paper(paper_id):
             "success": True,
             "paper": {
                 **log_rows[0],
+                "status": paper_rows[0].get("status"),
                 "paper_information": selection.get("paper_information")
                     or blueprint.get("paper_information")
                     or {},
@@ -115,7 +117,7 @@ def get_generated_papers():
 
         papers = (
             client.table("questionpaper")
-            .select("paper_id,subject_id,exam_type,exam_year,raw_json,created_at")
+            .select("paper_id,subject_id,exam_type,exam_year,raw_json,created_at,status")
             .in_("paper_id", paper_ids)
             .execute()
         ).data or []
@@ -166,6 +168,7 @@ def get_generated_papers():
                 "marks": log.get("total_marks") or 0,
                 "generated_at": log.get("generated_at") or paper.get("created_at"),
                 "created_by": creator.get("name") or creator.get("email") or "Unknown faculty",
+                "status": paper.get("status") or "FINALIZED",
             })
         return jsonify({"success": True, "papers": result}), 200
     except Exception:
@@ -174,6 +177,50 @@ def get_generated_papers():
             "success": False,
             "error": "Unable to load generated papers.",
         }), 500
+
+
+@generation_bp.route(
+    "/api/generated-papers/<int:paper_id>/finalize", methods=["POST"]
+)
+@require_supabase_roles("admin")
+def finalize_generated_paper(paper_id):
+    try:
+        from database import get_supabase_admin_client
+
+        client = get_supabase_admin_client()
+        updated = (
+            client.table("questionpaper")
+            .update({
+                "status": "FINALIZED",
+                "reviewed_by": g.current_user["user_id"],
+                "reviewed_at": datetime.now(timezone.utc).isoformat(),
+            })
+            .eq("paper_id", paper_id)
+            .in_(
+                "status",
+                [
+                    "SUBMITTED_FOR_MODERATION",
+                    "APPROVED_BY_MODERATOR",
+                    "SUBMITTED_FOR_ADMIN_REVIEW",
+                    "UNDER_ADMIN_REVIEW",
+                ],
+            )
+            .execute()
+        ).data or []
+        if not updated:
+            return jsonify({
+                "success": False,
+                "error": "Paper not found or already finalized.",
+            }), 404
+        return jsonify({"success": True, "paper": updated[0]}), 200
+    except Exception:
+        current_app.logger.exception("Unable to finalize generated paper")
+        return jsonify({
+            "success": False,
+            "error": "Unable to finalize generated paper.",
+        }), 500
+
+
 def _is_missing_generation_flag_error(error: APIError) -> bool:
     details = " ".join(
         str(value or "")

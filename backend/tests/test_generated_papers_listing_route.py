@@ -11,6 +11,7 @@ class FakeQuery:
         self.rows = rows
         self.filters = []
         self.selected = None
+        self.payload = None
 
     def select(self, columns):
         self.selected = columns
@@ -27,6 +28,10 @@ class FakeQuery:
         self.filters.append((column, tuple(values)))
         return self
 
+    def update(self, payload):
+        self.payload = payload
+        return self
+
     def execute(self):
         rows = self.rows
         for column, value in self.filters:
@@ -34,6 +39,9 @@ class FakeQuery:
                 rows = [row for row in rows if row.get(column) in value]
             else:
                 rows = [row for row in rows if row.get(column) == value]
+        if self.payload is not None:
+            for row in rows:
+                row.update(self.payload)
         return SimpleNamespace(data=rows)
 
 
@@ -55,6 +63,7 @@ class FakeClient:
                 "exam_year": 2026,
                 "raw_json": {},
                 "created_at": "2026-10-14T12:00:00Z",
+                "status": "SUBMITTED_FOR_MODERATION",
             }],
             "subject": [{
                 "subject_id": 3,
@@ -99,3 +108,33 @@ def test_generated_papers_listing_uses_user_table_name(monkeypatch):
 
     assert response.status_code == 200
     assert response.get_json()["papers"][0]["created_by"] == "Faculty Member"
+    assert response.get_json()["papers"][0]["status"] == "SUBMITTED_FOR_MODERATION"
+
+
+def test_admin_can_finalize_generated_paper(monkeypatch):
+    client = FakeClient()
+    monkeypatch.setattr(
+        "database.get_supabase_admin_client",
+        lambda: client,
+    )
+    monkeypatch.setattr(
+        "utils.auth.get_supabase_profile",
+        lambda _token: {
+            "user_id": 1,
+            "role": "admin",
+            "is_active": True,
+        },
+    )
+
+    app = create_app()
+    app.config["TESTING"] = True
+
+    response = app.test_client().post(
+        "/api/generated-papers/10/finalize",
+        headers={"Authorization": "Bearer admin-token"},
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()["success"] is True
+    assert client.tables["questionpaper"][0]["status"] == "FINALIZED"
+    assert client.tables["questionpaper"][0]["reviewed_by"] == 1
